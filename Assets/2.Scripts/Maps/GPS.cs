@@ -59,8 +59,8 @@ public class GPS : MonoBehaviour
 
     void Update()
     {
-        Latitude = 36.498028;
-        Longitude = 127.285501;
+        Latitude = 36.494243;
+        Longitude = 127.285061;
         if (Input.location.status != LocationServiceStatus.Running) return;
 
         

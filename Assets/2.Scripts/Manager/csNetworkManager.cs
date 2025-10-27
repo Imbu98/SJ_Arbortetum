@@ -1,16 +1,25 @@
 using UnityEngine;
+using Data;
 
 public class csNetworkManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static csNetworkManager Instance { get { return _Instance; } }
+    private static csNetworkManager _Instance;
+    private void Awake()
     {
-        
+        if (_Instance == null)
+        {
+            _Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public MissonDto GetMissionDatas()
     {
-        
+        return null;
     }
 }

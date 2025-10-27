@@ -48,15 +48,15 @@ public class csMapDragController : MonoBehaviour , IDragHandler, IBeginDragHandl
     {
         Vector2 pos = mapRect.anchoredPosition;
 
-        float halfMapWidth = mapSize.x / 2f;
-        float halfMapHeight = mapSize.y / 2f;
+        float halfMapWidth = mapSize.x / 2f * mapRect.localScale.x;
+        float halfMapHeight = mapSize.y / 2f * mapRect.localScale.y;
         float halfScreenWidth = screenSize.x / 2f;
         float halfScreenHeight = screenSize.y / 2f;
 
         // 맵이 화면보다 클 경우에만 경계 제한 적용
         if (mapSize.x > screenSize.x)
         {
-            float maxX = halfMapWidth - halfScreenWidth;
+            float maxX = (halfMapWidth - halfScreenWidth);
             pos.x = Mathf.Clamp(pos.x, -maxX, maxX);
         }
         else
@@ -66,7 +66,7 @@ public class csMapDragController : MonoBehaviour , IDragHandler, IBeginDragHandl
 
         if (mapSize.y > screenSize.y)
         {
-            float maxY = halfMapHeight - halfScreenHeight;
+            float maxY = (halfMapHeight - halfScreenHeight);
             pos.y = Mathf.Clamp(pos.y, -maxY, maxY);
         }
         else
