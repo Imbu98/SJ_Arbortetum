@@ -11,15 +11,19 @@ using Data;
 
 public class csMapManager : MonoBehaviour
 {
+    public SearchPathCoordinate currentGeoCoordinate; // 현재 길찾기 좌표
     public static csMapManager Instance { get { return _Instance; } }
     private static csMapManager _Instance;
 
     // 맵 이미지
     public RawImage mapRawImage;
 
-    // 각 좌표 사이를 선으로 잇기 위한프리펩
-    [SerializeField] private Image linePrefab;
-    private float lineSize = 25f;
+    // 길 찾기
+    [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
+    [SerializeField] private List<Image> lineList;
+    private float lineSize = 20f;
+    [SerializeField] private List<Color> lineColors;
+
 
     // GPS 좌표 리스트
     public List<GeoCoordinate> gpsList = new List<GeoCoordinate>();
@@ -29,13 +33,12 @@ public class csMapManager : MonoBehaviour
     public string mapStaticApiUrl = ""; // 네이버 지도 API의 정적 지도 요청 URL
     public string clientID = "";// 네이버 클라우드 플랫폼에서 발급받은 클라이언트 아이디
     public string clientSecret = ""; // 네이버 클라우드 플랫폼에서 발급받은 클라이언트 시크릿
-    // 초기 zoom 레벨
-    public int zoom;
+    public double centerLat; // 지도 중심 위도
+    public double centerLon; // 지도 중심 경도
+
+    public int zoom = 16; // 지도 줌 레벨
     public int mapWidth; // 지도 이미지 가로 크기
     public int mapHeight; // 지도 이미지 세로 크기
-    
-
-
 
     // 사용자의 현재 위도와 경도 가져오기 위한 변수
     public GPS MyGPS;
@@ -43,6 +46,9 @@ public class csMapManager : MonoBehaviour
     private double longitude;
     [HideInInspector]public double save_latitude;
     [HideInInspector] public double save_longitude;
+    [SerializeField] private RectTransform mapMarkerRect; // 내 위치 마커
+    [SerializeField] private RectTransform arrowRect; // 방향 화살표 
+
 
     private void Awake()
     {
@@ -63,7 +69,10 @@ public class csMapManager : MonoBehaviour
         
 
     }
-
+    private void FixedUpdate()
+    {
+        UpdateMarkerOnly();
+    }
     private void OnEnable()
     {
         // 내 위치 마킹
@@ -93,27 +102,13 @@ public class csMapManager : MonoBehaviour
     }
 
     // 구글 API로 지도 불러오는 함수
-    public async void LoadMap(int zoomAmount,double centerLat=-1, double centerLong=-1)
+    public async void LoadMap(int zoomAmount)
     {
-        mapRawImage.rectTransform.anchoredPosition = Vector2.zero;
-
-        // LoadMap시 좌표값이 들어오면 해당 좌표로, 안들어오면 GPS 좌표(내 좌표)로 설정
-        if (centerLat != -1 && centerLong != -1)
-        {
-            latitude = centerLat;
-            longitude = centerLong;
-        }
-        else
-        {
-            latitude = MyGPS.Latitude;
-            longitude = MyGPS.Longitude;
-        }
-
         //mapWidth = Screen.width;
         //mapHeight = Screen.height;
 
         // 네이버 지도 API 요청 URL 생성
-        string apiUrl = $"{mapStaticApiUrl}?w={mapWidth}&h={mapHeight}&center={longitude},{latitude}&level={zoom}&Scale=2";
+        string apiUrl = $"{mapStaticApiUrl}?w={mapWidth}&h={mapHeight}&center={centerLon},{centerLat}&level={zoom}&Scale=2";
         // 지도 타일 요청
         UnityWebRequest request = UnityWebRequestTexture.GetTexture(apiUrl);
         request.SetRequestHeader("X-NCP-APIGW-API-KEY-ID", clientID);
@@ -135,16 +130,18 @@ public class csMapManager : MonoBehaviour
 
     public void OnPathButtonPressed()
     {
-        double centerLat = MyGPS.Latitude;
-        double centerLon = MyGPS.Longitude;
+        //double centerLat = MyGPS.Latitude;
+        //double centerLon = MyGPS.Longitude;
         gpsList.Insert(0,new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude));
-        StartCoroutine(DrawPathAnimated(gpsList, centerLat, centerLon));
+        currentGeoCoordinate = new SearchPathCoordinate();
+        currentGeoCoordinate.pathCoordinates = gpsList;
+        StartCoroutine(DrawPathAnimated(currentGeoCoordinate.pathCoordinates, centerLat, centerLon));
     }
 
     public void SearchPath(List<GeoCoordinate> coords)
     {
-        double centerLat = MyGPS.Latitude;
-        double centerLon = MyGPS.Longitude;
+        //double centerLat = MyGPS.Latitude;
+        //double centerLon = MyGPS.Longitude;
         StartCoroutine(DrawPathAnimated(coords, centerLat, centerLon));
     }
 
@@ -153,6 +150,13 @@ public class csMapManager : MonoBehaviour
     {
         if (coords == null || coords.Count < 2)
             yield break;
+
+        // 길찾기를 요청하면 기존의 선 제거
+        foreach (var lineImage in lineList)
+        {
+            Destroy(lineImage.gameObject);
+        }
+        lineList.Clear();
 
         for (int i = 0; i < coords.Count - 1; i++)
         {
@@ -168,9 +172,12 @@ public class csMapManager : MonoBehaviour
             float distance = dir.magnitude;
 
             Image line = Instantiate(linePrefab, mapRawImage.transform);
+            lineList.Add(line);
+
+            line.color = lineColors[i];
             RectTransform rect = line.rectTransform;
             rect.anchoredPosition = startUI;
-            rect.sizeDelta = new Vector2(distance, 10f);
+            rect.sizeDelta = new Vector2(distance, lineSize);
             rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
 
             // 선이 그려지는 애니메이션
@@ -218,4 +225,43 @@ public class csMapManager : MonoBehaviour
 
         return new Vector2((float)(x * scale), (float)(y * scale));
     }
+    private void UpdateMarkerOnly()
+    {
+        // 맵이 아직 로드되지 않은 경우 예외처리
+        if (mapRawImage.texture == null)
+            return;
+
+#if UNITY_IOS || UNITY_ANDROID
+        //var location = Input.location.lastData;
+        //double lat = location.latitude;
+        //double lon = location.longitude;
+#endif
+#if UNITY_EDITOR
+        double lat = MyGPS.Latitude;
+        double lon = MyGPS.Longitude;
+#endif
+        // 위도, 경도를 네이버 지도 기준 상대 좌표로 변환
+        Vector2 p1 = LatLonToRelativePosition(lat, lon, centerLat, centerLon, zoom);
+
+        // UI 상의 실제 위치로 변환
+        Vector2 startUI = RelativeToUIPosition(p1, mapRawImage);
+
+        mapMarkerRect.anchoredPosition = startUI;
+
+        UpdateArrowRotation();
+    }
+
+    float simulatedHeading = 0f;
+
+    private void UpdateArrowRotation()
+    {
+        simulatedHeading += Time.deltaTime * 30f; // 초당 30도 회전
+        if (simulatedHeading > 360) simulatedHeading -= 360;
+        arrowRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
+
+        //float heading = Input.compass.trueHeading;
+        //// 기본: Z축 기준 회전
+        //arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
+    }
+
 }

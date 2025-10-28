@@ -11,7 +11,7 @@ public class csMapDragController : MonoBehaviour , IDragHandler, IBeginDragHandl
     private Vector2 lastDragPosition;
     private Vector2 mapSize;
     private Vector2 screenSize;
-    
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         mapRect = mapRawImage.rectTransform;

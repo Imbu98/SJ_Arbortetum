@@ -5,6 +5,13 @@ using UnityEngine.Android;
 
 public class GPS : MonoBehaviour
 {
+
+    // 가짜 GPS용 조이스틱
+    public csVirtualJoystic joystick;
+
+    [Header("이동 속도 (도 단위)")]
+    public double moveSpeed;
+
     // 현재 좌표(읽기용)
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
@@ -19,8 +26,14 @@ public class GPS : MonoBehaviour
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
             Permission.RequestUserPermission(Permission.FineLocation);
 #endif
+#if UNITY_EDITOR
+        // 에디터용 테스트 경도,위도
+        Latitude = 36.494243;
+        Longitude = 127.285061;
+#endif
         if (autoStart)
-            yield return InitializeGPSServices();
+        
+        yield return InitializeGPSServices();
     }
 
     IEnumerator InitializeGPSServices()
@@ -59,8 +72,13 @@ public class GPS : MonoBehaviour
 
     void Update()
     {
-        Latitude = 36.494243;
-        Longitude = 127.285061;
+       
+        if (joystick == null || !joystick.isInput) return;
+
+        // 조이스틱 입력값에 따라 위도/경도 변경
+        Latitude += joystick.InputVector.y * moveSpeed;
+        Longitude += joystick.InputVector.x * moveSpeed;
+
         if (Input.location.status != LocationServiceStatus.Running) return;
 
         
