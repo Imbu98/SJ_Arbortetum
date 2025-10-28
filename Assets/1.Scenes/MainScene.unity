@@ -783,6 +783,10 @@ PrefabInstance:
       value: csUI_Manager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 200074703804986862, guid: b1b039d8359d797489a028df7ea06243, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 200074703804986862, guid: b1b039d8359d797489a028df7ea06243, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
@@ -809,6 +813,10 @@ PrefabInstance:
     - target: {fileID: 1012839951676761383, guid: b1b039d8359d797489a028df7ea06243, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: csUI_Manager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1012839951676761383, guid: b1b039d8359d797489a028df7ea06243, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1012839951676761383, guid: b1b039d8359d797489a028df7ea06243, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -920,6 +928,138 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8430139156944523789, guid: b1b039d8359d797489a028df7ea06243, type: 3}
   m_PrefabInstance: {fileID: 253585733}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &429856613
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 429856614}
+  - component: {fileID: 429856617}
+  - component: {fileID: 429856616}
+  - component: {fileID: 429856615}
+  m_Layer: 5
+  m_Name: ToMyLocationButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &429856614
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429856613}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2110707483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 89}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &429856615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429856613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 429856616}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 665897940}
+        m_TargetAssemblyTypeName: csMapManager, Assembly-CSharp
+        m_MethodName: ToMyLocation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &429856616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429856613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -6959901670531433779, guid: ab2b2191fa8d8e845a5f3b62ca82d396, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &429856617
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429856613}
+  m_CullTransparentMesh: 1
 --- !u!1001 &433362271
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1610,11 +1750,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapRawImage: {fileID: 1718286323}
   linePrefab: {fileID: 7114042053520218405, guid: 0817eced6dfcbc24cbb31eab4ff652e0, type: 3}
+  lineList: []
   lineColors:
-  - {r: 0.8490566, g: 0.1481844, b: 0.1481844, a: 1}
-  - {r: 0.21542367, g: 0.8584906, b: 0.19032574, a: 1}
-  - {r: 0.8584906, g: 0.64217997, b: 0.10933607, a: 1}
-  - {r: 0.096787095, g: 0.48661593, b: 0.8207547, a: 1}
+  - {r: 0.8490566, g: 0.1481844, b: 0.1481844, a: 0.5019608}
+  - {r: 0.21542367, g: 0.8584906, b: 0.19032574, a: 0.5019608}
+  - {r: 0.8584906, g: 0.64217997, b: 0.10933607, a: 0.5019608}
+  - {r: 0.096787095, g: 0.48661593, b: 0.8207547, a: 0.5019608}
   gpsList:
   - Latitude: 36.497751
     Longitude: 127.285532
@@ -1636,7 +1777,7 @@ MonoBehaviour:
   MyGPS: {fileID: 665897939}
   save_latitude: 0
   save_longitude: 0
-  mapMarkerRect: {fileID: 1699392552}
+  markerRect: {fileID: 1699392552}
   arrowRect: {fileID: 2066173797}
 --- !u!4 &665897941
 Transform:
@@ -3539,7 +3680,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1699392553
 MonoBehaviour:
@@ -4421,7 +4562,7 @@ GameObject:
   - component: {fileID: 2005838554}
   - component: {fileID: 2005838553}
   m_Layer: 5
-  m_Name: Button
+  m_Name: MapCloseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4522,7 +4663,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8542653549661865833, guid: 48544f88ba736864c93d9dfa01e7b84d, type: 3}
+  m_Sprite: {fileID: -8542653549661865833, guid: 45835c68d16d96a439e94b8ca647d7bb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4575,7 +4716,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -11.6, y: 1.6}
-  m_SizeDelta: {x: 100, y: 70}
+  m_SizeDelta: {x: 70, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2066173798
 MonoBehaviour:
@@ -4785,6 +4926,7 @@ RectTransform:
   - {fileID: 202215537}
   - {fileID: 113442913}
   - {fileID: 1699912720}
+  - {fileID: 429856614}
   m_Father: {fileID: 1002713700}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}

@@ -1,17 +1,21 @@
-﻿using System.Collections;
+﻿using Data;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Networking;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
-using System;
-using Data;
 
 public class csMapManager : MonoBehaviour
 {
     public SearchPathCoordinate currentGeoCoordinate; // 현재 길찾기 좌표
+    private int CurrentTargetCoordnateIndex; // 현재 목적지 좌표 인덱스 ( 0에는 내 위치, 목적지는 1부터 시작)
+    private bool IsPathSearching = false;
+
     public static csMapManager Instance { get { return _Instance; } }
     private static csMapManager _Instance;
 
@@ -25,7 +29,7 @@ public class csMapManager : MonoBehaviour
     [SerializeField] private List<Color> lineColors;
 
 
-    // GPS 좌표 리스트
+    // 에디터 테스트용 GPS 좌표 리스트
     public List<GeoCoordinate> gpsList = new List<GeoCoordinate>();
 
     // 네이버 API 지도 설정 관련 변수
@@ -46,7 +50,7 @@ public class csMapManager : MonoBehaviour
     private double longitude;
     [HideInInspector]public double save_latitude;
     [HideInInspector] public double save_longitude;
-    [SerializeField] private RectTransform mapMarkerRect; // 내 위치 마커
+    [SerializeField] private RectTransform markerRect; // 내 위치 마커
     [SerializeField] private RectTransform arrowRect; // 방향 화살표 
 
 
@@ -84,7 +88,7 @@ public class csMapManager : MonoBehaviour
 
     private void Update()
     {
-
+        CheckOnArrive();
         //print("location" + latitude + " " + longitude);
     }
     private IEnumerator WaitForGPSReady()
@@ -136,6 +140,7 @@ public class csMapManager : MonoBehaviour
         currentGeoCoordinate = new SearchPathCoordinate();
         currentGeoCoordinate.pathCoordinates = gpsList;
         StartCoroutine(DrawPathAnimated(currentGeoCoordinate.pathCoordinates, centerLat, centerLon));
+        SetCoordinate(0);
     }
 
     public void SearchPath(List<GeoCoordinate> coords)
@@ -246,9 +251,49 @@ public class csMapManager : MonoBehaviour
         // UI 상의 실제 위치로 변환
         Vector2 startUI = RelativeToUIPosition(p1, mapRawImage);
 
-        mapMarkerRect.anchoredPosition = startUI;
+        markerRect.anchoredPosition = startUI;
 
         UpdateArrowRotation();
+    }
+
+    /// <summary>
+    /// 맵이 화면을 벗어나지 않도록 위치 제한
+    /// </summary>
+    public void ClampMapPosition()
+    {
+       RectTransform mapRect = mapRawImage.rectTransform;
+       Vector2 mapSize = mapRect.sizeDelta;
+       Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+
+        Vector2 pos = mapRect.anchoredPosition;
+
+        float halfMapWidth = mapSize.x / 2f * mapRect.localScale.x;
+        float halfMapHeight = mapSize.y / 2f * mapRect.localScale.y;
+        float halfScreenWidth = screenSize.x / 2f;
+        float halfScreenHeight = screenSize.y / 2f;
+
+        // 맵이 화면보다 클 경우에만 경계 제한 적용
+        if (mapSize.x > screenSize.x)
+        {
+            float maxX = (halfMapWidth - halfScreenWidth);
+            pos.x = Mathf.Clamp(pos.x, -maxX, maxX);
+        }
+        else
+        {
+            pos.x = 0; // 화면보다 작으면 가운데 고정
+        }
+
+        if (mapSize.y > screenSize.y)
+        {
+            float maxY = (halfMapHeight - halfScreenHeight);
+            pos.y = Mathf.Clamp(pos.y, -maxY, maxY);
+        }
+        else
+        {
+            pos.y = 0;
+        }
+
+        mapRect.anchoredPosition = pos;
     }
 
     float simulatedHeading = 0f;
@@ -264,4 +309,87 @@ public class csMapManager : MonoBehaviour
         //arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
     }
 
+    private void CheckOnArrive()
+    {
+        // 목적지 도착 체크 로직
+        if(currentGeoCoordinate == null || currentGeoCoordinate.pathCoordinates.Count == 0)
+            return;
+
+        double targetLat = currentGeoCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Latitude;
+        double targetLon = currentGeoCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Longitude;
+
+        if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 10.0))
+        {
+            // 일단도착하면 미션 시작 알림, 혹은 도착 알림 (지금은 테스트 용으로 도착하면 첫번째 라인프리펩을 회색처리해주자)
+            Color color = lineList[CurrentTargetCoordnateIndex].color;
+            color.a = 0.5f;
+            color = Color.gray;
+            lineList[CurrentTargetCoordnateIndex].color = color;
+
+
+        }
+    }
+
+    // 위도/경도를 기반으로 두 점 사이 거리(m) 계산
+    public double GetDistanceMeters(double lat1, double lon1, double lat2, double lon2)
+    {
+        double R = 6371000; // 지구 반지름 (m)
+        double dLat = Mathf.Deg2Rad * (float)(lat2 - lat1);
+        double dLon = Mathf.Deg2Rad * (float)(lon2 - lon1);
+
+        double a =
+            Mathf.Sin((float)(dLat / 2)) * Mathf.Sin((float)(dLat / 2)) +
+            Mathf.Cos((float)(Mathf.Deg2Rad * (float)lat1)) *
+            Mathf.Cos((float)(Mathf.Deg2Rad * (float)lat2)) *
+            Mathf.Sin((float)(dLon / 2)) * Mathf.Sin((float)(dLon / 2));
+
+        double c = 2 * Mathf.Atan2(Mathf.Sqrt((float)a), Mathf.Sqrt((float)(1 - a)));
+        double distance = R * c;
+
+        return distance; // meter 단위 거리
+    }
+
+    public  bool IsWithinRange(double lat1, double lon1, double lat2, double lon2, double radiusMeters)
+    {
+        double distance = GetDistanceMeters(lat1, lon1, lat2, lon2);
+        return distance <= radiusMeters;
+    }
+
+    // 전체 길찾기 좌표 중에서 현재 목표 좌표 설정
+    public void SetCoordinate(int index)
+    {
+        CurrentTargetCoordnateIndex = index; // 첫번째는 내 위치이므로 목표 좌표는 +1
+        IsPathSearching = true;
+
+        // 활성화된 라인은 알파값을 1로 설정
+        Color color = lineList[index].color;
+        color.a = 1f;
+        lineList[index].color = color;
+    }
+    public void ToMyLocation()
+    {
+        StartCoroutine(SmoothMoveMapToCenter());
+    }
+    private IEnumerator SmoothMoveMapToCenter()
+    {
+        float duration = 0.5f; // 이동 시간
+        Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
+        // mapRawImage의 pivot과 marker의 pivot이 모두 중앙일 때,
+        // marker를 화면 중앙(0,0)으로 보내기 위한 map의 anchoredPosition은 -marker.anchoredPosition 입니다.
+        float currentScale = mapRawImage.rectTransform.localScale.x; // x와 y 스케일이                 
+
+        Vector2 targetPosition = -markerRect.anchoredPosition * currentScale;
+
+
+        float time = 0;
+        while (time < duration)
+        {
+            mapRawImage.rectTransform.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, time / duration);
+            time += Time.deltaTime;
+            csMapManager.Instance.ClampMapPosition();
+            yield return null;
+        }
+        mapRawImage.rectTransform.anchoredPosition = targetPosition; // 정확한 최종 위치 보정
+        csMapManager.Instance.ClampMapPosition();
+    }
 }

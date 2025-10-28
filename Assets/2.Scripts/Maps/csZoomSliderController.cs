@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -12,7 +12,7 @@ public class csZoomSliderController : MonoBehaviour
 
     public float minScale = 1f;
     public float maxScale = 2f;
-    private float zoomSpeed = 0.01f; // ¸ğ¹ÙÀÏ ÇÉÄ¡ ÁÜ ¼Óµµ
+    private float zoomSpeed = 0.01f; // ëª¨ë°”ì¼ í•€ì¹˜ ì¤Œ ì†ë„
     private float currentScale = 1f;
 
     private Vector3 baseScale;
@@ -21,7 +21,7 @@ public class csZoomSliderController : MonoBehaviour
     {
 
 #if UNITY_ANDROID || UNITY_IOS
-        // ¸ğ¹ÙÀÏ ÇÉÄ¡ ÁÜ Ã³¸®
+        // ëª¨ë°”ì¼ í•€ì¹˜ ì¤Œ ì²˜ë¦¬
         if (Input.touchCount == 2)
         {
             ZoomOnMobile();
@@ -30,56 +30,77 @@ public class csZoomSliderController : MonoBehaviour
     }
     private void OnEnable()
     {
-        // ½½¶óÀÌ´õ ÃÊ±â°ª º¸Á¤ (0~1 ¹üÀ§)
+        // ìŠ¬ë¼ì´ë” ì´ˆê¸°ê°’ ë³´ì • (0~1 ë²”ìœ„)
         zoomSlider.minValue = 0f;
         zoomSlider.maxValue = 1f;
-        zoomSlider.value = 0f; // ±âº» 1¹è Å©±â
+        zoomSlider.value = 0f; // ê¸°ë³¸ 1ë°° í¬ê¸°
         if (zoomSlider != null)
         {
-            // ½½¶óÀÌ´õ °ª º¯È­ ½Ã ÀÌº¥Æ® µî·Ï
+            // ìŠ¬ë¼ì´ë” ê°’ ë³€í™” ì‹œ ì´ë²¤íŠ¸ ë“±ë¡
             zoomSlider.onValueChanged.AddListener(OnZoomChanged);
         }
 
-        // ÀÌº¥Æ®¸¦ ÀÌ¿ëÇÏ¿© ½ºÅ©·ÑÀÌ ¹ß»ıÇßÀ» ½Ã ½ºÅ©·ÑÀÇ °ªÀ» º¯¼ö¿¡ ÀúÀåÇÑ´Ù.
-        // ½ºÅ©·Ñ °ªÀÌ 120°ú -120¸¸ ¹Ş¾Æ¿À±â ¶§¹®¿¡ 0.02f¸¦ °öÇÏ¿© ³·Ãâ ¼ö ÀÖ´Ù.
-        // Ä«¸Ş¶óÀÇ FOV°ªÀ» ºÒ·¯¿È
+        // ì´ë²¤íŠ¸ë¥¼ ì´ìš©í•˜ì—¬ ìŠ¤í¬ë¡¤ì´ ë°œìƒí–ˆì„ ì‹œ ìŠ¤í¬ë¡¤ì˜ ê°’ì„ ë³€ìˆ˜ì— ì €ì¥í•œë‹¤.
+        // ìŠ¤í¬ë¡¤ ê°’ì´ 120ê³¼ -120ë§Œ ë°›ì•„ì˜¤ê¸° ë•Œë¬¸ì— 0.02fë¥¼ ê³±í•˜ì—¬ ë‚®ì¶œ ìˆ˜ ìˆë‹¤.
+        // ì¹´ë©”ë¼ì˜ FOVê°’ì„ ë¶ˆëŸ¬ì˜´
     }
     private void OnDisable()
     {
     }
     private void OnZoomChanged(float value)
     {
-        float targetScale = Mathf.Lerp(minScale, maxScale, value);
+        float oldScale = mapRawImage.rectTransform.localScale.x;
+        float newScale = Mathf.Lerp(minScale, maxScale, value);
 
-        //// È®´ë/Ãà¼Ò ÀüÀÇ Áß½É ÁÂÇ¥ (ÇöÀç È­¸é»ó ±âÁØ)
-        //Vector2 pivotOffset = mapRawImage.rectTransform.rect.size * 0.5f * (mapRawImage.rectTransform.localScale.x - targetScale);
+        if (Mathf.Approximately(oldScale, newScale))
+            return;
 
-        //// anchoredPosition º¸Á¤: °¡¿îµ¥ ±âÁØÀ¸·Î ¸ÂÃß±â
-        //mapRawImage.rectTransform.anchoredPosition += pivotOffset;
+        RectTransform rt = mapRawImage.rectTransform;
+        RectTransform parentRt = rt.parent as RectTransform;
 
-        // ½ÇÁ¦ ½ºÄÉÀÏ Àû¿ë
-        mapRawImage.rectTransform.localScale = new Vector3(targetScale, targetScale, 1f);
+        // 1ï¸âƒ£ í™”ë©´ ì¤‘ì•™(ë·°í¬íŠ¸ ì¤‘ì‹¬)ì˜ ì›”ë“œ ì¢Œí‘œ â†’ ë¡œì»¬ ì¢Œí‘œ ë³€í™˜
+        Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRt, screenCenter, null, out localPoint);
+
+        // 2ï¸âƒ£ ì¤Œ ê¸°ì¤€ì  (í˜„ì¬ í™”ë©´ ì¤‘ì•™ì´ ì•„ë‹ˆë¼ í˜„ì¬ ì§€ë„ìƒì—ì„œ ë³´ì´ëŠ” "ê°™ì€ ìœ„ì¹˜")
+        Vector3 zoomCenterWorld = parentRt.TransformPoint(localPoint);
+
+        // 3ï¸âƒ£ ì§€ë„ ìœ„ì¹˜ì™€ ê¸°ì¤€ì  ì‚¬ì´ì˜ ë²¡í„° ê³„ì‚°
+        Vector3 dir = rt.position - zoomCenterWorld;
+
+        // 4ï¸âƒ£ ìŠ¤ì¼€ì¼ ë¹„ìœ¨ ê³„ì‚°
+        float scaleRatio = newScale / oldScale;
+
+        // 5ï¸âƒ£ ìƒˆ ìœ„ì¹˜ = ê¸°ì¤€ì  + (ê¸°ì¡´ ë²¡í„° * ë¹„ìœ¨)
+        rt.position = zoomCenterWorld + (dir * scaleRatio);
+
+        // 6ï¸âƒ£ ìƒˆ ìŠ¤ì¼€ì¼ ì ìš©
+        rt.localScale = new Vector3(newScale, newScale, 1f);
+
+        csMapManager.Instance.ClampMapPosition();
     }
 
-    // ¸ğ¹ÙÀÏ¿ë ÁÜ °è»ê±â
+
+    // ëª¨ë°”ì¼ìš© ì¤Œ ê³„ì‚°ê¸°
     private void ZoomOnMobile()
     {
         Touch t0 = Input.GetTouch(0);
         Touch t1 = Input.GetTouch(1);
 
-        // ÀÌÀü ÇÁ·¹ÀÓÀÇ µÎ ¼Õ°¡¶ô À§Ä¡
+        // ì´ì „ í”„ë ˆì„ì˜ ë‘ ì†ê°€ë½ ìœ„ì¹˜
         Vector2 t0Prev = t0.position - t0.deltaPosition;
         Vector2 t1Prev = t1.position - t1.deltaPosition;
 
-        // ÀÌÀü/ÇöÀç °Å¸® °è»ê
+        // ì´ì „/í˜„ì¬ ê±°ë¦¬ ê³„ì‚°
         float prevDistance = Vector2.Distance(t0Prev, t1Prev);
         float currentDistance = Vector2.Distance(t0.position, t1.position);
 
-        // º¯È­·® ¡æ ½ºÄÉÀÏ º¯°æ
+        // ë³€í™”ëŸ‰ â†’ ìŠ¤ì¼€ì¼ ë³€ê²½
         float delta = (currentDistance - prevDistance) * zoomSpeed;
         float targetScale = Mathf.Clamp(currentScale + delta, minScale, maxScale);
 
-        // ½ÇÁ¦ ½ºÄÉÀÏ Àû¿ë
+        // ì‹¤ì œ ìŠ¤ì¼€ì¼ ì ìš©
         mapRawImage.rectTransform.localScale = new Vector3(targetScale, targetScale, 1f);
         currentScale = targetScale;
 
