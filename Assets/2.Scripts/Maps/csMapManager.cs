@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -25,11 +26,13 @@ public class csMapManager : MonoBehaviour
     [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
     [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
     [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
+    [SerializeField] private Image SearchLocationMarkerPrefab; //검색 결과 지점 마커 프리펩 
     private List<Image> lineList=new List<Image>(); // 저장 후 삭제할 선 리스트
     private float lineSize = 20f; // 선 두께
     [SerializeField] private List<Color> lineColors; // 선 색상
-    private Image startMarker;
-    private Image endMarker;
+    private Image startMarker; // 시작지점 마커 프리팹 저장
+    private Image endMarker; // 도착지점 마커 프리팹 저장
+    private Image SearchLocationMarker; // 검색 결과 지점 마커 프리팹 저장
 
     private Coroutine drawPathCoroutine; // 길찾기 코루틴 참조
 
@@ -460,15 +463,15 @@ public class csMapManager : MonoBehaviour
     }
     private IEnumerator SmoothMoveMapToCenter()
     {
-        float duration = 0.5f; // 이동 시간
+        
         Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
         // mapRawImage의 pivot과 marker의 pivot이 모두 중앙일 때,
-        // marker를 화면 중앙(0,0)으로 보내기 위한 map의 anchoredPosition은 -marker.anchoredPosition 입니다.
+        // marker를 화면 중앙(0,0)으로 보내기 위한 map의 anchoredPosition은 -marker.anchoredPosition
         float currentScale = mapRawImage.rectTransform.localScale.x; // x와 y 스케일이                 
 
         Vector2 targetPosition = -markerRect.anchoredPosition * currentScale;
 
-
+        float duration = 0.5f; // 이동 시간
         float time = 0;
         while (time < duration)
         {
@@ -478,6 +481,44 @@ public class csMapManager : MonoBehaviour
             yield return null;
         }
         mapRawImage.rectTransform.anchoredPosition = targetPosition; // 정확한 최종 위치 보정
+        csMapManager.Instance.ClampMapPosition();
+    }
+
+    // 검색한 장소로 지도 이동
+    public void MoveMapToLocation(double lat,double lon)
+    {
+        StartCoroutine (MoveMapToLocationSmooth(lat,lon));
+      
+
+    }
+
+    private IEnumerator MoveMapToLocationSmooth(double lat, double lon)
+    {
+        if (SearchLocationMarker) Destroy(SearchLocationMarker);
+        // 검색한 장소에 마커찍기
+        Vector2 p1 = LatLonToRelativePosition(lat, lon, centerLat, centerLon, zoom);
+        Vector2 targetPosition = RelativeToUIPosition(p1, mapRawImage);
+
+        SearchLocationMarker = Instantiate(SearchLocationMarkerPrefab, mapRawImage.transform);
+        SearchLocationMarker.rectTransform.anchoredPosition = targetPosition;
+
+        // 검색한 장소를 가운데로 맵 이동
+        Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
+
+        float currentScale = mapRawImage.rectTransform.localScale.x;
+
+        Vector2 MaptargetPosition = -targetPosition * currentScale;
+
+        float duration = 0.5f; // 이동 시간
+        float time = 0;
+        while (time < duration)
+        {
+            mapRawImage.rectTransform.anchoredPosition = Vector2.Lerp(startPosition, MaptargetPosition, time / duration);
+            time += Time.deltaTime;
+            csMapManager.Instance.ClampMapPosition();
+            yield return null;
+        }
+        mapRawImage.rectTransform.anchoredPosition = MaptargetPosition; // 정확한 최종 위치 보정
         csMapManager.Instance.ClampMapPosition();
     }
 }

@@ -35,13 +35,35 @@ namespace Data
     [System.Serializable]
     public struct GeoCoordinate
     {
-        public double Latitude;
-        public double Longitude;
+        public double Latitude; //위도
+        public double Longitude; //경도
 
         public GeoCoordinate(double latitude, double longitude)
         {
             Latitude = latitude;
             Longitude = longitude;
+        }
+    }
+
+
+    public class LocationData
+    {
+        public string KoreanName;
+        public string EnglishName;
+        public double Latitude;
+        public double Longitude;
+
+        public LocationData(string ko, string en, double lat, double lon)
+        {
+            KoreanName = ko;
+            EnglishName = en;
+            Latitude = lat;
+            Longitude = lon;
+        }
+        public string GetLocalizedName()
+        {
+            string lang = csSingleton.Instance.languageCode;
+            return lang == "ko" ? KoreanName : EnglishName;
         }
     }
 }

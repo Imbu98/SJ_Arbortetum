@@ -11,8 +11,6 @@ public class csVirtualJoystic : MonoBehaviour, IDragHandler, IPointerUpHandler, 
 
     public bool isInput = false;
 
-    float speed = 0.0001f;
-
     public void OnDrag(PointerEventData eventData)
     {
         Vector2 pos;
