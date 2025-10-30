@@ -18,7 +18,7 @@ public class csNetworkManager : MonoBehaviour
         }
     }
 
-    public MissonDto GetMissionDatas()
+    public MissionDto GetMissionDatas()
     {
         return null;
     }

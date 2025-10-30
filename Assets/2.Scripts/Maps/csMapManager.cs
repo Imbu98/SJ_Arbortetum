@@ -12,21 +12,28 @@ using UnityEngine.UI;
 
 public class csMapManager : MonoBehaviour
 {
-    public SearchPathCoordinate currentGeoCoordinate; // 현재 길찾기 좌표
-    private int CurrentTargetCoordnateIndex; // 현재 목적지 좌표 인덱스 ( 0에는 내 위치, 목적지는 1부터 시작)
-    private bool IsPathSearching = false;
-
     public static csMapManager Instance { get { return _Instance; } }
     private static csMapManager _Instance;
 
+    public SearchPathCoordinate currentGeoCoordinate;
+    private int CurrentTargetCoordnateIndex; // 현재 목적지 좌표 인덱스 ( 0에는 시작 위치 , 목적지는 1부터 시작)
+    private bool IsPathSearching = false;
     // 맵 이미지
     public RawImage mapRawImage;
 
     // 길 찾기
     [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
-    [SerializeField] private List<Image> lineList;
-    private float lineSize = 20f;
-    [SerializeField] private List<Color> lineColors;
+    [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
+    [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
+    private List<Image> lineList=new List<Image>(); // 저장 후 삭제할 선 리스트
+    private float lineSize = 20f; // 선 두께
+    [SerializeField] private List<Color> lineColors; // 선 색상
+    private Image startMarker;
+    private Image endMarker;
+
+    private Coroutine drawPathCoroutine; // 길찾기 코루틴 참조
+
+
 
 
     // 에디터 테스트용 GPS 좌표 리스트
@@ -54,6 +61,7 @@ public class csMapManager : MonoBehaviour
     [SerializeField] private RectTransform arrowRect; // 방향 화살표 
 
 
+    [SerializeField] private Button OnPathButton; // 에디터 테스트용 길찾기 버튼
     private void Awake()
     {
         if (_Instance == null)
@@ -76,9 +84,11 @@ public class csMapManager : MonoBehaviour
     private void FixedUpdate()
     {
         UpdateMarkerOnly();
+        
     }
     private void OnEnable()
     {
+       
         // 내 위치 마킹
     }
 
@@ -88,7 +98,12 @@ public class csMapManager : MonoBehaviour
 
     private void Update()
     {
-        CheckOnArrive();
+        // 길찾기 중일 때
+        if(IsPathSearching)
+        {
+            LineConnenctToMarker();
+            CheckOnArrive();
+        }
         //print("location" + latitude + " " + longitude);
     }
     private IEnumerator WaitForGPSReady()
@@ -132,27 +147,51 @@ public class csMapManager : MonoBehaviour
         mapRawImage.texture = DownloadHandlerTexture.GetContent(request); // 맵 >> 이미지에 적용
     }
 
+    // 에디터 테스트용 버튼 (현재 위치부터 경로 설정)
     public void OnPathButtonPressed()
     {
-        //double centerLat = MyGPS.Latitude;
-        //double centerLon = MyGPS.Longitude;
-        gpsList.Insert(0,new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude));
-        currentGeoCoordinate = new SearchPathCoordinate();
-        currentGeoCoordinate.pathCoordinates = gpsList;
-        StartCoroutine(DrawPathAnimated(currentGeoCoordinate.pathCoordinates, centerLat, centerLon));
-        SetCoordinate(0);
+        // 현재 GPS 위치를 시작점으로 설정
+        GeoCoordinate startCoord = new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude);
+
+        // 현재 경로 리스트(GPSList)가 존재하는지 체크
+        if (gpsList == null || gpsList.Count == 0)
+        {
+            Debug.LogWarning("GPSList가 비어 있습니다. 경로 데이터를 먼저 설정하세요.");
+            return;
+        }
+
+        // SearchPath 호출
+        csMapManager.Instance.SearchPath(startCoord, gpsList);
+
     }
 
-    public void SearchPath(List<GeoCoordinate> coords)
+    public void SearchPath(GeoCoordinate startCoord, List<GeoCoordinate> coords)
     {
         //double centerLat = MyGPS.Latitude;
         //double centerLon = MyGPS.Longitude;
-        StartCoroutine(DrawPathAnimated(coords, centerLat, centerLon));
+
+        if (drawPathCoroutine != null)
+            StopCoroutine(drawPathCoroutine);
+        // 길찾기 상태 설정
+        IsPathSearching = true;
+
+        currentGeoCoordinate = new SearchPathCoordinate();
+
+        // pthCoords에 시작 좌표와 AI에서 받아온 좌표들 추가
+        List<GeoCoordinate> pathCoords = new List<GeoCoordinate>();
+        pathCoords.Add(startCoord);
+        pathCoords.AddRange(coords);
+
+        currentGeoCoordinate.pathCoordinates = pathCoords;
+
+        drawPathCoroutine = StartCoroutine(DrawPathAnimated(pathCoords, centerLat, centerLon));
     }
 
     // AI에서 받아온 좌표마다 이어주는 함수
     IEnumerator DrawPathAnimated(List<GeoCoordinate> coords, double centerLat, double centerLon)
     {
+        
+
         if (coords == null || coords.Count < 2)
             yield break;
 
@@ -185,6 +224,13 @@ public class csMapManager : MonoBehaviour
             rect.sizeDelta = new Vector2(distance, lineSize);
             rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
 
+            // 마지막 좌표일 때 도착 마커 생성
+            if (i == coords.Count - 2)
+            {
+                endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
+                endMarker.rectTransform.anchoredPosition = endUI;
+            }
+
             // 선이 그려지는 애니메이션
             line.fillAmount = 0;
             float t = 0;
@@ -194,6 +240,7 @@ public class csMapManager : MonoBehaviour
                 line.fillAmount = t;
                 yield return null;
             }
+            
         }
     }
 
@@ -304,29 +351,70 @@ public class csMapManager : MonoBehaviour
         if (simulatedHeading > 360) simulatedHeading -= 360;
         arrowRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
 
+#if UNITY_ANDROID || UNITY_IOS
         //float heading = Input.compass.trueHeading;
         //// 기본: Z축 기준 회전
         //arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
+#endif
     }
+
+    private void LineConnenctToMarker()
+    {
+        // 나중에 isOnPathSearching 체크해서 필요할 때만 실행
+        if (currentGeoCoordinate == null)
+            return;
+
+        SearchPathCoordinate pathCoordinate = currentGeoCoordinate;
+        GeoCoordinate geoCoordinates = pathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1];
+
+        // 위도, 경도를 네이버 지도 기준 상대 좌표로 변환
+        Vector2 p1 = LatLonToRelativePosition(MyGPS.Latitude,MyGPS.Longitude, centerLat, centerLon, zoom);
+        Vector2 p2 = LatLonToRelativePosition(geoCoordinates.Latitude , geoCoordinates.Longitude, centerLat, centerLon, zoom);
+
+        // UI 상의 실제 위치로 변환
+        Vector2 startUI = RelativeToUIPosition(p1, mapRawImage);
+        Vector2 endUI = RelativeToUIPosition(p2, mapRawImage);
+
+        Vector2 dir = endUI - startUI;
+        float distance = dir.magnitude;
+
+        Image line = lineList[CurrentTargetCoordnateIndex];
+
+        RectTransform rect = line.rectTransform;
+        rect.anchoredPosition = startUI;
+        rect.sizeDelta = new Vector2(distance, lineSize);
+        rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+    }
+
 
     private void CheckOnArrive()
     {
         // 목적지 도착 체크 로직
-        if(currentGeoCoordinate == null || currentGeoCoordinate.pathCoordinates.Count == 0)
+        if(currentGeoCoordinate==null)
             return;
 
-        double targetLat = currentGeoCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Latitude;
-        double targetLon = currentGeoCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Longitude;
+        int missionIndex = csMissionManager.Instance.currentMissionIndex;
+        SearchPathCoordinate searchPathCoordinate = currentGeoCoordinate;
+
+        double targetLat = searchPathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Latitude;
+        double targetLon = searchPathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Longitude;
 
         if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 10.0))
         {
-            // 일단도착하면 미션 시작 알림, 혹은 도착 알림 (지금은 테스트 용으로 도착하면 첫번째 라인프리펩을 회색처리해주자)
-            Color color = lineList[CurrentTargetCoordnateIndex].color;
-            color.a = 0.5f;
-            color = Color.gray;
-            lineList[CurrentTargetCoordnateIndex].color = color;
+            lineList[CurrentTargetCoordnateIndex].gameObject.SetActive(false); // 도착한 구간 선 비활성화
 
-
+            // 다음 구간이 아직 남아있다면 인덱스 증가
+            if (CurrentTargetCoordnateIndex + 1 < searchPathCoordinate.pathCoordinates.Count - 1)
+            {
+                CurrentTargetCoordnateIndex++;
+            }
+            else
+            {
+                // 마지막 도착점에 도달함
+                IsPathSearching = false;
+                CurrentTargetCoordnateIndex = 0;
+                Destroy(endMarker.gameObject);
+            }
         }
     }
 

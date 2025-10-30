@@ -3,11 +3,30 @@ using System.Collections.Generic;
 
 namespace Data
 {
-    public abstract class MissonDto
+    // AI가 생성한 전체 미션 목록을 받아오는 dto
+    public class AICreatedMissions
     {
-
+        public List<MissionContainer> MissionContainers;
     }
 
+    // 하나의 미션이 가지고 있는 여러 개의 세부 미션
+    public class MissionContainer
+    {
+        public List<MissionDto> MissionDtos;
+    }
+
+    // 세부 미션이 가지고 있는 정보
+    public class MissionDto
+    {
+        public GeoCoordinate DestinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
+
+        public string DestinationName; // 도착지 이름
+
+        public string MissonDescription; // 미션 설명
+    }
+
+
+    // 목적지에 대한 길찾기 경로 좌표
     public class SearchPathCoordinate
     {
         public List<GeoCoordinate> pathCoordinates; // 길찾기 경로 좌표 리스트
