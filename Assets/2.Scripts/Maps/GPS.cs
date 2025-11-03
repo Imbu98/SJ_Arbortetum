@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Android;
 
@@ -19,12 +20,17 @@ public class GPS : MonoBehaviour
     // 자동 시작 여부
     [SerializeField] private bool autoStart = true;
 
+    [SerializeField] private TextMeshProUGUI latitudeTMP;
+    [SerializeField] private TextMeshProUGUI longitudeTMP;
     IEnumerator Start()
     {
 #if UNITY_ANDROID
         // 안드로이드 위치 권한 요청
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
             Permission.RequestUserPermission(Permission.FineLocation);
+
+        Latitude = 36.494243;
+        Longitude = 127.285061;
 #endif
 #if UNITY_EDITOR
         // 에디터용 테스트 경도,위도
@@ -79,13 +85,18 @@ public class GPS : MonoBehaviour
         Latitude += joystick.InputVector.y * moveSpeed;
         Longitude += joystick.InputVector.x * moveSpeed;
 
+        latitudeTMP.text = Latitude.ToString("F4");
+        longitudeTMP.text = Longitude.ToString("F4");
+
+
         if (Input.location.status != LocationServiceStatus.Running) return;
 
         
         //var last = Input.location.lastData;
         //Latitude =  Math.Round(last.latitude, 6);
         //Longitude =  Math.Round(last.longitude, 6);
-        // 필요 시: var heading = Input.compass.trueHeading;
+        // 필요 시:
+        //var heading = Input.compass.trueHeading;
     }
 
     void OnDisable()

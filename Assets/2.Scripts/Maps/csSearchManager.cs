@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
@@ -77,7 +78,7 @@ public class csSearchManager : MonoBehaviour
     }
 
     // 검색화면에서 장소리스트중 하나를 클릭했을 때
-    public void SetSearchUI(LocationData data, int offset)
+    public async Task SetSearchUI(LocationData data, int offset)
     {
         csMapManager.Instance.EsearchStatus = SearchStatus.None;
 
@@ -134,6 +135,8 @@ public class csSearchManager : MonoBehaviour
 
             // 서버에서 AI한테 경로 좌표 받아와야함
             // 일단 임시로 테스트
+           await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
+
             List<GeoCoordinate> coords = new List<GeoCoordinate>();
             GeoCoordinate endCoord = new GeoCoordinate(
         pathFind_EndLocationData.geoCoordinate.Latitude,
@@ -150,8 +153,11 @@ public class csSearchManager : MonoBehaviour
     {
         csMapManager.Instance.ClearSearchLocation();
 
-        // 검색 장소 
+        // 검색 장소  정보 초기화
         locationInfo.clear();
+
+        // 
+        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = "검색할 장소를 입력하세요";
     }
 
     public void ClearPathFindUI()

@@ -16,6 +16,8 @@ public class csMapManager : MonoBehaviour
     public static csMapManager Instance { get { return _Instance; } }
     private static csMapManager _Instance;
 
+    private bool IsMapOpened = false;   // 지도가 켜져있는지 확인하는 변수
+
     public SearchStatus EsearchStatus=SearchStatus.None; // 현재 길을 찾는 중인지 나타내는 변수
 
     public csSearchManager _searchManager;
@@ -75,8 +77,6 @@ public class csMapManager : MonoBehaviour
     [SerializeField] private RectTransform markerRect; // 내 위치 마커
     [SerializeField] private RectTransform arrowRect; // 방향 화살표 
 
-
-    [SerializeField] private Button OnPathButton; // 에디터 테스트용 길찾기 버튼
     private void Awake()
     {
         if (_Instance == null)
@@ -98,8 +98,10 @@ public class csMapManager : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        UpdateMarkerOnly();
-        
+        if(IsMapOpened)
+        {
+            UpdateMarkerOnly();
+        }
     }
     private void OnEnable()
     {
@@ -111,10 +113,11 @@ public class csMapManager : MonoBehaviour
     {
     }
 
+
     private void Update()
     {
         // 길찾기 중일 때
-        if(EsearchStatus == SearchStatus.SearchPath)
+        if(EsearchStatus == SearchStatus.SearchPath&&IsMapOpened)
         {
             LineConnenctToMarker();
             CheckOnArrive();
@@ -162,6 +165,12 @@ public class csMapManager : MonoBehaviour
         mapRawImage.texture = DownloadHandlerTexture.GetContent(request); // 맵 >> 이미지에 적용
     }
 
+    public void SetMapOpened(bool isOpened)
+    {
+        IsMapOpened = isOpened;
+        Debug.Log("IsMapOpened 상태 변경: " + IsMapOpened);
+    }
+
     // 에디터 테스트용 버튼 (현재 위치부터 경로 설정)
     public void OnPathButtonPressed()
     {
@@ -174,9 +183,9 @@ public class csMapManager : MonoBehaviour
             Debug.LogWarning("GPSList가 비어 있습니다. 경로 데이터를 먼저 설정하세요.");
             return;
         }
-
-        // SearchPath 호출
-        csMapManager.Instance.SearchPath(startCoord, gpsList);
+        EsearchStatus = SearchStatus.SearchPath;
+            // SearchPath 호출
+            csMapManager.Instance.SearchPath(startCoord, gpsList);
 
     }
 
@@ -205,6 +214,8 @@ public class csMapManager : MonoBehaviour
         currentGeoCoordinate = new SearchPathCoordinate();
 
         // pthCoords에 시작 좌표와 AI에서 받아온 좌표들 추가
+        
+
         List<GeoCoordinate> pathCoords = new List<GeoCoordinate>();
         pathCoords.Add(startCoord);
         pathCoords.AddRange(coords);
@@ -386,14 +397,19 @@ public class csMapManager : MonoBehaviour
 
     private void UpdateArrowRotation()
     {
+#if UNITY_EDITOR
         simulatedHeading += Time.deltaTime * 30f; // 초당 30도 회전
         if (simulatedHeading > 360) simulatedHeading -= 360;
         arrowRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
+#endif
+
 
 #if UNITY_ANDROID || UNITY_IOS
-        //float heading = Input.compass.trueHeading;
-        //// 기본: Z축 기준 회전
-        //arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
+        float heading = Input.compass.trueHeading;
+        // 기본: Z축 기준 회전
+        arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
+
+        Debug.Log("Heading: " + Input.compass.trueHeading);
 #endif
     }
 
@@ -450,7 +466,6 @@ public class csMapManager : MonoBehaviour
             else
             {
                 // 마지막 도착점에 도달함
-                EsearchStatus = SearchStatus.None;
                 CurrentTargetCoordnateIndex = 0;
                 ClearPathFindUI();
                 DestroyPathFindPrefab();

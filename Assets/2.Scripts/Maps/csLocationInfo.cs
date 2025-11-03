@@ -36,5 +36,8 @@ public class csLocationInfo : MonoBehaviour
     public void clear()
     {
         this .gameObject.SetActive(false);
+
+        setStartLocationButton.onClick.RemoveAllListeners();
+        setEndLocationButton.onClick.RemoveAllListeners();
     }
 }

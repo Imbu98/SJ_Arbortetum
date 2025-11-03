@@ -2,11 +2,12 @@
 using System.Collections;
 using UnityEngine.UI;
 using KKSpeech;
+using TMPro;
 
 public class RecordingCanvas : MonoBehaviour
 {
   public Button startRecordingButton;
-  public Text resultText;
+  public TextMeshProUGUI resultText;
 
   void Start()
   {
@@ -21,7 +22,9 @@ public class RecordingCanvas : MonoBehaviour
       listener.onPartialResults.AddListener(OnPartialResult);
       listener.onEndOfSpeech.AddListener(OnEndOfSpeech);
       SpeechRecognizer.RequestAccess();
-    }
+
+            Debug.Log("SpeechRecognizer Start");
+        }
     else
     {
       resultText.text = "Sorry, but this device doesn't support speech recognition";
@@ -33,7 +36,7 @@ public class RecordingCanvas : MonoBehaviour
 
   public void OnFinalResult(string result)
   {
-    startRecordingButton.GetComponentInChildren<Text>().text = "Start Recording";
+    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
     resultText.text = result;
     startRecordingButton.enabled = true;
   }
@@ -72,33 +75,35 @@ public class RecordingCanvas : MonoBehaviour
 
   public void OnEndOfSpeech()
   {
-    startRecordingButton.GetComponentInChildren<Text>().text = "Start Recording";
+    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
   }
 
   public void OnError(string error)
   {
     Debug.LogError(error);
-    startRecordingButton.GetComponentInChildren<Text>().text = "Start Recording";
+    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
     startRecordingButton.enabled = true;
   }
 
   public void OnStartRecordingPressed()
   {
-    if (SpeechRecognizer.IsRecording())
+        Debug.Log("OnStartRecordingPressed");
+
+        if (SpeechRecognizer.IsRecording())
     {
 #if UNITY_IOS && !UNITY_EDITOR
 			SpeechRecognizer.StopIfRecording();
-			startRecordingButton.GetComponentInChildren<Text>().text = "Stopping";
+			startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Stopping";
 			startRecordingButton.enabled = false;
 #elif UNITY_ANDROID && !UNITY_EDITOR
 			SpeechRecognizer.StopIfRecording();
-			startRecordingButton.GetComponentInChildren<Text>().text = "Start Recording";
+			startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
 #endif
-    }
-    else
+        }
+        else
     {
       SpeechRecognizer.StartRecording(true);
-      startRecordingButton.GetComponentInChildren<Text>().text = "Stop Recording";
+      startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Stop Recording";
       resultText.text = "Say something :-)";
     }
   }
