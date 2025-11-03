@@ -185,11 +185,11 @@ public class csMapManager : MonoBehaviour
         }
         EsearchStatus = SearchStatus.SearchPath;
             // SearchPath 호출
-            csMapManager.Instance.SearchPath(startCoord, gpsList);
+            //csMapManager.Instance.SearchPath(startCoord, gpsList);
 
     }
 
-    public void SearchPath(GeoCoordinate startCoord, List<GeoCoordinate> coords)
+    public void SearchPath(LocationData startLocationData, List<GeoCoordinate> coords)
     {
         
         if(EsearchStatus == SearchStatus.SearchPath)
@@ -214,10 +214,8 @@ public class csMapManager : MonoBehaviour
         currentGeoCoordinate = new SearchPathCoordinate();
 
         // pthCoords에 시작 좌표와 AI에서 받아온 좌표들 추가
-        
-
         List<GeoCoordinate> pathCoords = new List<GeoCoordinate>();
-        pathCoords.Add(startCoord);
+        pathCoords.Add(startLocationData.geoCoordinate);
         pathCoords.AddRange(coords);
 
         currentGeoCoordinate.pathCoordinates = pathCoords;
@@ -257,7 +255,7 @@ public class csMapManager : MonoBehaviour
             Image line = Instantiate(linePrefab, mapRawImage.transform);
             lineList.Add(line);
 
-            line.color = lineColors[i];
+            line.color = lineColors[1];
             RectTransform rect = line.rectTransform;
             rect.anchoredPosition = startUI;
             rect.sizeDelta = new Vector2(distance, lineSize);
@@ -275,15 +273,15 @@ public class csMapManager : MonoBehaviour
                 endMarker.rectTransform.anchoredPosition = endUI;
             }
 
-            // 선이 그려지는 애니메이션
-            line.fillAmount = 0;
-            float t = 0;
-            while (t < 1)
-            {
-                t += Time.deltaTime;
-                line.fillAmount = t;
-                yield return null;
-            }
+            //// 선이 그려지는 애니메이션
+            //line.fillAmount = 0;
+            //float t = 0;
+            //while (t < 1)
+            //{
+            //    t += Time.deltaTime;
+            //    line.fillAmount = t;
+            //    yield return null;
+            //}
             
         }
     }
@@ -433,12 +431,17 @@ public class csMapManager : MonoBehaviour
         Vector2 dir = endUI - startUI;
         float distance = dir.magnitude;
 
-        Image line = lineList[CurrentTargetCoordnateIndex];
-
-        RectTransform rect = line.rectTransform;
-        rect.anchoredPosition = startUI;
-        rect.sizeDelta = new Vector2(distance, lineSize);
-        rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+        if(lineList.Count > 0)
+        {
+            Image line = lineList[CurrentTargetCoordnateIndex];
+            if(line != null)
+            {
+                RectTransform rect = line.rectTransform;
+                rect.anchoredPosition = startUI;
+                rect.sizeDelta = new Vector2(distance, lineSize);
+                rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+            }
+        }
     }
 
 
@@ -601,6 +604,7 @@ public class csMapManager : MonoBehaviour
     public void ClearSearchLocation()
     {
         _searchManager.SetSearchScreenButtonUI(false);
+        CurrentTargetCoordnateIndex = 0;
         if (SearchLocationMarker) Destroy(SearchLocationMarker.gameObject);
     }
 
@@ -608,6 +612,7 @@ public class csMapManager : MonoBehaviour
     public void ClearPathFindUI()
     {
         _searchManager.ClearPathFindUI();
+        CurrentTargetCoordnateIndex = 0;
         EsearchStatus = SearchStatus.None;
     }
 

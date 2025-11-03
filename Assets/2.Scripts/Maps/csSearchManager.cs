@@ -111,7 +111,7 @@ public class csSearchManager : MonoBehaviour
 
                 pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
 
-                // 도착지점에 정보 넣었는데 시작지점에 정보가 없으면 자동으로 내 위치를 정보로 저장
+                // 도착지점에 정보 넣었는데 시작지점에 정보가 없으면 자동으로 내 위치를 정보로 저장 후 길찾기
                 if (!IsValidLocation(pathFind_StartLocationData))
                 {
                     csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath;
@@ -132,19 +132,16 @@ public class csSearchManager : MonoBehaviour
         // 두 좌표다 유효하면 바로 길찾기
         if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
         {
-
+            if (pathFind_StartLocationData.locationID == -1)
+                RefreshMyLocationIfNeeded(pathFind_StartLocationData);
+            if (pathFind_EndLocationData.locationID == -1)
+                RefreshMyLocationIfNeeded(pathFind_EndLocationData);
             // 서버에서 AI한테 경로 좌표 받아와야함
             // 일단 임시로 테스트
-           await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
+            var searchpath = await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate,pathFind_EndLocationData.geoCoordinate);
+            
 
-            List<GeoCoordinate> coords = new List<GeoCoordinate>();
-            GeoCoordinate endCoord = new GeoCoordinate(
-        pathFind_EndLocationData.geoCoordinate.Latitude,
-        pathFind_EndLocationData.geoCoordinate.Longitude
-    );
-            coords.Add(endCoord);
-
-            csMapManager.Instance.SearchPath(pathFind_StartLocationData.geoCoordinate, coords);
+            csMapManager.Instance.SearchPath(pathFind_StartLocationData,searchpath.pathCoordinates);
         }
     }
 
@@ -199,12 +196,27 @@ public class csSearchManager : MonoBehaviour
     //시작 정보와 도착 정보 둘 다 있어야 길찾기 시작
     private bool IsValidLocation(LocationData loc)
     {
-        if (loc == null) return false;
+        if (loc.locationID == 0) return false;
+        //-1이면 내위치갱신
+        if (loc.locationID == -1)
+        {
+            loc.geoCoordinate.Latitude = csMapManager.Instance.MyGPS.Latitude;
+            loc.geoCoordinate.Longitude = csMapManager.Instance.MyGPS.Longitude;
+        }
         //위도/경도가 0이 아니면 유효하다고 판단
-        return loc != null && loc.geoCoordinate.Latitude != 0 && loc.geoCoordinate.Longitude != 0;
+        return loc != null && loc.locationID != 0; 
     }
 
-    private void OnReverseDestinationButton()
+    private void RefreshMyLocationIfNeeded(LocationData loc)
+    {
+        if (loc != null && loc.locationID == -1)
+        {
+            loc.geoCoordinate.Latitude = csMapManager.Instance.MyGPS.Latitude;
+            loc.geoCoordinate.Longitude = csMapManager.Instance.MyGPS.Longitude;
+        }
+    }
+
+    private async void OnReverseDestinationButton()
     {
         csMapManager.Instance.DestroyPathFindPrefab();
         // 데이터 자체를 스왑 (유효하지 않아도 그대로 교체)
@@ -213,7 +225,7 @@ public class csSearchManager : MonoBehaviour
         pathFind_EndLocationData = temp;
 
         // 도착지점이 내 위치면 길찾기 취소, 아니면 길찾기
-        csMapManager.Instance.EsearchStatus = pathFind_EndLocationData.locationID == -1 ? SearchStatus.None : SearchStatus.SearchPath;
+        csMapManager.Instance.EsearchStatus = pathFind_EndLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
 
             // 현재 언어 코드 (예: "ko", "en")
             string languageCode = csSingleton.Instance.languageCode; // 또는 현재 사용하는 언어 변수
@@ -250,15 +262,17 @@ public class csSearchManager : MonoBehaviour
         // 두 좌표가 모두 유효하면 바로 길찾기
         if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
         {
-            List<GeoCoordinate> coords = new List<GeoCoordinate>
-        {
-            new GeoCoordinate(
-                pathFind_EndLocationData.geoCoordinate.Latitude,
-                pathFind_EndLocationData.geoCoordinate.Longitude
-            )
-        };
+            if (pathFind_StartLocationData.locationID == -1)
+                RefreshMyLocationIfNeeded(pathFind_StartLocationData);
+            if (pathFind_EndLocationData.locationID == -1)
+                RefreshMyLocationIfNeeded(pathFind_EndLocationData);
+            // 서버에서 AI한테 경로 좌표 받아와야함
+            // 일단 임시로 테스트
+            var searchpath = await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
 
-            csMapManager.Instance.SearchPath(pathFind_StartLocationData.geoCoordinate, coords);
+            
+
+            csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchpath.pathCoordinates);
         }
 
         Debug.Log("✅ 출발지와 도착지를 교체했습니다. (유효하지 않아도 처리됨)");

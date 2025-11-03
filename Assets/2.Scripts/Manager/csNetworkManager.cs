@@ -1,6 +1,11 @@
 ﻿using Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -29,16 +34,19 @@ public class csNetworkManager : MonoBehaviour
     /// </summary>
     public async Task<SearchPathCoordinate> GetDestinationCoordsAsync(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
     {
-        // 요청 JSON 구성
-        string jsonBody = $@"
-        {{
-            ""waypoints"": [
-                {{ ""lat"": {startGeoCoordinate.Latitude}, ""lon"": {startGeoCoordinate.Longitude} }},
-                {{ ""lat"": {EndGeoCoordinate.Latitude}, ""lon"": {EndGeoCoordinate.Longitude} }}
-            ]
-        }}";
+        // 요청 데이터 → JSON 문자열 변환
+        var body = new
+        {
+            waypoints = new[]
+            {
+                new { lat = startGeoCoordinate.Latitude, lon = startGeoCoordinate.Longitude },
+                new { lat = EndGeoCoordinate.Latitude, lon = EndGeoCoordinate.Longitude }
+            }
+        };
 
+        string jsonBody = JsonConvert.SerializeObject(body);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
+
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
@@ -59,16 +67,30 @@ public class csNetworkManager : MonoBehaviour
 
                 try
                 {
-                    // 응답 JSON → RouteResponseDto
-                    var routeResponse = JsonUtility.FromJson<SearchPathCoordinate>(responseText);
+                    // 2️⃣ JSON 파싱 (route_geometry.coordinates만 추출)
+                    JObject json = JObject.Parse(responseText);
+                    JArray coordinatesArray = (JArray)json["route_geometry"]?["coordinates"];
 
-                    // 변환 후 반환
-                    Data.SearchPathCoordinate result = new Data.SearchPathCoordinate
+                    // 3️⃣ GeoCoordinate 리스트로 변환
+                    List<GeoCoordinate> coords = new List<GeoCoordinate>();
+                    if (coordinatesArray != null)
                     {
-                        pathCoordinates = routeResponse.pathCoordinates
+                        foreach (var point in coordinatesArray)
+                        {
+                            // [lon, lat] 순서 → GeoCoordinate(lat, lon)
+                            double lon = point[0].Value<double>();
+                            double lat = point[1].Value<double>();
+                            coords.Add(new GeoCoordinate(lat, lon));
+                        }
+                    }
+
+                    // 4️⃣ 최종 반환 객체
+                    SearchPathCoordinate result = new SearchPathCoordinate
+                    {
+                        pathCoordinates = coords
                     };
 
-                    Debug.Log($"[csNetworkManager] 경로 좌표 {result.pathCoordinates.Count}개 수신 완료");
+                    Debug.Log($"[csNetworkManager] 경로 좌표 {coords.Count}개 수신 완료 ✅");
                     return result;
                 }
                 catch (System.Exception e)
