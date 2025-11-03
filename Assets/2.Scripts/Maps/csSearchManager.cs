@@ -1,130 +1,260 @@
-using Data;
+ï»¿using Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
-using System.Linq;
 
 public class csSearchManager : MonoBehaviour
 {
-    [SerializeField] private GameObject searchScreen; // Àå¼Ò°Ë»ö ½Ã ¶ç¿ï È­¸é
+    [SerializeField] private GameObject searchPlaceObject; // ì¥ì†Œ ê²€ìƒ‰ì„ ìœ„í•œ ì˜¤ë¸Œì íŠ¸
+    [SerializeField] private GameObject pathFindObject; // ê¸¸ì°¾ê¸°ë¥¼ ìœ„í•œ ì˜¤ë¸Œì íŠ¸
 
-    [SerializeField] private GameObject searchPlaceObject; // Àå¼Ò °Ë»öÀ» À§ÇÑ ¿ÀºêÁ§Æ®
-    [SerializeField] private GameObject pathFindObject; // ±æÃ£±â¸¦ À§ÇÑ ¿ÀºêÁ§Æ®
-
-    [HideInInspector] public string searchLocation = ""; // ÇöÀç Ã£À¸·Á´Â Àå¼Ò ¹®ÀÚ¿­
-    [HideInInspector] public string pathFind_StartLocation = ""; // ±æÃ£±â Ãâ¹ßÁö Àå¼Ò ¹®ÀÚ¿­
-    [HideInInspector] public string pathFind_EndLocation = "";   // ±æÃ£±â µµÂøÁö Àå¼Ò ¹®ÀÚ¿­
-
-    [Header("InutFields")]
-    [SerializeField] private TMP_InputField searchScreen_InputField; // Àå¼Ò °Ë»ö È­¸éÀÇ InputField;
-    [SerializeField] private TMP_InputField pathFind_StartInputField; // ±æÃ£±â Ãâ¹ß InputField
-    [SerializeField] private TMP_InputField pathFind_EndInputField; // ±æÃ£±â µµÂø InputField
+    [HideInInspector] public LocationData searchLocationData = new LocationData();
+    [HideInInspector] public LocationData pathFind_StartLocationData = new LocationData();
+    [HideInInspector] public LocationData pathFind_EndLocationData = new LocationData();
 
     [Header("Buttons")]
-    [SerializeField] private Button searchScreenButton; // Àå¼Ò °Ë»ö È­¸é ¿©´Â ¹öÆ°
-    [SerializeField] private Button closeSearchScreen; // Àå¼Ò°Ë»ö È­¸é ´İ±â ¹öÆ°
+    [SerializeField] private Button pathFindButton; // ê¸¸ì°¾ê¸° UI ì „í™˜ ë²„íŠ¼
+    [SerializeField] private Button resetSearchButton; // ê²€ìƒ‰í•œ ì¥ì†Œê°€ ìˆëŠ” ìƒíƒœì—ì„œ ì§€ë„ ì´ˆê¸°í™”ë©´ìœ¼ë¡œ ëŒì•„ê°€ëŠ” ë²„íŠ¼
+    [SerializeField] private Button searchScreenButton; // ì¥ì†Œ ê²€ìƒ‰ í™”ë©´ ì—¬ëŠ” ë²„íŠ¼
+    [SerializeField] private Button ReverseDestinationButton; // ì¶œë°œì§€, ë„ì°©ì§€ ë³€ê²½ ë²„íŠ¼
 
-    private Dictionary<string, List<LocationData>> cachedCSVData = new Dictionary<string, List<LocationData>>();
-    private List<csPlaceSlot> activeSuggestions = new List<csPlaceSlot>();
+    [SerializeField] private Button StartPathFindButton; // ê¸¸ì°¾ê¸° ì‹œì‘ ë²„íŠ¼
+    [SerializeField] private Button pathFind_StartButton; // ì¶œë°œ ì¥ì†Œ ê²€ìƒ‰ í™”ë©´ ì—¬ëŠ” ë²„íŠ¼ 
+    [SerializeField] private Button pathFind_EndButton; // ë„ì°© ì¥ì†Œ ê²€ìƒ‰ í™”ë©´ ì—¬ëŠ” ë²„íŠ¼ 
+    [SerializeField] private Button closePathFindButton; // ê¸¸ì°¾ê¸°ìƒíƒœì—ì„œ ì§€ë„ ì´ˆê¸°í™”ë©´ìœ¼ë¡œ ëŒì•„ê°€ëŠ” ë²„íŠ¼
 
-    [SerializeField] private RectTransform SearchPlaceListHolder; // °Ë»ö °á°ú ºÎ¸ğ Æ®·£½ºÆû
-    [SerializeField] private csPlaceSlot PlaceSlotPrefab;   // °Ë»ö °á°ú ¸®½ºÆ® ÇÁ¸®Æé
-    [SerializeField] private GameObject NoSearchListObject; // °Ë»ö °á°ú°¡ ¾øÀ» ¶§ Ç¥½ÃÇÒ ¿ÀºêÁ§Æ®
+
+    [SerializeField] private csLocationInfo locationInfo; // ì¥ì†Œ ê²€ìƒ‰ì‹œ ì•„ë˜ì— ë„ìš¸ ì¥ì†Œ ì •ë³´ UI
+
+
+
+
+
 
     private void OnEnable()
     {
-        searchScreen_InputField.onValueChanged.AddListener(OnInputChanged);
-        SearchPlaceListHolder.gameObject.SetActive(false);
-        searchScreenButton.onClick.AddListener(OnSearchScreenButtonClicked);
-        closeSearchScreen.onClick.AddListener(OnCloseScreenButtonClicked);
+        pathFindButton.onClick.AddListener(() => SetPathFindUI(true));
+        resetSearchButton.onClick.AddListener(ClearSearchUI);
+        searchScreenButton.onClick.AddListener(() => OnSearchScreenButtonClicked(0, searchScreenButton));
+
+
+        StartPathFindButton.onClick.AddListener(() => csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath);
+        // ê¸¸ì°¾ê¸° ì¶œë°œì§€ ë³€ê²½
+        pathFind_StartButton.onClick.AddListener(() => OnSearchScreenButtonClicked(1, pathFind_StartButton));
+        // ê¸¸ì°¾ê¸° ëª©ì ì§€ ë³€ê²½
+        pathFind_EndButton.onClick.AddListener(() => OnSearchScreenButtonClicked(2, pathFind_EndButton));
+        // ê¸¸ì°¾ê¸° ë‹«ê¸° ë²„íŠ¼
+        closePathFindButton.onClick.AddListener(() => SetPathFindUI(false));
+
+        // ì¶œë°œì§€, ëª©ì ì§€ ë°”ê¾¸ê¸°
+        ReverseDestinationButton.onClick.AddListener(OnReverseDestinationButton);
+
+
     }
 
     private void OnDisable()
     {
-        searchScreen_InputField.onValueChanged.RemoveAllListeners();
+        pathFindButton.onClick.RemoveAllListeners();
+        resetSearchButton.onClick.RemoveAllListeners();
         searchScreenButton.onClick.RemoveAllListeners();
-        closeSearchScreen.onClick.RemoveAllListeners();
+
+        StartPathFindButton.onClick.RemoveAllListeners();
+        pathFind_StartButton.onClick.RemoveAllListeners();
+        pathFind_EndButton.onClick.RemoveAllListeners();
+        closePathFindButton.onClick.RemoveAllListeners();
+
+        ReverseDestinationButton.onClick.RemoveAllListeners();
     }
 
-    // Áöµµ È­¸é¿¡¼­ ±æÃ£±â È­¸é ¿©´Â ¹öÆ° Å¬¸¯
-    private void OnSearchScreenButtonClicked()
+    // ì§€ë„ í™”ë©´ì—ì„œ ì¥ì†Œ ê²€ìƒ‰ í™”ë©´ ì—´ê¸°
+    private void OnSearchScreenButtonClicked(int offset, Button currentButton)
     {
-        searchScreen.gameObject.SetActive(true);
+        csMapManager.Instance._searchScreen.OpenSearchScreen(offset, currentButton);
     }
 
-    // ±æÃ£±â È­¸é¿¡¼­ ³ª°¡±â ¹öÆ° Å¬¸¯
-    private void OnCloseScreenButtonClicked()
+    // ê²€ìƒ‰í™”ë©´ì—ì„œ ì¥ì†Œë¦¬ìŠ¤íŠ¸ì¤‘ í•˜ë‚˜ë¥¼ í´ë¦­í–ˆì„ ë•Œ
+    public void SetSearchUI(LocationData data, int offset)
     {
-        searchScreen.gameObject.SetActive(false);
-        searchScreen_InputField.text = string.Empty;
-        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+        csMapManager.Instance.EsearchStatus = SearchStatus.None;
 
-    }
-    private void OnInputChanged(string input)
-    
-    {
-        ClearSuggestions();
+        // ì§€ë„ë¥¼ í•´ë‹¹ ìœ„ì¹˜ë¡œ ì´ë™
+        csMapManager.Instance.MoveMapToLocation(data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, offset);
 
-        string currentLang = csSingleton.Instance.languageCode;
-        var results =  csSingleton.Instance.Search(input, currentLang);
-
-        // °Ë»öÃ¢ÀÌ ºñ¾îÀÖÁö ¾Ê°Å³ª °á°ú°¡ ³ª¿ÔÀ» ¶§ 
-        if (results.Count>0 )
+        if (offset == 0)
         {
-            SetListIfExist(true);
-
-            foreach (var data in results)
-            {
-                var suggestion = Instantiate(PlaceSlotPrefab, SearchPlaceListHolder);
-                // ÇöÀç ¾ğ¾î¿¡ ¸Â°Ô Ç¥½Ã ÀÌ¸§ ¼±ÅÃ
-                suggestion.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
-                var closureData = data;
-
-                suggestion.GetComponent<Button>().onClick.AddListener(() =>
-                {
-                    OnSuggestionClicked(closureData);
-                });
-                activeSuggestions.Add(suggestion);
-            }
+            // ì¥ì†Œ ì •ë³´ UIë„ìš°ê¸°
+            locationInfo.Init(data);
+            // ê²€ìƒ‰ì°½ UI ë²„íŠ¼ ë³€ê²½
+            SetSearchScreenButtonUI(true);
+            // í˜„ì¬ ê²€ìƒ‰ ì¥ì†Œ ì •ë³´ ì €ì¥
+            searchLocationData = data;
+            // í…ìŠ¤íŠ¸ í‘œì‹œ
+            searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
         }
         else
         {
-            SetListIfExist(false);
+            SetPathFindUI(true);
+            if (offset == 1)
+            {
+                pathFind_StartLocationData = data;
+
+                pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
+            }
+            else if (offset == 2)
+            {
+                pathFind_EndLocationData = data;
+
+                pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
+
+                // ë„ì°©ì§€ì ì— ì •ë³´ ë„£ì—ˆëŠ”ë° ì‹œì‘ì§€ì ì— ì •ë³´ê°€ ì—†ìœ¼ë©´ ìë™ìœ¼ë¡œ ë‚´ ìœ„ì¹˜ë¥¼ ì •ë³´ë¡œ ì €ì¥
+                if (!IsValidLocation(pathFind_StartLocationData))
+                {
+                    csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath;
+
+                    pathFind_StartLocationData = new LocationData
+                    {
+                        geoCoordinate = new GeoCoordinate(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude),
+                        koreanName = "ë‚´ ìœ„ì¹˜",
+                        englishName = "My Location",
+                        locationID = -1
+
+                    };
+                    pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = pathFind_StartLocationData.GetLocalizedName();
+                    
+                }
+            }
+        }
+        // ë‘ ì¢Œí‘œë‹¤ ìœ íš¨í•˜ë©´ ë°”ë¡œ ê¸¸ì°¾ê¸°
+        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
+        {
+
+            // ì„œë²„ì—ì„œ AIí•œí…Œ ê²½ë¡œ ì¢Œí‘œ ë°›ì•„ì™€ì•¼í•¨
+            // ì¼ë‹¨ ì„ì‹œë¡œ í…ŒìŠ¤íŠ¸
+            List<GeoCoordinate> coords = new List<GeoCoordinate>();
+            GeoCoordinate endCoord = new GeoCoordinate(
+        pathFind_EndLocationData.geoCoordinate.Latitude,
+        pathFind_EndLocationData.geoCoordinate.Longitude
+    );
+            coords.Add(endCoord);
+
+            csMapManager.Instance.SearchPath(pathFind_StartLocationData.geoCoordinate, coords);
         }
     }
 
-    // °Ë»ö °á°ú Áß ÇÏ³ª°¡ Å¬¸¯µÇ¾úÀ» ¶§
-    private void OnSuggestionClicked(LocationData data)
+    // ê²€ìƒ‰ì¥ì†Œ ì´ˆê¸°í™”
+    public void ClearSearchUI()
     {
-        string locationName = data.GetLocalizedName();
-        searchScreen_InputField.text = locationName; // °Ë»öÈ­¸é inputfield textº¯°æ ( ´Ù½Ã ÄÖÀ» ¶§ ±×´ë·Î ³²¾ÆÀÖµµ·Ï)
-        searchScreen.gameObject.SetActive(false); // °Ë»öÈ­¸é off
-        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = locationName; // Áöµµ È­¸éÀÇ ¹öÆ° ÅØ½ºÆ® ÇöÀç Àå¼Ò ÀÌ¸§À¸·Î º¯°æ
+        csMapManager.Instance.ClearSearchLocation();
 
-        // Áöµµ¸¦ ÇØ´ç À§Ä¡·Î ÀÌµ¿
-        csMapManager.Instance.MoveMapToLocation(data.Latitude,data.Longitude);
-
-        Debug.Log($"¼±ÅÃµÊ: {locationName} / À§µµ: {data.Latitude}, °æµµ: {data.Longitude}");
+        // ê²€ìƒ‰ ì¥ì†Œ 
+        locationInfo.clear();
     }
 
-    private void ClearSuggestions()
+    public void ClearPathFindUI()
     {
-        activeSuggestions.Clear();
-
-        foreach (Transform child in SearchPlaceListHolder.transform) Destroy(child.gameObject);
-
-        activeSuggestions.Clear();
-    }
-    private void SetListIfExist(bool IsExist)
-    {
-        SearchPlaceListHolder.gameObject.SetActive(IsExist);
-        NoSearchListObject.gameObject.SetActive(!IsExist);
-
-
+        // ê¸¸ì°¾ê¸° ë°ì´í„° ì´ˆê¸°í™”
+        pathFind_StartLocationData = null;
+        pathFind_EndLocationData = null;
+        // í•˜ë“œì½”ë”© ë˜ì–´ìˆëŠ”ë° ë‚˜ì¤‘ì— ë³€ê²½í•´ì•¼í•¨
+        pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = "ì¶œë°œì§€";
+        pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>().text = "ë„ì°©ì§€";
+        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = "ê²€ìƒ‰í•  ì¥ì†Œë¥¼ ì…ë ¥í•˜ì„¸ìš”";
     }
 
+    // ê¸¸ì°¾ê¸°ì¸ì§€, ì¥ì†Œê²€ìƒ‰ì¸ì§€ì— ë”°ë¼ ë‹¤ë¥¸ object í™œì„±í™”
+    public void SetPathFindUI(bool IsPathFind)
+    {
+        // UIì „í™˜
+        searchPlaceObject.SetActive(!IsPathFind);
+        pathFindObject.SetActive(IsPathFind);
+
+        // ê¸¸ì°¾ê¸°ì—ì„œ ê¸°ë³¸ìƒíƒœë¡œ ì „í™˜
+        if (IsPathFind == false)
+        {
+            // ê¸°ì¡´ ê¸¸ì°¾ê¸° ê´€ë ¨ ì •ë³´ ì´ˆê¸°í™”
+            csMapManager.Instance.ClearPathFindUI();
+            csMapManager.Instance.DestroyPathFindPrefab();
+        }
 
 
+    }
+
+    // í˜„ì¬ ê²€ìƒ‰í•œ ì¥ì†Œê°€ ìˆëŠ”ì§€ì— ë”°ë¼ ë‹¤ë¥¸ UIí™œì„±í™”
+    public void SetSearchScreenButtonUI(bool IsOnSearch)
+    {
+        resetSearchButton.gameObject.SetActive(IsOnSearch);
+        pathFindButton.gameObject.SetActive(!IsOnSearch);
+    }
+
+    //ì‹œì‘ ì •ë³´ì™€ ë„ì°© ì •ë³´ ë‘˜ ë‹¤ ìˆì–´ì•¼ ê¸¸ì°¾ê¸° ì‹œì‘
+    private bool IsValidLocation(LocationData loc)
+    {
+        if (loc == null) return false;
+        //ìœ„ë„/ê²½ë„ê°€ 0ì´ ì•„ë‹ˆë©´ ìœ íš¨í•˜ë‹¤ê³  íŒë‹¨
+        return loc != null && loc.geoCoordinate.Latitude != 0 && loc.geoCoordinate.Longitude != 0;
+    }
+
+    private void OnReverseDestinationButton()
+    {
+        csMapManager.Instance.DestroyPathFindPrefab();
+        // ë°ì´í„° ìì²´ë¥¼ ìŠ¤ì™‘ (ìœ íš¨í•˜ì§€ ì•Šì•„ë„ ê·¸ëŒ€ë¡œ êµì²´)
+        LocationData temp = pathFind_StartLocationData;
+        pathFind_StartLocationData = pathFind_EndLocationData;
+        pathFind_EndLocationData = temp;
+
+        // ë„ì°©ì§€ì ì´ ë‚´ ìœ„ì¹˜ë©´ ê¸¸ì°¾ê¸° ì·¨ì†Œ, ì•„ë‹ˆë©´ ê¸¸ì°¾ê¸°
+        csMapManager.Instance.EsearchStatus = pathFind_EndLocationData.locationID == -1 ? SearchStatus.None : SearchStatus.SearchPath;
+
+            // í˜„ì¬ ì–¸ì–´ ì½”ë“œ (ì˜ˆ: "ko", "en")
+            string languageCode = csSingleton.Instance.languageCode; // ë˜ëŠ” í˜„ì¬ ì‚¬ìš©í•˜ëŠ” ì–¸ì–´ ë³€ìˆ˜
+
+        // ë²„íŠ¼ í…ìŠ¤íŠ¸ êµì²´ (ì—†ìœ¼ë©´ ê¸°ë³¸ ë¬¸êµ¬ë¡œ)
+        TextMeshProUGUI startText = pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>();
+        TextMeshProUGUI endText = pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        // ì–¸ì–´ë³„ ê¸°ë³¸ í…ìŠ¤íŠ¸ ì„¤ì •
+        string defaultStart = (languageCode == "ko") ? "ì¶œë°œì§€" : "Start";
+        string defaultEnd = (languageCode == "ko") ? "ë„ì°©ì§€" : "End";
+
+        string newStartText = pathFind_StartLocationData != null && IsValidLocation(pathFind_StartLocationData)
+            ? pathFind_StartLocationData.GetLocalizedName()
+            : defaultStart;
+
+        string newEndText = pathFind_EndLocationData != null && IsValidLocation(pathFind_EndLocationData)
+            ? pathFind_EndLocationData.GetLocalizedName()
+            : defaultEnd;
+
+        startText.text = newStartText;
+        endText.text = newEndText;
+
+        // ì§€ë„ ì´ë™ (ìƒˆ ì¶œë°œì§€ê°€ ìœ íš¨í•  ë•Œë§Œ)
+        if (pathFind_StartLocationData != null && IsValidLocation(pathFind_StartLocationData))
+        {
+            csMapManager.Instance.MoveMapToLocation(
+                pathFind_StartLocationData.geoCoordinate.Latitude,
+                pathFind_StartLocationData.geoCoordinate.Longitude,
+                1
+            );
+        }
+
+        // ë‘ ì¢Œí‘œê°€ ëª¨ë‘ ìœ íš¨í•˜ë©´ ë°”ë¡œ ê¸¸ì°¾ê¸°
+        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
+        {
+            List<GeoCoordinate> coords = new List<GeoCoordinate>
+        {
+            new GeoCoordinate(
+                pathFind_EndLocationData.geoCoordinate.Latitude,
+                pathFind_EndLocationData.geoCoordinate.Longitude
+            )
+        };
+
+            csMapManager.Instance.SearchPath(pathFind_StartLocationData.geoCoordinate, coords);
+        }
+
+        Debug.Log("âœ… ì¶œë°œì§€ì™€ ë„ì°©ì§€ë¥¼ êµì²´í–ˆìŠµë‹ˆë‹¤. (ìœ íš¨í•˜ì§€ ì•Šì•„ë„ ì²˜ë¦¬ë¨)");
+    }
 }

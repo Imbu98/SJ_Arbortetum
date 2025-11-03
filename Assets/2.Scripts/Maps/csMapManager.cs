@@ -16,13 +16,21 @@ public class csMapManager : MonoBehaviour
     public static csMapManager Instance { get { return _Instance; } }
     private static csMapManager _Instance;
 
-    public SearchPathCoordinate currentGeoCoordinate;
+    public SearchStatus EsearchStatus=SearchStatus.None; // 현재 길을 찾는 중인지 나타내는 변수
+
+    public csSearchManager _searchManager;
+    public csSearchScreen _searchScreen;
+
+    public SearchPathCoordinate currentGeoCoordinate; // 현재 목적지까지 가는 좌표 리스트
+
     private int CurrentTargetCoordnateIndex; // 현재 목적지 좌표 인덱스 ( 0에는 시작 위치 , 목적지는 1부터 시작)
-    private bool IsPathSearching = false;
+
+    
     // 맵 이미지
     public RawImage mapRawImage;
 
     // 길 찾기
+    [Header("PathFind")]
     [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
     [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
     [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
@@ -37,11 +45,15 @@ public class csMapManager : MonoBehaviour
     private Coroutine drawPathCoroutine; // 길찾기 코루틴 참조
 
 
+    
+
+
 
 
     // 에디터 테스트용 GPS 좌표 리스트
     public List<GeoCoordinate> gpsList = new List<GeoCoordinate>();
 
+    [Header("Naver API")]
     // 네이버 API 지도 설정 관련 변수
     public string geocodeApiUrl = ""; // 네이버 지도 API의 지오코드 요청 URL    
     public string mapStaticApiUrl = ""; // 네이버 지도 API의 정적 지도 요청 URL
@@ -102,7 +114,7 @@ public class csMapManager : MonoBehaviour
     private void Update()
     {
         // 길찾기 중일 때
-        if(IsPathSearching)
+        if(EsearchStatus == SearchStatus.SearchPath)
         {
             LineConnenctToMarker();
             CheckOnArrive();
@@ -170,13 +182,25 @@ public class csMapManager : MonoBehaviour
 
     public void SearchPath(GeoCoordinate startCoord, List<GeoCoordinate> coords)
     {
-        //double centerLat = MyGPS.Latitude;
-        //double centerLon = MyGPS.Longitude;
+        
+        if(EsearchStatus == SearchStatus.SearchPath)
+        {
+            // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
+            if (startMarker) Destroy(startMarker.gameObject);
+        }
+
+        foreach (var lineImage in lineList)
+        {
+            if (lineImage != null)
+                Destroy(lineImage.gameObject);
+        }
+        lineList.Clear();
+
 
         if (drawPathCoroutine != null)
             StopCoroutine(drawPathCoroutine);
-        // 길찾기 상태 설정
-        IsPathSearching = true;
+        
+        
 
         currentGeoCoordinate = new SearchPathCoordinate();
 
@@ -201,7 +225,8 @@ public class csMapManager : MonoBehaviour
         // 길찾기를 요청하면 기존의 선 제거
         foreach (var lineImage in lineList)
         {
-            Destroy(lineImage.gameObject);
+            if (lineImage != null)
+                Destroy(lineImage.gameObject);
         }
         lineList.Clear();
 
@@ -230,6 +255,11 @@ public class csMapManager : MonoBehaviour
             // 마지막 좌표일 때 도착 마커 생성
             if (i == coords.Count - 2)
             {
+                if (endMarker != null && endMarker.gameObject != null)
+                {
+                    Destroy(endMarker.gameObject);
+                    endMarker = null;
+                }
                 endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
                 endMarker.rectTransform.anchoredPosition = endUI;
             }
@@ -286,14 +316,20 @@ public class csMapManager : MonoBehaviour
         if (mapRawImage.texture == null)
             return;
 
+        double lat;
+        double lon;
+
+
 #if UNITY_IOS || UNITY_ANDROID
         //var location = Input.location.lastData;
         //double lat = location.latitude;
         //double lon = location.longitude;
+        lat = MyGPS.Latitude;
+        lon = MyGPS.Longitude;
 #endif
 #if UNITY_EDITOR
-        double lat = MyGPS.Latitude;
-        double lon = MyGPS.Longitude;
+        lat = MyGPS.Latitude;
+        lon = MyGPS.Longitude;
 #endif
         // 위도, 경도를 네이버 지도 기준 상대 좌표로 변환
         Vector2 p1 = LatLonToRelativePosition(lat, lon, centerLat, centerLon, zoom);
@@ -414,9 +450,10 @@ public class csMapManager : MonoBehaviour
             else
             {
                 // 마지막 도착점에 도달함
-                IsPathSearching = false;
+                EsearchStatus = SearchStatus.None;
                 CurrentTargetCoordnateIndex = 0;
-                Destroy(endMarker.gameObject);
+                ClearPathFindUI();
+                DestroyPathFindPrefab();
             }
         }
     }
@@ -444,18 +481,6 @@ public class csMapManager : MonoBehaviour
     {
         double distance = GetDistanceMeters(lat1, lon1, lat2, lon2);
         return distance <= radiusMeters;
-    }
-
-    // 전체 길찾기 좌표 중에서 현재 목표 좌표 설정
-    public void SetCoordinate(int index)
-    {
-        CurrentTargetCoordnateIndex = index; // 첫번째는 내 위치이므로 목표 좌표는 +1
-        IsPathSearching = true;
-
-        // 활성화된 라인은 알파값을 1로 설정
-        Color color = lineList[index].color;
-        color.a = 1f;
-        lineList[index].color = color;
     }
     public void ToMyLocation()
     {
@@ -485,22 +510,57 @@ public class csMapManager : MonoBehaviour
     }
 
     // 검색한 장소로 지도 이동
-    public void MoveMapToLocation(double lat,double lon)
+    public void MoveMapToLocation(double lat,double lon,int offset)
     {
-        StartCoroutine (MoveMapToLocationSmooth(lat,lon));
-      
-
+        StartCoroutine (MoveMapToLocationSmooth(lat,lon,offset));
     }
 
-    private IEnumerator MoveMapToLocationSmooth(double lat, double lon)
+    private IEnumerator MoveMapToLocationSmooth(double lat, double lon,int offset)
     {
-        if (SearchLocationMarker) Destroy(SearchLocationMarker);
-        // 검색한 장소에 마커찍기
+        ClearSearchLocation();
+         // 검색한 장소에 마커찍기
         Vector2 p1 = LatLonToRelativePosition(lat, lon, centerLat, centerLon, zoom);
         Vector2 targetPosition = RelativeToUIPosition(p1, mapRawImage);
 
-        SearchLocationMarker = Instantiate(SearchLocationMarkerPrefab, mapRawImage.transform);
-        SearchLocationMarker.rectTransform.anchoredPosition = targetPosition;
+        switch(offset)
+        {
+            // 검색장소
+            case 0:
+                {
+                    if (SearchLocationMarker!=null) Destroy(SearchLocationMarker.gameObject);
+                    SearchLocationMarker = Instantiate(SearchLocationMarkerPrefab, mapRawImage.transform);
+                    SearchLocationMarker.rectTransform.anchoredPosition = targetPosition;
+                    break;
+                }
+             // 시작장소
+            case 1:
+                {
+
+                    if (startMarker != null && startMarker.gameObject != null)
+                    {
+                        Destroy(startMarker.gameObject);
+                        startMarker = null;
+                    }
+
+                   
+                    startMarker = Instantiate(startMarkerPrefab, mapRawImage.transform);
+                    startMarker.rectTransform.anchoredPosition = targetPosition;
+                    break;
+                }
+                // 도착장소
+            case 2:
+                {
+                    if (endMarker != null && endMarker.gameObject != null)
+                    {
+                        Destroy(endMarker.gameObject);
+                        endMarker = null;
+                    }
+                    endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
+                    endMarker.rectTransform.anchoredPosition = targetPosition;
+                    break;
+                }
+        }
+        
 
         // 검색한 장소를 가운데로 맵 이동
         Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
@@ -521,4 +581,42 @@ public class csMapManager : MonoBehaviour
         mapRawImage.rectTransform.anchoredPosition = MaptargetPosition; // 정확한 최종 위치 보정
         csMapManager.Instance.ClampMapPosition();
     }
+
+    // 검색장소 리셋
+    public void ClearSearchLocation()
+    {
+        _searchManager.SetSearchScreenButtonUI(false);
+        if (SearchLocationMarker) Destroy(SearchLocationMarker.gameObject);
+    }
+
+    // 길찾기관련 UI리셋
+    public void ClearPathFindUI()
+    {
+        _searchManager.ClearPathFindUI();
+        EsearchStatus = SearchStatus.None;
+    }
+
+    // 길찾기 표시 프리펩 삭제
+    public void DestroyPathFindPrefab()
+    {
+        if (startMarker != null && startMarker.gameObject != null)
+        {
+            Destroy(startMarker.gameObject);
+            startMarker = null;
+        }
+
+        if (endMarker != null && endMarker.gameObject != null)
+        {
+            Destroy(endMarker.gameObject);
+            endMarker = null;
+        }
+
+
+        foreach (var image in lineList)
+        {
+            if (image!= null) Destroy(image.gameObject);
+        }
+    }
+
+
 }

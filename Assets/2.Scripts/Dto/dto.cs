@@ -48,22 +48,30 @@ namespace Data
 
     public class LocationData
     {
-        public string KoreanName;
-        public string EnglishName;
-        public double Latitude;
-        public double Longitude;
+        public string koreanName;
+        public string englishName;
+        public GeoCoordinate geoCoordinate;
+        public int locationID;
 
-        public LocationData(string ko, string en, double lat, double lon)
+        public LocationData(string ko=null, string en=null, double lat=0, double lon=0,int iD=0)
         {
-            KoreanName = ko;
-            EnglishName = en;
-            Latitude = lat;
-            Longitude = lon;
+            koreanName = ko;
+            englishName = en;
+            geoCoordinate.Latitude = lat;
+            geoCoordinate.Longitude = lon;
+            locationID = iD;
+
         }
         public string GetLocalizedName()
         {
             string lang = csSingleton.Instance.languageCode;
-            return lang == "ko" ? KoreanName : EnglishName;
+            return lang == "ko" ? koreanName : englishName;
         }
+    }
+
+    public enum SearchStatus
+    {
+        None=0, // 아무 상태도 아님
+        SearchPath=1, // 내 위치로부터 도착지를 찾을 때 활성화
     }
 }

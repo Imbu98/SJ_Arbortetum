@@ -1,6 +1,5 @@
 ﻿using Data;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class csSingleton : MonoBehaviour
@@ -20,7 +19,7 @@ public class csSingleton : MonoBehaviour
         {
             _Instance = this;
             DontDestroyOnLoad(this.gameObject);
-            LoadAllPlaces();
+            LoadAllLocation();
         }
         else
         {
@@ -28,12 +27,13 @@ public class csSingleton : MonoBehaviour
         }
     }
 
-    private void LoadAllPlaces()
+    // csv의 모든 장소 넣어두기 
+    private void LoadAllLocation()
     {
-        TextAsset csvFile = Resources.Load<TextAsset>("CSV/AllPlaces");
+        TextAsset csvFile = Resources.Load<TextAsset>("CSV/AllLocations");
         if (csvFile == null)
         {
-            Debug.LogError("❌ AllPlaces.csv 파일을 찾을 수 없습니다.");
+            Debug.LogError("❌ AllLocations.csv 파일을 찾을 수 없습니다.");
             return;
         }
 
@@ -43,18 +43,24 @@ public class csSingleton : MonoBehaviour
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
             string[] cols = lines[i].Split(',');
-            if (cols.Length < 4) continue;
+            if (cols.Length < 5) continue; // 최소 5열 필요
 
             string ko = cols[0].Trim();
             string en = cols[1].Trim();
-            if (double.TryParse(cols[2], out double lat) && double.TryParse(cols[3], out double lon))
+
+            if (double.TryParse(cols[2].Trim(), out double lat) &&
+                double.TryParse(cols[3].Trim(), out double lon) &&
+                int.TryParse(cols[4].Trim(), out int id))
             {
-                AllLocations.Add(new LocationData(ko, en, lat, lon));
+                AllLocations.Add(new LocationData(ko, en, lat, lon, id));
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ CSV 파싱 실패: {lines[i]}");
             }
         }
-
-        Debug.Log($"✅ 장소 데이터 {AllLocations.Count}개 로드 완료");
     }
+
 
     /// <summary>
     /// 현재 언어에 맞는 이름으로 검색
@@ -67,8 +73,8 @@ public class csSingleton : MonoBehaviour
         keyword = keyword.Trim().ToLower();
 
         return AllLocations.FindAll(data =>
-            (languageCode == "ko" && data.KoreanName.Contains(keyword)) ||
-            (languageCode != "ko" && data.EnglishName.ToLower().Contains(keyword))
+            (languageCode == "ko" && data.koreanName.Contains(keyword)) ||
+            (languageCode != "ko" && data.englishName.ToLower().Contains(keyword))
         );
     }
 
