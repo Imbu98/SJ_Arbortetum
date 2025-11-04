@@ -17,16 +17,16 @@ public class csLocationInfo : MonoBehaviour
         // 버튼은 출발을 오프셋1, 도착을 오프셋2 data넘기기
 
         setStartLocationButton.onClick.RemoveAllListeners();
-        setStartLocationButton.onClick.AddListener(() =>
+        setStartLocationButton.onClick.AddListener(async () =>
         {
-            csMapManager.Instance._searchManager.SetSearchUI(data, 1);
+            await csMapManager.Instance._searchManager.SetSearchUI(data, 1);
             clear();
         });
 
         setEndLocationButton.onClick.RemoveAllListeners();
-        setEndLocationButton.onClick.AddListener(() =>
+        setEndLocationButton.onClick.AddListener(async () =>
         {
-            csMapManager.Instance._searchManager.SetSearchUI(data, 2);
+            await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
             clear();
         });
 

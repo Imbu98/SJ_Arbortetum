@@ -77,7 +77,7 @@ public class csNetworkManager : MonoBehaviour
                     {
                         foreach (var point in coordinatesArray)
                         {
-                            // [lon, lat] 순서 → GeoCoordinate(lat, lon)
+                            // 나중에 서버에서 순서 바꾸면 바뀌도록 
                             double lon = point[0].Value<double>();
                             double lat = point[1].Value<double>();
                             coords.Add(new GeoCoordinate(lat, lon));

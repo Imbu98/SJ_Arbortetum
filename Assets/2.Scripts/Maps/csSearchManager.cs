@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -23,7 +24,6 @@ public class csSearchManager : MonoBehaviour
     [SerializeField] private Button searchScreenButton; // 장소 검색 화면 여는 버튼
     [SerializeField] private Button ReverseDestinationButton; // 출발지, 도착지 변경 버튼
 
-    [SerializeField] private Button StartPathFindButton; // 길찾기 시작 버튼
     [SerializeField] private Button pathFind_StartButton; // 출발 장소 검색 화면 여는 버튼 
     [SerializeField] private Button pathFind_EndButton; // 도착 장소 검색 화면 여는 버튼 
     [SerializeField] private Button closePathFindButton; // 길찾기상태에서 지도 초기화면으로 돌아가는 버튼
@@ -43,7 +43,6 @@ public class csSearchManager : MonoBehaviour
         searchScreenButton.onClick.AddListener(() => OnSearchScreenButtonClicked(0, searchScreenButton));
 
 
-        StartPathFindButton.onClick.AddListener(() => csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath);
         // 길찾기 출발지 변경
         pathFind_StartButton.onClick.AddListener(() => OnSearchScreenButtonClicked(1, pathFind_StartButton));
         // 길찾기 목적지 변경
@@ -63,7 +62,6 @@ public class csSearchManager : MonoBehaviour
         resetSearchButton.onClick.RemoveAllListeners();
         searchScreenButton.onClick.RemoveAllListeners();
 
-        StartPathFindButton.onClick.RemoveAllListeners();
         pathFind_StartButton.onClick.RemoveAllListeners();
         pathFind_EndButton.onClick.RemoveAllListeners();
         closePathFindButton.onClick.RemoveAllListeners();
@@ -85,64 +83,34 @@ public class csSearchManager : MonoBehaviour
         // 지도를 해당 위치로 이동
         csMapManager.Instance.MoveMapToLocation(data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, offset);
 
-        if (offset == 0)
+        switch (offset)
         {
-            // 장소 정보 UI띄우기
-            locationInfo.Init(data);
-            // 검색창 UI 버튼 변경
-            SetSearchScreenButtonUI(true);
-            // 현재 검색 장소 정보 저장
-            searchLocationData = data;
-            // 텍스트 표시
-            searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
-        }
-        else
-        {
-            SetPathFindUI(true);
-            if (offset == 1)
-            {
+            case 0:
+                locationInfo.Init(data);
+                SetSearchScreenButtonUI(true);
+                searchLocationData = data;
+                searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
+                break;
+
+            case 1:
                 pathFind_StartLocationData = data;
+                UpdatePathButtonText(pathFind_StartButton, data);
+                SetPathFindUI(true);
+                break;
 
-                pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
-            }
-            else if (offset == 2)
-            {
+            case 2:
                 pathFind_EndLocationData = data;
+                UpdatePathButtonText(pathFind_EndButton, data);
+                SetPathFindUI(true);
 
-                pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>().text = data.GetLocalizedName();
-
-                // 도착지점에 정보 넣었는데 시작지점에 정보가 없으면 자동으로 내 위치를 정보로 저장 후 길찾기
+                // 출발지가 없으면 내 위치 자동 설정
                 if (!IsValidLocation(pathFind_StartLocationData))
-                {
-                    csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath;
-
-                    pathFind_StartLocationData = new LocationData
-                    {
-                        geoCoordinate = new GeoCoordinate(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude),
-                        koreanName = "내 위치",
-                        englishName = "My Location",
-                        locationID = -1
-
-                    };
-                    pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = pathFind_StartLocationData.GetLocalizedName();
-                    
-                }
-            }
+                    pathFind_StartLocationData = CreateMyLocation();
+                UpdatePathButtonText(pathFind_StartButton, data);
+                await TryStartPathFinding();
+                break;
         }
-        // 두 좌표다 유효하면 바로 길찾기
-        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
-        {
-            if (pathFind_StartLocationData.locationID == -1)
-                RefreshMyLocationIfNeeded(pathFind_StartLocationData);
-            if (pathFind_EndLocationData.locationID == -1)
-                RefreshMyLocationIfNeeded(pathFind_EndLocationData);
-            // 서버에서 AI한테 경로 좌표 받아와야함
-            // 일단 임시로 테스트
-            var searchpath = await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate,pathFind_EndLocationData.geoCoordinate);
-            
-
-            csMapManager.Instance.SearchPath(pathFind_StartLocationData,searchpath.pathCoordinates);
-        }
+        
     }
 
     // 검색장소 초기화
@@ -196,17 +164,12 @@ public class csSearchManager : MonoBehaviour
     //시작 정보와 도착 정보 둘 다 있어야 길찾기 시작
     private bool IsValidLocation(LocationData loc)
     {
-        if (loc.locationID == 0) return false;
-        //-1이면 내위치갱신
-        if (loc.locationID == -1)
-        {
-            loc.geoCoordinate.Latitude = csMapManager.Instance.MyGPS.Latitude;
-            loc.geoCoordinate.Longitude = csMapManager.Instance.MyGPS.Longitude;
-        }
+        if (loc.locationID == 0 ) return false;
         //위도/경도가 0이 아니면 유효하다고 판단
-        return loc != null && loc.locationID != 0; 
+        return loc.locationID != 0; 
     }
 
+    // locationID가 -1이면 현재 내 위치로 갱신
     private void RefreshMyLocationIfNeeded(LocationData loc)
     {
         if (loc != null && loc.locationID == -1)
@@ -216,6 +179,47 @@ public class csSearchManager : MonoBehaviour
         }
     }
 
+    // 비어있으면 내 위치를 기준으로 LocationData를 새로 만듦
+    private LocationData CreateMyLocation()
+    {
+        return new LocationData
+        {
+            geoCoordinate = new GeoCoordinate(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude),
+            koreanName = "내 위치",
+            englishName = "My Location",
+            locationID = -1
+        };
+    }
+    // 버튼 텍스트 업데이트
+    private void UpdatePathButtonText(Button button, LocationData data)
+    {
+        // 데이터가 있으면 해당 데이터의 번역된 이름으로,데이터가 없으면 기본 이름으로 변경 ( 추후 하드코딩에서 변경예정)
+        string text = IsValidLocation(data) ? data.GetLocalizedName() :
+            (csSingleton.Instance.languageCode == "ko" ?
+                (button == pathFind_StartButton ? "출발지" : "도착지") :
+                (button == pathFind_StartButton ? "Start" : "End"));
+        button.GetComponentInChildren<TextMeshProUGUI>().text = text;
+    }
+
+    // 서버에 길찾기 요청
+    private async Task TryStartPathFinding()
+    {
+        if (!IsValidLocation(pathFind_StartLocationData) || !IsValidLocation(pathFind_EndLocationData))
+            return;
+
+        RefreshMyLocationIfNeeded(pathFind_StartLocationData);
+        RefreshMyLocationIfNeeded(pathFind_EndLocationData);
+
+        var searchPath = await csNetworkManager.Instance.GetDestinationCoordsAsync(
+            pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
+
+        // 시작지점이 내 위치(id==-1)이면 길찾기, 아니면 길찾기 중지
+        csMapManager.Instance.EsearchStatus = pathFind_StartLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
+
+        csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchPath.pathCoordinates);
+    }
+
+    // 출발지와 목적지 전환
     private async void OnReverseDestinationButton()
     {
         csMapManager.Instance.DestroyPathFindPrefab();
@@ -224,33 +228,27 @@ public class csSearchManager : MonoBehaviour
         pathFind_StartLocationData = pathFind_EndLocationData;
         pathFind_EndLocationData = temp;
 
-        // 도착지점이 내 위치면 길찾기 취소, 아니면 길찾기
-        csMapManager.Instance.EsearchStatus = pathFind_EndLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
+        // 스왑했는데 출발지가 없으면 내 위치로 지정
+        if (!IsValidLocation(pathFind_StartLocationData))
+        {
+            csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath;
 
-            // 현재 언어 코드 (예: "ko", "en")
-            string languageCode = csSingleton.Instance.languageCode; // 또는 현재 사용하는 언어 변수
+            pathFind_StartLocationData = CreateMyLocation();
+        }
+
+
+        // 현재 언어 코드 (예: "ko", "en")
+        string languageCode = csSingleton.Instance.languageCode; // 또는 현재 사용하는 언어 변수
 
         // 버튼 텍스트 교체 (없으면 기본 문구로)
         TextMeshProUGUI startText = pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>();
         TextMeshProUGUI endText = pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>();
 
-        // 언어별 기본 텍스트 설정
-        string defaultStart = (languageCode == "ko") ? "출발지" : "Start";
-        string defaultEnd = (languageCode == "ko") ? "도착지" : "End";
-
-        string newStartText = pathFind_StartLocationData != null && IsValidLocation(pathFind_StartLocationData)
-            ? pathFind_StartLocationData.GetLocalizedName()
-            : defaultStart;
-
-        string newEndText = pathFind_EndLocationData != null && IsValidLocation(pathFind_EndLocationData)
-            ? pathFind_EndLocationData.GetLocalizedName()
-            : defaultEnd;
-
-        startText.text = newStartText;
-        endText.text = newEndText;
+        UpdatePathButtonText(pathFind_StartButton, pathFind_StartLocationData);
+        UpdatePathButtonText(pathFind_EndButton, pathFind_EndLocationData);
 
         // 지도 이동 (새 출발지가 유효할 때만)
-        if (pathFind_StartLocationData != null && IsValidLocation(pathFind_StartLocationData))
+        if (IsValidLocation(pathFind_StartLocationData))
         {
             csMapManager.Instance.MoveMapToLocation(
                 pathFind_StartLocationData.geoCoordinate.Latitude,
@@ -259,21 +257,7 @@ public class csSearchManager : MonoBehaviour
             );
         }
 
-        // 두 좌표가 모두 유효하면 바로 길찾기
-        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
-        {
-            if (pathFind_StartLocationData.locationID == -1)
-                RefreshMyLocationIfNeeded(pathFind_StartLocationData);
-            if (pathFind_EndLocationData.locationID == -1)
-                RefreshMyLocationIfNeeded(pathFind_EndLocationData);
-            // 서버에서 AI한테 경로 좌표 받아와야함
-            // 일단 임시로 테스트
-            var searchpath = await csNetworkManager.Instance.GetDestinationCoordsAsync(pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
-
-            
-
-            csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchpath.pathCoordinates);
-        }
+        await TryStartPathFinding();
 
         Debug.Log("✅ 출발지와 도착지를 교체했습니다. (유효하지 않아도 처리됨)");
     }
