@@ -18,7 +18,7 @@ public class csMapManager : MonoBehaviour
 
     private bool IsMapOpened = false;   // 지도가 켜져있는지 확인하는 변수
 
-    public SearchStatus EsearchStatus=SearchStatus.None; // 현재 길을 찾는 중인지 나타내는 변수
+    public SearchStatus E_searchStatus=SearchStatus.None; // 현재 길을 찾는 중인지 나타내는 변수
 
     public csSearchManager _searchManager;
     public csSearchScreen _searchScreen;
@@ -117,7 +117,7 @@ public class csMapManager : MonoBehaviour
     private void Update()
     {
         // 길찾기 중일 때
-        if(EsearchStatus == SearchStatus.SearchPath&&IsMapOpened)
+        if(E_searchStatus == SearchStatus.SearchPath&&IsMapOpened)
         {
             LineConnenctToMarker();
             CheckOnArrive();
@@ -183,7 +183,7 @@ public class csMapManager : MonoBehaviour
             Debug.LogWarning("GPSList가 비어 있습니다. 경로 데이터를 먼저 설정하세요.");
             return;
         }
-        EsearchStatus = SearchStatus.SearchPath;
+        E_searchStatus = SearchStatus.SearchPath;
             // SearchPath 호출
             //csMapManager.Instance.SearchPath(startCoord, gpsList);
 
@@ -192,7 +192,7 @@ public class csMapManager : MonoBehaviour
     public void SearchPath(LocationData startLocationData, List<GeoCoordinate> coords)
     {
         
-        if(EsearchStatus == SearchStatus.SearchPath)
+        if(E_searchStatus == SearchStatus.SearchPath)
         {
             // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
             if (startMarker) Destroy(startMarker.gameObject);
@@ -613,7 +613,7 @@ public class csMapManager : MonoBehaviour
     {
         _searchManager.ClearPathFindUI();
         CurrentTargetCoordnateIndex = 0;
-        EsearchStatus = SearchStatus.None;
+        E_searchStatus = SearchStatus.None;
     }
 
     // 길찾기 표시 프리펩 삭제

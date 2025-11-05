@@ -8,6 +8,7 @@ public class csUI_Manager : MonoBehaviour
     public GameObject startScreen;
     public GameObject mainScreen;
     public GameObject mapScreen;
+    public GameObject missionPopup;
 
 
     private GameObject currentScreen;
@@ -52,9 +53,17 @@ public class csUI_Manager : MonoBehaviour
         currentPanel = newPanel;
     }
 
+    // 지도 나타내기
     public void PopupMap(bool bShow)
     {
         mapScreen.SetActive(bShow);
+    }
+
+    // 미션창 나타내기
+
+    public void PopupMission(bool bShow)
+    {
+        missionPopup.SetActive(bShow);
     }
 
 }

@@ -26,7 +26,7 @@ public class csSelectMissonStyle : MonoBehaviour
             selectMissonStyleButtons[i].onClick.AddListener(() => OnSelectButtonClicked(index));
         }
 
-        missonCreateButton.onClick.AddListener(() => csMissionManager.Instance.CreateMisson());
+        missonCreateButton.onClick.AddListener(OnClickMissonCreateButton);
     }
 
     private void OnDisable()
@@ -82,5 +82,10 @@ public class csSelectMissonStyle : MonoBehaviour
         {
             missonCreateButton.image.color = normalColor;
         }
+    }
+
+    private async void OnClickMissonCreateButton()
+    {
+        await csMissionManager.Instance.CreateMisson();
     }
 }

@@ -78,7 +78,7 @@ public class csSearchManager : MonoBehaviour
     // 검색화면에서 장소리스트중 하나를 클릭했을 때
     public async Task SetSearchUI(LocationData data, int offset)
     {
-        csMapManager.Instance.EsearchStatus = SearchStatus.None;
+        csMapManager.Instance.E_searchStatus = SearchStatus.None;
 
         // 지도를 해당 위치로 이동
         csMapManager.Instance.MoveMapToLocation(data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, offset);
@@ -214,7 +214,7 @@ public class csSearchManager : MonoBehaviour
             pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
 
         // 시작지점이 내 위치(id==-1)이면 길찾기, 아니면 길찾기 중지
-        csMapManager.Instance.EsearchStatus = pathFind_StartLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
+        csMapManager.Instance.E_searchStatus = pathFind_StartLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
 
         csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchPath.pathCoordinates);
     }
@@ -231,7 +231,7 @@ public class csSearchManager : MonoBehaviour
         // 스왑했는데 출발지가 없으면 내 위치로 지정
         if (!IsValidLocation(pathFind_StartLocationData))
         {
-            csMapManager.Instance.EsearchStatus = SearchStatus.SearchPath;
+            csMapManager.Instance.E_searchStatus = SearchStatus.SearchPath;
 
             pathFind_StartLocationData = CreateMyLocation();
         }

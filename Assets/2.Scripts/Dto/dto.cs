@@ -3,26 +3,37 @@ using System.Collections.Generic;
 
 namespace Data
 {
+    // 공통 속성 정의
+    public abstract class BaseMission
+    {
+        public string Description;
+        public bool IsCleared;
+        public int missionDistance;
+    }
+
     // AI가 생성한 전체 미션 목록을 받아오는 dto
     public class AICreatedMissions
     {
-        public List<MissionContainer> MissionContainers;
+        public List<MissionContainer> missionContainers;
     }
 
     // 하나의 미션이 가지고 있는 여러 개의 세부 미션
-    public class MissionContainer
+    public class MissionContainer: BaseMission
     {
-        public List<MissionDto> MissionDtos;
+        public string missionTitle;
+
+        public int missonTimeTaken; // 미션 소요시간
+
+        public List<MissionDto> missionDtos;
     }
 
     // 세부 미션이 가지고 있는 정보
-    public class MissionDto
+    public class MissionDto : BaseMission
     {
-        public GeoCoordinate DestinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
+        public GeoCoordinate destinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
 
-        public string DestinationName; // 도착지 이름
+        public string destinationName; // 도착지 이름
 
-        public string MissonDescription; // 미션 설명
     }
 
 
@@ -69,9 +80,18 @@ namespace Data
         }
     }
 
+    // 지도 이용 시 길찾기 중인지, 장소 검색만 하는 중인지 판별
     public enum SearchStatus
     {
         None=0, // 아무 상태도 아님
         SearchPath=1, // 내 위치로부터 도착지를 찾을 때 활성화
+    }
+
+    // 미션의 생성 상태 확인 
+    public enum MissionStatus
+    {
+        None=0,
+        MissionCreating=1,
+        MissonCreated=2,
     }
 }
