@@ -6,7 +6,13 @@ using TMPro;
 
 public class RecordingCanvas : MonoBehaviour
 {
+
+ [SerializeField] private csSpeechPanel _speechPanel;
+
   public Button startRecordingButton;
+  // 녹음이 활성화 되있을 때 표시할 오브젝트(또는 스파인으로 두고 애니메이션 재생 예정)
+  public GameObject recordingActiveObject;
+
   public TextMeshProUGUI resultText;
 
   void Start()
@@ -36,10 +42,17 @@ public class RecordingCanvas : MonoBehaviour
 
   public void OnFinalResult(string result)
   {
-    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
+    recordingActiveObject.SetActive(false);
     resultText.text = result;
     startRecordingButton.enabled = true;
-  }
+
+     
+     // 마지막 결과를 서버에 보냄 
+    _speechPanel.SendResultToSerever(result);
+    // 결과 텍스트 초기화
+    ResetResultText();
+
+    }
 
   public void OnPartialResult(string result)
   {
@@ -75,14 +88,14 @@ public class RecordingCanvas : MonoBehaviour
 
   public void OnEndOfSpeech()
   {
-    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
+        recordingActiveObject.SetActive(false );
   }
 
   public void OnError(string error)
   {
     Debug.LogError(error);
-    startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
-    startRecordingButton.enabled = true;
+        recordingActiveObject.SetActive(false);
+        startRecordingButton.enabled = true;
   }
 
   public void OnStartRecordingPressed()
@@ -93,18 +106,40 @@ public class RecordingCanvas : MonoBehaviour
     {
 #if UNITY_IOS && !UNITY_EDITOR
 			SpeechRecognizer.StopIfRecording();
-			startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Stopping";
+			recordingActiveObject.SetActive(true);
 			startRecordingButton.enabled = false;
 #elif UNITY_ANDROID && !UNITY_EDITOR
 			SpeechRecognizer.StopIfRecording();
-			startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Recording";
+			recordingActiveObject.SetActive(false);
 #endif
         }
         else
     {
       SpeechRecognizer.StartRecording(true);
-      startRecordingButton.GetComponentInChildren<TextMeshProUGUI>().text = "Stop Recording";
-      resultText.text = "Say something :-)";
+            recordingActiveObject.SetActive(true);
+            resultText.text = "대화를 시작하세요";
     }
   }
+
+    public void OnStopRecording()
+    {
+        if (SpeechRecognizer.IsRecording())
+        {
+#if UNITY_IOS && !UNITY_EDITOR
+			SpeechRecognizer.StopIfRecording();
+			recordingActiveObject.SetActive(true);
+			startRecordingButton.enabled = false;
+#elif UNITY_ANDROID && !UNITY_EDITOR
+			SpeechRecognizer.StopIfRecording();
+			recordingActiveObject.SetActive(false);
+#endif
+        }
+        ResetResultText();
+        _speechPanel.CloseSpeechToTextScreen();
+    }
+
+    private void ResetResultText()
+    {
+        resultText.text = "버튼을 누르고 입력할 내용을 말하세요"; // 나중에 로컬라제이션 적용
+    }
 }

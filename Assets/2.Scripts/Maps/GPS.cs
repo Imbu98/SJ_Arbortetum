@@ -91,11 +91,11 @@ public class GPS : MonoBehaviour
 
         if (Input.location.status != LocationServiceStatus.Running) return;
 
-        
+
         //var last = Input.location.lastData;
-        //Latitude =  Math.Round(last.latitude, 6);
-        //Longitude =  Math.Round(last.longitude, 6);
-        // 필요 시:
+        //Latitude = Math.Round(last.latitude, 6);
+        //Longitude = Math.Round(last.longitude, 6);
+        ////필요 시:
         //var heading = Input.compass.trueHeading;
     }
 

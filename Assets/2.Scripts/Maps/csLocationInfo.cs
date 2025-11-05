@@ -1,4 +1,5 @@
 using Data;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,15 +20,29 @@ public class csLocationInfo : MonoBehaviour
         setStartLocationButton.onClick.RemoveAllListeners();
         setStartLocationButton.onClick.AddListener(async () =>
         {
-            await csMapManager.Instance._searchManager.SetSearchUI(data, 1);
-            clear();
+            try
+            {
+                await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
+                clear();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SetSearchUI] Error: {e.Message}");
+            }
         });
 
         setEndLocationButton.onClick.RemoveAllListeners();
         setEndLocationButton.onClick.AddListener(async () =>
         {
-            await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
-            clear();
+            try
+            {
+                await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
+                clear();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SetSearchUI] Error: {e.Message}");
+            }
         });
 
         locationNameTMP.text = data.GetLocalizedName();

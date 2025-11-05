@@ -5,10 +5,14 @@ using UnityEngine.UI;
 
 public class csSpeechPanel : MonoBehaviour
 {
-    public Button startSpeechToTextButton;
-    private TouchScreenKeyboard keyboard;
+    // SpeechToTextScreen을 여는 버튼
+    [SerializeField] private Button startSpeechToTextButton;
 
-    [SerializeField] private Button speechButton;
+    // 서버에서 날라온 ai챗봇의 대화 내용
+    [SerializeField] private TextMeshProUGUI aIText_TMP;
+
+    private TouchScreenKeyboard keyboard;
+    
 
     private void Update()
     {
@@ -32,23 +36,25 @@ public class csSpeechPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        speechButton?.onClick.AddListener(OnOpenKeyboardButtonClicked);
-        startSpeechToTextButton?.onClick.AddListener(OnStartSpeechToTextButtonClicked);
+        startSpeechToTextButton.onClick.AddListener(OpenSpeechToTextScreen);
     }
 
     private void OnDisable()
     {
-        speechButton?.onClick.RemoveListener(OnOpenKeyboardButtonClicked);
-        startSpeechToTextButton?.onClick.RemoveListener(OnStartSpeechToTextButtonClicked);
+        startSpeechToTextButton.onClick.RemoveAllListeners();
     }
 
-    // 버튼에 연결
+    // 대화하기 버튼 클릭 시 키보드와 음성 대화 버튼 등장
     public void OnOpenKeyboardButtonClicked()
     {
+#if !UNITY_EDITOR
         // 키보드 열기
         keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
 
+        TouchScreenKeyboard.hideInput = false;
+
         startSpeechToTextButton.gameObject.SetActive(true);
+#endif
 
     }
 
@@ -58,10 +64,38 @@ public class csSpeechPanel : MonoBehaviour
         Debug.Log("입력 완료: " + text);
 
         startSpeechToTextButton.gameObject.SetActive(false);
+
+        SendResultToSerever(text);
     }
 
-    private void OnStartSpeechToTextButtonClicked()
+    // 키보드 등장시 같이 등장하는 버튼을 누르면 키패드가 닫히고 SpeechToTextScreen열림
+    private void OpenSpeechToTextScreen()
     {
+        csUI_Manager.Instance.PopupSpeechToText(true);
+
+        if (keyboard != null)
+        {
+            keyboard.active = false;
+            keyboard = null;
+        }
+    }
+
+    public void CloseSpeechToTextScreen()
+    {
+        csUI_Manager.Instance.PopupSpeechToText(false);
+    }
+
+    // 서버에 내용 보내기
+    public void SendResultToSerever(string result)
+    {
+        csUI_Manager.Instance.PopupSpeechToText(false);
+
+        Debug.Log(result);
+
+        // 임시
+        aIText_TMP.text = result;
+        // 서버에서 챗봇 대화내용 불러오기
+        // aIText_TMP.text = await~~
 
     }
 }
