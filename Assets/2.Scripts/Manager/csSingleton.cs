@@ -1,6 +1,7 @@
 ﻿using Data;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 public class csSingleton : MonoBehaviour
 {
@@ -25,6 +26,9 @@ public class csSingleton : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+
+        var locale = LocalizationSettings.AvailableLocales.GetLocale(languageCode);
+        LocalizationSettings.SelectedLocale = locale;
     }
 
     // csv의 모든 장소 넣어두기 

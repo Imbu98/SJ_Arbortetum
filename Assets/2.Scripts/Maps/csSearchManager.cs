@@ -196,11 +196,23 @@ public class csSearchManager : MonoBehaviour
     // 버튼 텍스트 업데이트
     private void UpdatePathButtonText(Button button, LocationData data)
     {
-        // 데이터가 있으면 해당 데이터의 번역된 이름으로,데이터가 없으면 기본 이름으로 변경 ( 추후 하드코딩에서 변경예정)
-        string text = IsValidLocation(data) ? data.GetLocalizedName() :
-            (csSingleton.Instance.languageCode == "ko" ?
-                (button == pathFind_StartButton ? "출발지" : "도착지") :
-                (button == pathFind_StartButton ? "Start" : "End"));
+        string text;
+
+        if (IsValidLocation(data))
+        {
+            text = data.GetLocalizedName();
+        }
+        else
+        {
+            // 버튼 종류에 따라 Localization Key 선택
+            string key = (button == pathFind_StartButton)
+                ? "Key_StartLocation"
+                : "Key_EndLocation";
+
+            text = csLocalizationManager.Instance.LocalizationString(key);
+        }
+
+        // 버튼 텍스트 변경
         button.GetComponentInChildren<TextMeshProUGUI>().text = text;
     }
 

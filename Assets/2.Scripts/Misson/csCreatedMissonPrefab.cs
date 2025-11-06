@@ -35,6 +35,6 @@ public class csCreatedMissonPrefab : MonoBehaviour
 
     public void SetClearUI()
     {
-
+        clearObject.SetActive(true);
     }
 }

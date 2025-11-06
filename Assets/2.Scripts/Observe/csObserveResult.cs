@@ -22,7 +22,7 @@ public class csObserveResult : MonoBehaviour
     [SerializeField] List<Sprite> testImageList; // 에디터용 테스트 이미지 리스트( 나중에 서버에서 가져온 텍스쳐로 변경 예정)
 
     [Header("Button")]
-    [SerializeField] private Button NextButton;
+    [SerializeField] private Button resultButton;
 
     private int currentPageCount=0; // 몇번째 페이지의 이미지인지
     
@@ -180,24 +180,24 @@ public class csObserveResult : MonoBehaviour
     // 식물 정보 UI 세팅
     private void SetUI()
     {
-        NextButton.onClick.RemoveAllListeners();
+        resultButton.onClick.RemoveAllListeners();
 
         bool isMissionInProgress = csMissionManager.Instance.IsMissonOnProgress;
         bool isSamePlant = isMissionInProgress &&
-                           csMissionManager.Instance.GetCurrentMissionDto().plantName == currentPlantData.name;
+                           csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.name;
 
         // 버튼 텍스트변경과 함수 바인딩
         if (isSamePlant)
         {
             // 현재 미션과 같은 식물일 때 → 미션 클리어
-            NextButton.onClick.AddListener(csMissionManager.Instance.ClearCurrentProgressMission);
-            NextButton.GetComponentInChildren<TextMeshProUGUI>().text = "확인"; // 추후 로컬라제이션
+            resultButton.onClick.AddListener(csMissionManager.Instance.ClearCurrentMissionStep);
+            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "확인"; // 추후 로컬라제이션
         }
         else
         {
             // 미션이 없거나, 다른 식물일 때 → 사진 촬영 화면으로
-            NextButton.onClick.AddListener(csImageManager.Instance.SetCameraScreen);
-            NextButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
+            resultButton.onClick.AddListener(csImageManager.Instance.SetCameraScreen);
+            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
         }
     }
 
