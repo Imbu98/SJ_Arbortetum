@@ -84,8 +84,8 @@ public class csSelectMissonStyle : MonoBehaviour
         }
     }
 
-    private async void OnClickMissonCreateButton()
+    private void OnClickMissonCreateButton()
     {
-        await csMissionManager.Instance.CreateMisson();
+        csMissionManager.Instance.CreateMisson();
     }
 }

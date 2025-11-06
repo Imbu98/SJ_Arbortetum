@@ -71,6 +71,8 @@ public class csSpeechPanel : MonoBehaviour
     // 키보드 등장시 같이 등장하는 버튼을 누르면 키패드가 닫히고 SpeechToTextScreen열림
     private void OpenSpeechToTextScreen()
     {
+        startSpeechToTextButton.gameObject.SetActive(false);
+
         csUI_Manager.Instance.PopupSpeechToText(true);
 
         if (keyboard != null)

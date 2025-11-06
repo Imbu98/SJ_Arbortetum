@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using Cysharp.Threading.Tasks;
+using Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -31,7 +32,7 @@ public class csNetworkManager : MonoBehaviour
     /// <summary>
     /// 서버에 시작/도착 좌표를 보내고, 최적 경로 좌표 리스트를 반환합니다.
     /// </summary>
-    public async Task<SearchPathCoordinate> GetDestinationCoordsAsync(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
+    async public UniTask<SearchPathCoordinate> GetDestinationCoordsAsync(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
     {
         // 요청 데이터 → JSON 문자열 변환
         var body = new
@@ -82,12 +83,16 @@ public class csNetworkManager : MonoBehaviour
                             coords.Add(new GeoCoordinate(lat, lon));
                         }
                     }
-
-                    // 4️⃣ 최종 반환 객체
-                    SearchPathCoordinate result = new SearchPathCoordinate
+                    else
                     {
-                        pathCoordinates = coords
-                    };
+                        Debug.Log("[csNetworkManager] coordinatesArray is Null");
+                    }
+
+                        // 4️⃣ 최종 반환 객체
+                        SearchPathCoordinate result = new SearchPathCoordinate
+                        {
+                            pathCoordinates = coords
+                        };
 
                     Debug.Log($"[csNetworkManager] 경로 좌표 {coords.Count}개 수신 완료 ✅");
                     return result;

@@ -16,7 +16,7 @@ public class csCreatedMissonPrefab : MonoBehaviour
 
     [SerializeField] private List<Color> colors;
 
-    public void Init(int missonIndex, MissionContainer missionInfo)
+    public void Init(int missonIndex, Mission missionInfo)
     {
         uiBackground_IMG.color = colors[missonIndex];
 
@@ -31,5 +31,10 @@ public class csCreatedMissonPrefab : MonoBehaviour
     private void StartMission(int index)
     {
         csMissionManager.Instance.StartMission(index);
+    }
+
+    public void SetClearUI()
+    {
+
     }
 }

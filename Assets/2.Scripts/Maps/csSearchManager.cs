@@ -76,7 +76,7 @@ public class csSearchManager : MonoBehaviour
     }
 
     // 검색화면에서 장소리스트중 하나를 클릭했을 때
-    public async Task SetSearchUI(LocationData data, int offset)
+    public void SetSearchUI(LocationData data, int offset)
     {
         csMapManager.Instance.E_searchStatus = SearchStatus.None;
 
@@ -100,14 +100,16 @@ public class csSearchManager : MonoBehaviour
 
             case 2:
                 pathFind_EndLocationData = data;
-                UpdatePathButtonText(pathFind_EndButton, data);
                 SetPathFindUI(true);
-
                 // 출발지가 없으면 내 위치 자동 설정
                 if (!IsValidLocation(pathFind_StartLocationData))
+                {
                     pathFind_StartLocationData = CreateMyLocation();
-                UpdatePathButtonText(pathFind_StartButton, data);
-                await TryStartPathFinding();
+                    UpdatePathButtonText(pathFind_StartButton, pathFind_StartLocationData);
+                }
+                UpdatePathButtonText(pathFind_EndButton, data);
+
+                TryStartPathFinding();
                 break;
         }
         
@@ -128,11 +130,12 @@ public class csSearchManager : MonoBehaviour
     public void ClearPathFindUI()
     {
         // 길찾기 데이터 초기화
-        pathFind_StartLocationData = null;
-        pathFind_EndLocationData = null;
+        pathFind_StartLocationData = new LocationData();
+        pathFind_EndLocationData = new LocationData();
         // 하드코딩 되어있는데 나중에 변경해야함
-        pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>().text = "출발지";
-        pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>().text = "도착지";
+        UpdatePathButtonText(pathFind_StartButton, pathFind_StartLocationData);
+        UpdatePathButtonText(pathFind_EndButton, pathFind_EndLocationData);
+
         searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = "검색할 장소를 입력하세요";
     }
 
@@ -202,7 +205,7 @@ public class csSearchManager : MonoBehaviour
     }
 
     // 서버에 길찾기 요청
-    private async Task TryStartPathFinding()
+    private async void TryStartPathFinding()
     {
         if (!IsValidLocation(pathFind_StartLocationData) || !IsValidLocation(pathFind_EndLocationData))
             return;
@@ -220,7 +223,7 @@ public class csSearchManager : MonoBehaviour
     }
 
     // 출발지와 목적지 전환
-    private async void OnReverseDestinationButton()
+    private void OnReverseDestinationButton()
     {
         csMapManager.Instance.DestroyPathFindPrefab();
         // 데이터 자체를 스왑 (유효하지 않아도 그대로 교체)
@@ -257,7 +260,7 @@ public class csSearchManager : MonoBehaviour
             );
         }
 
-        await TryStartPathFinding();
+        TryStartPathFinding();
 
         Debug.Log("✅ 출발지와 도착지를 교체했습니다. (유효하지 않아도 처리됨)");
     }

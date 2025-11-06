@@ -140,6 +140,6 @@ public class RecordingCanvas : MonoBehaviour
 
     private void ResetResultText()
     {
-        resultText.text = "버튼을 누르고 입력할 내용을 말하세요"; // 나중에 로컬라제이션 적용
+        resultText.text = "버튼을 누르고 말하기를 시작하세요"; // 나중에 로컬라제이션 적용
     }
 }

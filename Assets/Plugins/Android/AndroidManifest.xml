@@ -7,7 +7,9 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.INTERNET" />
-	<application>
+	<application
+    android:usesCleartextTraffic="true"
+    tools:replace="android:usesCleartextTraffic">
         <!--Used when Application Entry is set to Activity, otherwise remove this activity block-->
         <activity android:name="com.unity3d.player.UnityPlayerActivity">
             <intent-filter>

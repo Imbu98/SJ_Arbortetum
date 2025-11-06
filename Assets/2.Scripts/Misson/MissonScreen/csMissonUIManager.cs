@@ -25,10 +25,12 @@ public class csMissonUIManager : MonoBehaviour
         else if(csMissionManager.Instance.E_missonStatus == MissionStatus.MissonCreated)
         {
             ChangeMissonPanel(2);
+
+            csMissionManager.Instance.SetCreatedMissonUI();
         }
     }
 
-    // 미션관련 패널을 바꾸는 함수 ( 0:미션스타일고르기, 1:미션생성중 창, 2:미션 목록)
+    // 미션관련 패널을 바꾸는 함수 ( 0:미션스타일고르기, 1:미션생성중 창, 2:미션 목록, 3:미션 진행)
     public void ChangeMissonPanel(int panelindex)
     {
         if (currentMissonPanel != null)
@@ -39,5 +41,21 @@ public class csMissonUIManager : MonoBehaviour
         currentMissonPanel = missonPanels[panelindex];
 
         currentMissonPanel.SetActive(true);
+    }
+
+    // 생성된 미션 목록 창으로 변경
+    public void ChangeToCreatedMission()
+    {
+        ChangeMissonPanel(2);
+
+        csMissionManager.Instance.SetCreatedMissonUI();
+    }
+
+    // 미션진행중 창으로 변경
+    public void ChangeToProgressMission()
+    {
+        ChangeMissonPanel(3);
+
+        csMissionManager.Instance.SetProgressMissionUI();
     }
 }

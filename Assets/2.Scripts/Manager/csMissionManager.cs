@@ -15,8 +15,7 @@ public class csMissionManager : MonoBehaviour
     private AICreatedMissions aiCreatedMissions;
 
     // 현재 진행중인 미션 저장
-    private MissionContainer missionContainer;
-
+    private Mission missionContainer;
 
     // 미션 목록으로 만든 UI 부모 트랜스폼
     private Transform createdMissionHolder;
@@ -41,8 +40,10 @@ public class csMissionManager : MonoBehaviour
     // 현재 미션의 생성 상태
     [HideInInspector] public MissionStatus E_missonStatus=MissionStatus.None;
 
-    // 몇 번째 미션인지 확인하는 인덱스
-    [HideInInspector]public int currentMissionIndex = 0;
+    // 몇 번째 생성미션인지 확인하는 인덱스
+    [HideInInspector] public int currentMissionIndex = 0;
+    // 몇 번째 미션 진행중인지 확인하는 인덱스
+    [HideInInspector]public int currentMissionStepIndex = 0;
     // 미션 중인지 확인하는 인덱스
     [HideInInspector]public bool IsMissonOnProgress = false;
 
@@ -61,7 +62,7 @@ public class csMissionManager : MonoBehaviour
     }
 
     // 서버로부터 미션 받아오는 함수
-    public async Task CreateMisson()
+    public async void CreateMisson()
     {
         E_missonStatus = MissionStatus.MissionCreating;
         // 미션 생성중 창으로 변경
@@ -82,26 +83,22 @@ public class csMissionManager : MonoBehaviour
     }
 
     // 현재 미션목록을 기반으로 미션 목록 UI 생성
-    public void SetCreatedMissonUI(bool setUI)
+    public void SetCreatedMissonUI()
     {
-        // 미션목록 UI만들기
-        if(setUI)
-        {
             ClearCreatedMissionList();
 
-            for (int i=0; i< aiCreatedMissions.missionContainers.Count;++i)
+            for (int i=0; i< aiCreatedMissions.missions.Count;++i)
             {
                 if(createdMissionPrefab)
                 {
                     csCreatedMissonPrefab createdMission = Instantiate(createdMissionPrefab, createdMissionHolder, false);
                     if (createdMission)
                     {
-                        createdMission.Init(i, aiCreatedMissions.missionContainers[i]);
+                        createdMission.Init(i, aiCreatedMissions.missions[i]);
                         createdMissionList.Add(createdMission);
                     }
                 }
             }
-        }
     }
 
     private void ClearCreatedMissionList()
@@ -117,30 +114,32 @@ public class csMissionManager : MonoBehaviour
 
     public void StartMission(int missionIndex)
     {
-        missionContainer = aiCreatedMissions.missionContainers[missionIndex];
+        missionContainer = aiCreatedMissions.missions[missionIndex];
 
-        _missonUIManager.ChangeMissonPanel(3);
+        _missonUIManager.ChangeToProgressMission();
+
+        currentMissionIndex = missionIndex;
     }
 
     public void SetProgressMissionUI()
     {
-        ClearProgressMissionList();
+        ResetProgressMissionList();
 
-        for (int i = 0; i < missionContainer.missionDtos.Count; ++i)
+        for (int i = 0; i < missionContainer.missionStepDetails.Count; ++i)
         {
             if (progressMissonPrefab)
             {
                 csProgressMissionPrefab progressMission = Instantiate(progressMissonPrefab, progressMissonHolder, false);
                 if (progressMission)
                 {
-                    // 진행미션 리스트 UI Init 추가
+                    progressMission.Init(i, missionContainer.missionStepDetails[i]);
                     progressMissonList.Add(progressMission);
                 }
             }
         }
     }
 
-    private void ClearProgressMissionList()
+    private void ResetProgressMissionList()
     {
         foreach (var progressMission in progressMissonList)
         {
@@ -149,4 +148,38 @@ public class csMissionManager : MonoBehaviour
         }
         progressMissonList.Clear();
     }
+
+    //
+
+    public void ClearCurrentProgressMission()
+    {
+        MissionStep currentMissionDto = aiCreatedMissions.missions[currentMissionIndex].missionStepDetails[currentMissionIndex];
+
+        currentMissionDto.IsCleared = true;
+
+        progressMissonList[currentMissionStepIndex].SetClearUI();
+
+        currentMissionStepIndex++;
+
+        // 미션스텝 디테일보다 크면 해당 미션 클리어
+        if(currentMissionStepIndex >=  missionContainer.missionStepDetails.Count)
+        {
+            ClearCurrentCreatedMission();
+        }
+    }
+    
+    // 현재 진행중이던 미션 클리어
+    private void ClearCurrentCreatedMission()
+    {
+        aiCreatedMissions.missions[currentMissionIndex].IsCleared = true;
+        createdMissionList[currentMissionIndex].SetClearUI();
+    }
+
+    public MissionStep GetCurrentMissionDto()
+    {
+        return missionContainer.missionStepDetails[currentMissionStepIndex];
+    }
+
+    
+
 }

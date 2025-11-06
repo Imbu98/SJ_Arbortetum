@@ -18,31 +18,17 @@ public class csLocationInfo : MonoBehaviour
         // 버튼은 출발을 오프셋1, 도착을 오프셋2 data넘기기
 
         setStartLocationButton.onClick.RemoveAllListeners();
-        setStartLocationButton.onClick.AddListener(async () =>
+        setStartLocationButton.onClick.AddListener(() =>
         {
-            try
-            {
-                await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
+                csMapManager.Instance._searchManager.SetSearchUI(data, 1);
                 clear();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[SetSearchUI] Error: {e.Message}");
-            }
         });
 
         setEndLocationButton.onClick.RemoveAllListeners();
-        setEndLocationButton.onClick.AddListener(async () =>
+        setEndLocationButton.onClick.AddListener(() =>
         {
-            try
-            {
-                await csMapManager.Instance._searchManager.SetSearchUI(data, 2);
+                csMapManager.Instance._searchManager.SetSearchUI(data, 2);
                 clear();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[SetSearchUI] Error: {e.Message}");
-            }
         });
 
         locationNameTMP.text = data.GetLocalizedName();

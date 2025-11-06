@@ -23,7 +23,12 @@ public class csProgressMissionPrefab : MonoBehaviour
 
 
 
-    public void Init(int missonIndex, MissionDto missionDtos)
+    public void Init(int missonIndex, MissionStep missionStep)
+    {
+
+    }
+
+    public void SetClearUI()
     {
 
     }

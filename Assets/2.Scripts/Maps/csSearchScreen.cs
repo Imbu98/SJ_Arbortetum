@@ -90,14 +90,14 @@ public class csSearchScreen : MonoBehaviour
     }
 
     // 검색 결과 중 하나가 클릭되었을 때
-    private async void OnSuggestionClicked(LocationData data)
+    private void OnSuggestionClicked(LocationData data)
     {
         string locationName = data.GetLocalizedName();
         searchScreen_InputField.text = locationName; // 검색화면 inputfield text변경 ( 다시 켯을 때 그대로 남아있도록)
         this.gameObject.SetActive(false); // 검색화면 off
         currentButton.GetComponentInChildren<TextMeshProUGUI>().text = locationName; // 지도 화면의 버튼 텍스트 현재 장소 이름으로 변경
 
-        await csMapManager.Instance._searchManager.SetSearchUI(data,currentOffset);
+        csMapManager.Instance._searchManager.SetSearchUI(data,currentOffset);
 
 
         Debug.Log($"선택됨: {locationName} / 위도: {data.geoCoordinate.Latitude}, 경도: {data.geoCoordinate.Longitude}");

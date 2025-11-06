@@ -14,25 +14,27 @@ namespace Data
     // AI가 생성한 전체 미션 목록을 받아오는 dto
     public class AICreatedMissions
     {
-        public List<MissionContainer> missionContainers;
+        public List<Mission> missions;
     }
 
     // 하나의 미션이 가지고 있는 여러 개의 세부 미션
-    public class MissionContainer: BaseMission
+    public class Mission: BaseMission
     {
         public string missionTitle;
 
         public int missonTimeTaken; // 미션 소요시간
 
-        public List<MissionDto> missionDtos;
+        public List<MissionStep> missionStepDetails;
     }
 
     // 세부 미션이 가지고 있는 정보
-    public class MissionDto : BaseMission
+    public class MissionStep : BaseMission
     {
         public GeoCoordinate destinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
 
         public string destinationName; // 도착지 이름
+
+        public string plantName; // 관찰하기 미션용 꽃 이름
 
     }
 
@@ -54,6 +56,13 @@ namespace Data
             Latitude = latitude;
             Longitude = longitude;
         }
+    }
+
+    public class PlantData
+    {
+        public string name;
+
+        public string description;
     }
 
 

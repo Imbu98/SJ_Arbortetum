@@ -231,13 +231,6 @@ public class csMapManager : MonoBehaviour
         if (coords == null || coords.Count < 2)
             yield break;
 
-        // 길찾기를 요청하면 기존의 선 제거
-        foreach (var lineImage in lineList)
-        {
-            if (lineImage != null)
-                Destroy(lineImage.gameObject);
-        }
-        lineList.Clear();
 
         for (int i = 0; i < coords.Count - 1; i++)
         {
@@ -451,7 +444,7 @@ public class csMapManager : MonoBehaviour
         if(currentGeoCoordinate==null)
             return;
 
-        int missionIndex = csMissionManager.Instance.currentMissionIndex;
+        int missionIndex = csMissionManager.Instance.currentMissionStepIndex;
         SearchPathCoordinate searchPathCoordinate = currentGeoCoordinate;
 
         double targetLat = searchPathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Latitude;
