@@ -8,7 +8,24 @@ public class csSingleton : MonoBehaviour
     public static csSingleton Instance { get { return _Instance; } }
     private static csSingleton _Instance;
 
-    // 수목원 내의 장소 정보를 담고있는 리스트
+    public string strPlayerNickName;
+
+    public bool bTermsofUse;//이용약관 동의
+    public float fBgm;
+    public float fSoundEffect;
+    public int nBgmMute;// 배경음 on/off
+    public int nSoundEffectMute;//효과음 on/off
+
+    public bool bAutoLogin = false;//자동 로그인
+
+    public int nSavedLoginType = 0;//로그인 타입 1: 구글, 2: 애플
+
+    public int nLanguage = 0;//언어설정
+
+    public List<ChatMessage> strSavedChatHistory;
+
+
+    // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트
     public List<LocationData> AllLocations = new List<LocationData>();
 
     // 언어 코드
@@ -27,6 +44,7 @@ public class csSingleton : MonoBehaviour
             Destroy(this.gameObject);
         }
 
+        // 나중에 언어설정 생기면 해당 코드를 같이 넣어주기
         var locale = LocalizationSettings.AvailableLocales.GetLocale(languageCode);
         LocalizationSettings.SelectedLocale = locale;
     }
@@ -71,15 +89,61 @@ public class csSingleton : MonoBehaviour
     /// </summary>
     public List<LocationData> Search(string keyword, string languageCode)
     {
+        //  Empty 검색
         if (string.IsNullOrWhiteSpace(keyword))
-            return new List<LocationData>(); // 🔹 비어 있으면 바로 반환
+            return _emptyList;  // static readonly List<LocationData>()
 
-        keyword = keyword.Trim().ToLower();
+        keyword = keyword.Trim();
+        string keywordLower = keyword.ToLower();
 
-        return AllLocations.FindAll(data =>
-            (languageCode == "ko" && data.koreanName.Contains(keyword)) ||
-            (languageCode != "ko" && data.englishName.ToLower().Contains(keyword))
-        );
+        //  현재 내 위치
+        double myLat = csMapManager.Instance.MyGPS.Latitude;
+        double myLon = csMapManager.Instance.MyGPS.Longitude;
+
+        bool isKorean = languageCode == "ko";
+
+        //  같은 이름 중 가장 가까운 장소만 저장
+        Dictionary<string, (LocationData data, double dist)> bestMap =
+            new Dictionary<string, (LocationData, double)>(64);
+
+        for (int i = 0; i < AllLocations.Count; i++)
+        {
+            var loc = AllLocations[i];
+
+            //  언어에 맞는 이름 선택
+            string name = isKorean ? loc.koreanName : loc.englishName;
+
+            //  keyword 필터
+            if (!name.ToLower().Contains(keywordLower))
+                continue;
+
+            //  거리 계산
+            double dist = csMapManager.Instance.GetDistanceMeters(myLat, myLon, loc.geoCoordinate.Latitude, loc.geoCoordinate.Longitude);
+
+            //  처음 등장한 이름이면 바로 저장
+            if (!bestMap.TryGetValue(name, out var saved))
+            {
+                bestMap[name] = (loc, dist);
+                continue;
+            }
+
+            //  이미 존재하면 더 가까운 것만 유지
+            if (dist < saved.dist)
+            {
+                bestMap[name] = (loc, dist);
+            }
+        }
+
+        //  최종 리스트 변환 (딱 한 번만 new)
+        List<LocationData> result = new List<LocationData>(bestMap.Count);
+        foreach (var kv in bestMap)
+            result.Add(kv.Value.data);
+
+        return result;
     }
+
+    //  GC 최소화를 위한 빈 리스트 패턴
+    private static readonly List<LocationData> _emptyList = new List<LocationData>(0);
+
 
 }

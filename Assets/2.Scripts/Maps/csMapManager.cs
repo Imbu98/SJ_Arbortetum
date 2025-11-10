@@ -75,7 +75,6 @@ public class csMapManager : MonoBehaviour
     [HideInInspector]public double save_latitude;
     [HideInInspector] public double save_longitude;
     [SerializeField] private RectTransform markerRect; // 내 위치 마커
-    [SerializeField] private RectTransform arrowRect; // 방향 화살표 
 
     private void Awake()
     {
@@ -192,23 +191,21 @@ public class csMapManager : MonoBehaviour
     public void SearchPath(LocationData startLocationData, List<GeoCoordinate> coords)
     {
         
-        if(E_searchStatus == SearchStatus.SearchPath)
-        {
-            // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
-            if (startMarker) Destroy(startMarker.gameObject);
-        }
-
-        foreach (var lineImage in lineList)
-        {
-            if (lineImage != null)
-                Destroy(lineImage.gameObject);
-        }
-        lineList.Clear();
-
-
-        if (drawPathCoroutine != null)
-            StopCoroutine(drawPathCoroutine);
+            if (drawPathCoroutine != null)
+                StopCoroutine(drawPathCoroutine);
+            
+            if(E_searchStatus == SearchStatus.SearchPath)
+            {
+                // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
+                if (startMarker) Destroy(startMarker.gameObject);
+            }
         
+            foreach (var lineImage in lineList)
+            {
+                if (lineImage != null)
+                    Destroy(lineImage.gameObject);
+            }
+            lineList.Clear();        
         
 
         currentGeoCoordinate = new SearchPathCoordinate();
@@ -391,14 +388,14 @@ public class csMapManager : MonoBehaviour
 #if UNITY_EDITOR
         simulatedHeading += Time.deltaTime * 30f; // 초당 30도 회전
         if (simulatedHeading > 360) simulatedHeading -= 360;
-        arrowRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
+        markerRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
 #endif
 
 
 #if UNITY_ANDROID || UNITY_IOS
         float heading = Input.compass.trueHeading;
         // 기본: Z축 기준 회전
-        arrowRect.localRotation = Quaternion.Euler(0, 0, -heading);
+        markerRect.localRotation = Quaternion.Euler(0, 0, -heading);
 
         Debug.Log("Heading: " + Input.compass.trueHeading);
 #endif
@@ -625,10 +622,11 @@ public class csMapManager : MonoBehaviour
         }
 
 
-        foreach (var image in lineList)
-        {
-            if (image!= null) Destroy(image.gameObject);
-        }
+            foreach (var image in lineList)
+            {
+                if (image!= null) Destroy(image.gameObject);
+            }
+            lineList.Clear();    
     }
 
 

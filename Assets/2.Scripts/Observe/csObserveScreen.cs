@@ -16,8 +16,8 @@ public class csObserveScreen : MonoBehaviour
         PickImage(
             () =>
             {
-                csImageManager.Instance.SetObserveScreen(csImageManager.Instance.observeLoadingObject);
-                csImageManager.Instance.AnalyzeTexture();
+                csObserveManager.Instance.SetObserveScreen(csObserveManager.Instance.observeLoadingObject);
+                csObserveManager.Instance.AnalyzeTexture();
             }
             );
     }
@@ -90,7 +90,7 @@ public class csObserveScreen : MonoBehaviour
                 }
                 else
                 {
-                    csImageManager.Instance.CloseObserveScreen();
+                    csObserveManager.Instance.CloseObserveScreen();
                 }
             }, 1024); // 사진의 최대 크기 (픽셀)
         }
@@ -111,7 +111,7 @@ public class csObserveScreen : MonoBehaviour
         // 이미지 표시
         targetDisplay.texture = texture;
         // 이미지 매니저에 현재 texture저장 
-        csImageManager.Instance.capturedTexture = texture;
+        csObserveManager.Instance.capturedTexture = texture;
 
         //displayImage.SetNativeSize();
 

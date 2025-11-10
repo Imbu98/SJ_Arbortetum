@@ -73,6 +73,7 @@ public class csSearchManager : MonoBehaviour
     private void OnSearchScreenButtonClicked(int offset, Button currentButton)
     {
         csMapManager.Instance._searchScreen.OpenSearchScreen(offset, currentButton);
+
     }
 
     // 검색화면에서 장소리스트중 하나를 클릭했을 때
@@ -108,11 +109,12 @@ public class csSearchManager : MonoBehaviour
                     UpdatePathButtonText(pathFind_StartButton, pathFind_StartLocationData);
                 }
                 UpdatePathButtonText(pathFind_EndButton, data);
-
-                TryStartPathFinding();
                 break;
         }
-        
+        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_StartLocationData))
+        {
+            TryStartPathFinding();
+        }
     }
 
     // 검색장소 초기화
@@ -124,9 +126,8 @@ public class csSearchManager : MonoBehaviour
         locationInfo.clear();
 
         // 
-        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = "검색할 장소를 입력하세요";
+        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = csLocalizationManager.Instance.LocalizationString("Key_InputSearchLocation");
     }
-
     public void ClearPathFindUI()
     {
         // 길찾기 데이터 초기화
@@ -136,7 +137,7 @@ public class csSearchManager : MonoBehaviour
         UpdatePathButtonText(pathFind_StartButton, pathFind_StartLocationData);
         UpdatePathButtonText(pathFind_EndButton, pathFind_EndLocationData);
 
-        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = "검색할 장소를 입력하세요";
+        searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = csLocalizationManager.Instance.LocalizationString("Key_InputSearchLocation");
     }
 
     // 길찾기인지, 장소검색인지에 따라 다른 object 활성화
@@ -228,15 +229,25 @@ public class csSearchManager : MonoBehaviour
         var searchPath = await csNetworkManager.Instance.GetDestinationCoordsAsync(
             pathFind_StartLocationData.geoCoordinate, pathFind_EndLocationData.geoCoordinate);
 
-        // 시작지점이 내 위치(id==-1)이면 길찾기, 아니면 길찾기 중지
-        csMapManager.Instance.E_searchStatus = pathFind_StartLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
+        if(searchPath!=null)
+        {
+            // 시작지점이 내 위치(id==-1)이면 길찾기, 아니면 길찾기 중지
+            csMapManager.Instance.E_searchStatus = pathFind_StartLocationData.locationID == -1 ? SearchStatus.SearchPath : SearchStatus.None;
 
-        csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchPath.pathCoordinates);
+            csMapManager.Instance.SearchPath(pathFind_StartLocationData, searchPath.pathCoordinates);
+        }
+        
     }
 
     // 출발지와 목적지 전환
     private void OnReverseDestinationButton()
     {
+        if (!IsValidLocation(pathFind_StartLocationData) && !IsValidLocation(pathFind_EndLocationData))
+        {
+            Debug.Log("No Data each location");
+            return;
+        }
+
         csMapManager.Instance.DestroyPathFindPrefab();
         // 데이터 자체를 스왑 (유효하지 않아도 그대로 교체)
         LocationData temp = pathFind_StartLocationData;

@@ -2,7 +2,6 @@ using Data;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -196,7 +195,7 @@ public class csObserveResult : MonoBehaviour
         else
         {
             // 미션이 없거나, 다른 식물일 때 → 사진 촬영 화면으로
-            resultButton.onClick.AddListener(csImageManager.Instance.SetCameraScreen);
+            resultButton.onClick.AddListener(csObserveManager.Instance.SetCameraScreen);
             resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
         }
     }

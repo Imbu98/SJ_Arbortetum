@@ -103,4 +103,18 @@ namespace Data
         MissionCreating=1,
         MissonCreated=2,
     }
+
+    [System.Serializable]
+    public class ChatHistoryWrapper
+    {
+        public List<ChatMessage> chatList;
+    }
+
+    [System.Serializable]
+    public class ChatMessage
+    {
+        public string role;   // "User" or "AI"
+        public string msg;
+    }
+
 }

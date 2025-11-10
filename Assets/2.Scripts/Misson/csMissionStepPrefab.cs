@@ -66,7 +66,7 @@ public class csMissionStepPrefab : MonoBehaviour
         missionObserveButton.onClick.RemoveAllListeners();
         missionObserveButton.onClick.AddListener(() =>
         {
-            csImageManager.Instance.SetCameraScreen();
+            csObserveManager.Instance.SetCameraScreen();
         });
 
         missionPathFindButton.onClick.RemoveAllListeners();

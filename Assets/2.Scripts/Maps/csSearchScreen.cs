@@ -51,8 +51,9 @@ public class csSearchScreen : MonoBehaviour
     {
         this.gameObject.SetActive(false);
         searchScreen_InputField.text = string.Empty; // 검색화면 InputField 초기화
-        currentButton.GetComponentInChildren<TextMeshProUGUI>().text = currentButtonString; // 눌렀던 버튼의 텍스트 기존 텍스트로 초기화
-        csMapManager.Instance.ClearSearchLocation();
+            currentButton.GetComponentInChildren<TextMeshProUGUI>().text = csLocalizationManager.Instance.LocalizationString("Key_InputSearchLocation");
+            currentButton.GetComponentInChildren<TextMeshProUGUI>().text = currentButtonString; // 눌렀던 버튼의 텍스트 기존 텍스트로 초기화
+        //csMapManager.Instance.ClearSearchLocation();
 
     }
 
@@ -109,7 +110,6 @@ public class csSearchScreen : MonoBehaviour
 
         foreach (Transform child in searchPlaceListHolder.transform) Destroy(child.gameObject);
 
-        activeSuggestions.Clear();
     }
     private void SetListIfExist(bool IsExist)
     {

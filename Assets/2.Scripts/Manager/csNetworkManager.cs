@@ -8,13 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Rendering;
+using static System.Net.WebRequestMethods;
 
 public class csNetworkManager : MonoBehaviour
 {
     public static csNetworkManager Instance { get { return _Instance; } }
     private static csNetworkManager _Instance;
 
-    [SerializeField] private string url = "http://192.168.0.26:8000/find-optimal-route";
+    [SerializeField] private string url = "http://3.35.86.123/find-optimal-route";
 
     private void Awake()
     {
@@ -53,6 +55,11 @@ public class csNetworkManager : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Accept", "application/json");     // ✅ Swagger에서 자동 추가됨
+            request.SetRequestHeader("Authorization", "Bearer xxxx");   // ✅ 토큰 필요하면
+
+            Debug.Log($"[csNetworkManager] 요청 URL ...\n{request.url}");
+            
 
             Debug.Log($"[csNetworkManager] 요청 전송 중...\n{jsonBody}");
 
@@ -105,9 +112,33 @@ public class csNetworkManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[csNetworkManager] 요청 실패: {request.error}");
+                Debug.LogError("[csNetworkManager] 요청 실패!");
+                Debug.LogError($"Error: {request.error}");
+                Debug.LogError($"ResponseCode: {request.responseCode}");
+                Debug.LogError($"DownloadText: {request.downloadHandler.text}");
                 return null;
             }
+        }
+    }
+
+    public async UniTask<string> AsyncGetAIChatResult(string chatHistoryJson)
+    {
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(chatHistoryJson);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("AI 서버 요청 실패: " + request.error);
+                return null;
+            }
+
+            return request.downloadHandler.text;
         }
     }
 }

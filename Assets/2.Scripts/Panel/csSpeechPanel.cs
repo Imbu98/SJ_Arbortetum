@@ -1,3 +1,6 @@
+using Data;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -59,7 +62,7 @@ public class csSpeechPanel : MonoBehaviour
     }
 
     // 입력 완료 이벤트
-    private void OnInputEndEdit(string text)
+    public void OnInputEndEdit(string text)
     {
         Debug.Log("입력 완료: " + text);
 
@@ -88,16 +91,43 @@ public class csSpeechPanel : MonoBehaviour
     }
 
     // 서버에 내용 보내기
-    public void SendResultToSerever(string result)
+    async public void SendResultToSerever(string result)
     {
         csUI_Manager.Instance.PopupSpeechToText(false);
 
         Debug.Log(result);
 
-        // 임시
-        aIText_TMP.text = result;
-        // 서버에서 챗봇 대화내용 불러오기
-        // aIText_TMP.text = await~~
+        ChatMessage userChatMessage = new ChatMessage
+        {
+            role = "User",
+            msg = result
+        };
 
+        List<ChatMessage> tempChatList = new List<ChatMessage>(csSingleton.Instance.strSavedChatHistory);
+        tempChatList.Add(userChatMessage);
+
+        string jsonData = JsonConvert.SerializeObject(tempChatList);
+
+        string aITextResult = "챗봇의 Test용 Text입니다";//await csNetworkManager.Instance.AsyncGetAIChatResult(jsonData);
+
+        //AI 응답이 null/빈 문자열이면 → 저장하지 않고 return
+        if (string.IsNullOrEmpty(aITextResult))
+        {
+            Debug.LogWarning("AI 응답이 null 이므로 User 메시지를 저장하지 않습니다.");
+            return;
+        }
+        
+        // 응답이 왔으면 user text 먼저 저장
+        csSingleton.Instance.strSavedChatHistory.Add(userChatMessage);
+
+        ChatMessage aIChatMessage = new ChatMessage
+        {
+            role = "AI",
+            msg = aITextResult
+        };
+        // 이후 챗봇 Text 내역 저장
+        csSingleton.Instance.strSavedChatHistory.Add(aIChatMessage);
+        
+        csSaveLodeManager.Instance.SaveChatHistory();
     }
 }
