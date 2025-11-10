@@ -40,13 +40,13 @@ public class csSearchManager : MonoBehaviour
     {
         pathFindButton.onClick.AddListener(() => SetPathFindUI(true));
         resetSearchButton.onClick.AddListener(ClearSearchUI);
-        searchScreenButton.onClick.AddListener(() => OnSearchScreenButtonClicked(0, searchScreenButton));
+        searchScreenButton.onClick.AddListener(() => OnSearchScreenButtonClicked(0, searchScreenButton,searchLocationData));
 
 
         // 길찾기 출발지 변경
-        pathFind_StartButton.onClick.AddListener(() => OnSearchScreenButtonClicked(1, pathFind_StartButton));
+        pathFind_StartButton.onClick.AddListener(() => OnSearchScreenButtonClicked(1, pathFind_StartButton,pathFind_StartLocationData));
         // 길찾기 목적지 변경
-        pathFind_EndButton.onClick.AddListener(() => OnSearchScreenButtonClicked(2, pathFind_EndButton));
+        pathFind_EndButton.onClick.AddListener(() => OnSearchScreenButtonClicked(2, pathFind_EndButton,pathFind_EndLocationData));
         // 길찾기 닫기 버튼
         closePathFindButton.onClick.AddListener(() => SetPathFindUI(false));
 
@@ -70,9 +70,9 @@ public class csSearchManager : MonoBehaviour
     }
 
     // 지도 화면에서 장소 검색 화면 열기
-    private void OnSearchScreenButtonClicked(int offset, Button currentButton)
+    private void OnSearchScreenButtonClicked(int offset, Button currentButton, LocationData locationData)
     {
-        csMapManager.Instance._searchScreen.OpenSearchScreen(offset, currentButton);
+        csMapManager.Instance._searchScreen.OpenSearchScreen(offset, currentButton, locationData);
 
     }
 
@@ -122,10 +122,12 @@ public class csSearchManager : MonoBehaviour
     {
         csMapManager.Instance.ClearSearchLocation();
 
-        // 검색 장소  정보 초기화
+        // 검색 데이터 초기화
+        searchLocationData = new LocationData();
+
+        // 검색 장소 정보 초기화
         locationInfo.clear();
 
-        // 
         searchScreenButton.GetComponentInChildren<TextMeshProUGUI>().text = csLocalizationManager.Instance.LocalizationString("Key_InputSearchLocation");
     }
     public void ClearPathFindUI()
@@ -153,6 +155,8 @@ public class csSearchManager : MonoBehaviour
             // 기존 길찾기 관련 정보 초기화
             csMapManager.Instance.ClearPathFindUI();
             csMapManager.Instance.DestroyPathFindPrefab();
+
+            ClearSearchUI();
         }
 
 

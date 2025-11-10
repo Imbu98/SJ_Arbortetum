@@ -38,22 +38,31 @@ public class csSearchScreen : MonoBehaviour
     }
 
     // 검색화면 열기
-    public void OpenSearchScreen(int offset, Button currentButton)
+    public void OpenSearchScreen(int offset, Button currentButton,LocationData locationData)
     {
         this.gameObject.SetActive (true);
         this.currentOffset = offset;
         this.currentButton = currentButton;
-        this.currentButtonString = currentButton.GetComponentInChildren<TextMeshProUGUI>().text;
+
+        
+        if(locationData.locationID==0)
+        {
+            // locationId가 0이면 아무장소도 없는거니까 입력창 비어두기
+            searchScreen_InputField.text = string.Empty;
+        }
+        else
+        {
+            // 아니면 현재 버튼 텍스트로 입력창에 넣어두기
+            searchScreen_InputField.text = currentButton.GetComponentInChildren<TextMeshProUGUI>().text; // 검색화면의 입력창의 글자를 현재 버튼의 글자(검색장소)로 변경
+        }
+
+        
     }
 
     // 검색화면 닫기
     private void OnCloseScreenButtonClicked()
     {
         this.gameObject.SetActive(false);
-        searchScreen_InputField.text = string.Empty; // 검색화면 InputField 초기화
-            currentButton.GetComponentInChildren<TextMeshProUGUI>().text = csLocalizationManager.Instance.LocalizationString("Key_InputSearchLocation");
-            currentButton.GetComponentInChildren<TextMeshProUGUI>().text = currentButtonString; // 눌렀던 버튼의 텍스트 기존 텍스트로 초기화
-        //csMapManager.Instance.ClearSearchLocation();
 
     }
 

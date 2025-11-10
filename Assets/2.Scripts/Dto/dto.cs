@@ -117,4 +117,22 @@ namespace Data
         public string msg;
     }
 
+    [System.Serializable]
+    public enum QuizType
+    {
+        None = 0,
+        MultipleChoice=1, // °ґ°ьЅД
+        FindRight=2, //  O/X ДыБо
+    }
+
+    public class QuizData
+    {
+        public QuizType quizType; // ДыБо ЕёАФ 
+
+        public int answer; // ДыБо Б¤ґд
+
+        public string quizDescription; // ДыБо јіён
+
+        public List<string> quizChoices; // ДыБо °ґ°ьЅД єё±в
+    }
 }
