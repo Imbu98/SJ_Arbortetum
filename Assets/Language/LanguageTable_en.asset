@@ -34,6 +34,15 @@ MonoBehaviour:
     m_Localized: 'Input Search Location '
     m_Metadata:
       m_Items: []
+  - m_Id: 2600483117445120
+    m_Localized: 'Hello. Thank you for visiting the arboretum. I am the Arboretum
+      Chatbot, here to assist you in various ways. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2600674751000576
+    m_Localized: How should I address you so that I can guide you comfortably?
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -58,13 +58,21 @@ namespace Data
         }
     }
 
-    public class PlantData
+    [System.Serializable]
+    public class PlantRequest
     {
-        public string name;
-
-        public string description;
+        public string image;   
+        public string organs; 
     }
 
+    [System.Serializable]
+    public class PlantResponse
+    {
+        public string scientificName;
+        public List<string> commonNames;
+        public float score;
+        public string gbif;
+    }
 
     public class LocationData
     {

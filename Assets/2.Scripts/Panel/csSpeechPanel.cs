@@ -110,7 +110,7 @@ public class csSpeechPanel : MonoBehaviour
 
         string jsonData = JsonConvert.SerializeObject(userChatMessage);
 
-        string aITextResult = "챗봇의 Test용 Text입니다";//await csNetworkManager.Instance.AsyncGetAIChatResult(jsonData);
+        var aITextResult =  await csNetworkManager.Instance.AsyncGetAIChatResult(jsonData);
 
         //AI 응답이 null/빈 문자열이면 → 저장하지 않고 return
         if (string.IsNullOrEmpty(aITextResult))

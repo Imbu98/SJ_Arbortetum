@@ -9,7 +9,7 @@ public class csObserveScreen : MonoBehaviour
     Action _onImageLoadSuccess;
 
 
-    [SerializeField] private RawImage targetDisplay;
+    
 
     private void OnEnable()
     {
@@ -109,7 +109,7 @@ public class csObserveScreen : MonoBehaviour
         texture.LoadImage(fileData);
 
         // 이미지 표시
-        targetDisplay.texture = texture;
+        csObserveManager.Instance.targetDisplay.texture = texture;
         // 이미지 매니저에 현재 texture저장 
         csObserveManager.Instance.capturedTexture = texture;
 

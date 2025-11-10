@@ -11,17 +11,7 @@ public class csStartScreen : MonoBehaviour
 
     private void Awake()
     {
-        // 게임 데이터불러오기(닉네임 등)
-        csSaveLodeManager.Instance.Load();
-
-        // 세팅 불러오기
-        csSaveLodeManager.Instance.LoadSet();
-
-        // 채팅내역 불러오기
-        csSaveLodeManager.Instance.LoadChatHistory();
-
-        // 저장 
-        csSaveLodeManager.Instance.LoadSavedPlant();
+        
     }
 
     private void Start()

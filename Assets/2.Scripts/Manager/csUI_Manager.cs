@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -97,7 +98,23 @@ public class csUI_Manager : MonoBehaviour
 
         typingRoutine = StartCoroutine(TypeTextRoutine(text));
     }
+    public IEnumerator PlayAIChatSequence(List<string> messages, System.Action onComplete = null)
+    {
+        foreach (var msg in messages)
+        {
+            // 문장 출력
+            SetAIChatText(msg);
 
+            // 현재 문장이 타이핑되는 동안 대기
+            while (isTyping)
+                yield return null;
+
+            // 문장의 마지막 상태(스킵 여부 포함) 후 0.1초 정도 텀
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        onComplete?.Invoke();
+    }
 
     private IEnumerator TypeTextRoutine(string text)
     {

@@ -29,7 +29,7 @@ public class csObserveResult : MonoBehaviour
     
     private bool isSnapping = false; // 스냅중인지
 
-    private PlantData currentPlantData;
+    private PlantResponse currentPlantData;
 
     private void OnEnable()
     {
@@ -43,7 +43,7 @@ public class csObserveResult : MonoBehaviour
         scrollView.onEndDragEvent.RemoveAllListeners();
     }
 
-    public void Init(PlantData plantData)
+    public void Init(PlantResponse plantData)
     {
         currentPlantData = plantData; 
 
@@ -183,7 +183,7 @@ public class csObserveResult : MonoBehaviour
 
         bool isMissionInProgress = csMissionManager.Instance.IsMissonOnProgress;
         bool isSamePlant = isMissionInProgress &&
-                           csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.name;
+                           csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.scientificName;
 
         resultButton.onClick.AddListener(() =>
         {
@@ -194,18 +194,18 @@ public class csObserveResult : MonoBehaviour
         {
             // 현재 미션과 같은 식물일 때 → 미션 클리어
             resultButton.onClick.AddListener(csMissionManager.Instance.ClearCurrentMissionStep);
-            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "확인"; // 추후 로컬라제이션
+            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
         }
         else
         {
             // 미션이 없거나, 다른 식물일 때 → 사진 촬영 화면으로
             resultButton.onClick.AddListener(csObserveManager.Instance.SetCameraScreen);
-            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
+            resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "확인"; // 추후 로컬라제이션
         }
     }
     private void SaveCurrentPlantName()
     {
-        string plantName = currentPlantData.name;
+        string plantName = currentPlantData.scientificName;
 
         if (!csSingleton.Instance.savedPlant.Contains(plantName))
         {

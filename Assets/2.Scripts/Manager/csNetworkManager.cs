@@ -3,6 +3,7 @@ using Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ public class csNetworkManager : MonoBehaviour
     public static csNetworkManager Instance { get { return _Instance; } }
     private static csNetworkManager _Instance;
 
-    [SerializeField] private string url = "http://3.35.86.123/find-optimal-route";
+    private string url = "http://3.35.86.123/";
 
     private void Awake()
     {
@@ -36,6 +37,9 @@ public class csNetworkManager : MonoBehaviour
     /// </summary>
     async public UniTask<SearchPathCoordinate> GetDestinationCoordsAsync(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
     {
+        string method = "find-optimal-route";
+
+        string methodUrl = url+ method;
         // 요청 데이터 → JSON 문자열 변환
         var body = new
         {
@@ -50,7 +54,7 @@ public class csNetworkManager : MonoBehaviour
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
 
 
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        using (UnityWebRequest request = new UnityWebRequest(methodUrl, "POST"))
         {
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -59,7 +63,7 @@ public class csNetworkManager : MonoBehaviour
             request.SetRequestHeader("Authorization", "Bearer xxxx");   // ✅ 토큰 필요하면
 
             Debug.Log($"[csNetworkManager] 요청 URL ...\n{request.url}");
-            
+
 
             Debug.Log($"[csNetworkManager] 요청 전송 중...\n{jsonBody}");
 
@@ -95,11 +99,11 @@ public class csNetworkManager : MonoBehaviour
                         Debug.Log("[csNetworkManager] coordinatesArray is Null");
                     }
 
-                        // 4️⃣ 최종 반환 객체
-                        SearchPathCoordinate result = new SearchPathCoordinate
-                        {
-                            pathCoordinates = coords
-                        };
+                    // 4️⃣ 최종 반환 객체
+                    SearchPathCoordinate result = new SearchPathCoordinate
+                    {
+                        pathCoordinates = coords
+                    };
 
                     Debug.Log($"[csNetworkManager] 경로 좌표 {coords.Count}개 수신 완료 ✅");
                     return result;
@@ -123,7 +127,11 @@ public class csNetworkManager : MonoBehaviour
 
     public async UniTask<string> AsyncGetAIChatResult(string chatHistoryJson)
     {
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        string method = "/api/chat";
+
+        string methodUrl = url + method;
+
+        using (UnityWebRequest request = new UnityWebRequest(methodUrl, "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(chatHistoryJson);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -141,4 +149,49 @@ public class csNetworkManager : MonoBehaviour
             return request.downloadHandler.text;
         }
     }
+    async public UniTask<PlantResponse> AsyncGetPlantImageAsync(Texture2D texture, Action<float> onProgress = null)
+    {
+        string method = "identify-plant";
+
+        string methodUrl = /*url*/ "http://192.168.0.26:8001/" + method;
+
+        // Texture2D → PNG
+        Texture2D readable = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+        readable.SetPixels(texture.GetPixels());
+        readable.Apply();
+        byte[] pngBytes = readable.EncodeToPNG();
+
+        // multipart form 생성
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("image", pngBytes, "plant.png", "image/png");
+        form.AddField("organs", "auto");
+
+        using (UnityWebRequest request = UnityWebRequest.Post(methodUrl, form))
+        {
+            request.SetRequestHeader("Accept", "application/json");
+
+            var op = request.SendWebRequest();
+
+            while (!op.isDone)
+            {
+                float pct = Mathf.Max(request.uploadProgress, request.downloadProgress);
+                onProgress?.Invoke(pct);   // ✅ 진행률 텍스트로 전달
+
+                await UniTask.Yield();
+            }
+
+            if (request.result != UnityWebRequest.Result.Success)
+                return null;
+
+            return JsonConvert.DeserializeObject<PlantResponse>(request.downloadHandler.text);
+        }
+    }
+
+    //async public UniTask<PlantResponse> AsyncGetPlantInfo(Texture2D texture, Action<float> onProgress = null)
+    //{
+    //    string method = "generate-plant-info";
+
+    //    string methodUrl = /*url*/ "http://192.168.0.26:8001/" + method;
+
+    //}
 }

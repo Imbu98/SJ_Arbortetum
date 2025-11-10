@@ -1,8 +1,9 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System;
 using System.Threading.Tasks;
+using TMPro;
 
 
 public class csObserveManager : MonoBehaviour
@@ -10,19 +11,23 @@ public class csObserveManager : MonoBehaviour
     public static csObserveManager Instance { get { return _Instance; } }
     private static csObserveManager _Instance;
 
-    // °üÂûÇÏ±â È­¸é
+    // ê´€ì°°í•˜ê¸° í™”ë©´
     [SerializeField] public GameObject observeScreenObject;
-    // ºĞ¼® ·Îµù È­¸é
+    // ë¶„ì„ ë¡œë”© í™”ë©´
     [SerializeField] public GameObject observeLoadingObject;
-    // ºĞ¼® °á°ú È­¸é
+    // ë¶„ì„ ê²°ê³¼ í™”ë©´
     [SerializeField] public GameObject observeResultObject;
 
-    // ÇöÀç ¶ç¿öÁø °üÂûÇÏ±â È­¸é ÀúÀå
+    // í˜„ì¬ ë„ì›Œì§„ ê´€ì°°í•˜ê¸° í™”ë©´ ì €ì¥
     private GameObject currentObserve;
 
     [HideInInspector] public Texture2D capturedTexture;
 
     [SerializeField] private csObserveResult _observeResult;
+
+    public RawImage targetDisplay;
+
+    [SerializeField] private TextMeshProUGUI loadingPercentage;
     private void Awake()
     {
         if (_Instance == null)
@@ -56,7 +61,7 @@ public class csObserveManager : MonoBehaviour
         }
     }
 
-    // Ä«¸Ş¶ó ÃÔ¿µ È­¸éÀ¸·Î
+    // ì¹´ë©”ë¼ ì´¬ì˜ í™”ë©´ìœ¼ë¡œ
     public void SetCameraScreen()
     {
         if(currentObserve)
@@ -72,10 +77,28 @@ public class csObserveManager : MonoBehaviour
         SetObserveScreen(observeLoadingObject);
 
 
-        // AI ºĞ¼® ¿Ï·á ÈÄ µ¥ÀÌÅÍ¸¦ ¹Ş¾Æ¼­ observeResult Init ÇØÁÖ±â
-        //await csNetworkManager.Instance.
+        loadingPercentage.text = "0%";
+        // ì´ˆê¸°í™”
 
-        SetObserveScreen(observeResultObject);
-        //_observeResult.Init(plantData)
+        // âœ… ì§„í–‰ë¥  ì½œë°±ì—ì„œ TMP í…ìŠ¤íŠ¸ ì—…ë°ì´íŠ¸
+        var analyzedPlantData = await csNetworkManager.Instance.AsyncGetPlantImageAsync(
+            capturedTexture,
+            (pct) =>
+            {
+                loadingPercentage.text = $"{pct * 100f:F0}%";
+            });
+
+        if (analyzedPlantData != null)
+        {
+            // ì •ë³´ê°€ ìˆìœ¼ë©´ í•´ë‹¹ì •ë³´ë¡œ ì„œë²„ì—ì„œ ì‹ë¬¼ì— ëŒ€í•œ ì •ë³´ ê°€ì ¸ì˜¤ê¸°
+            //await csNetworkManager.Instance.AsyncGetPlantInfo()
+
+            SetObserveScreen(observeResultObject);
+            _observeResult.Init(analyzedPlantData);
+        }
+        else if(analyzedPlantData==null/* || analyzedPlantData.score<21414*/)
+        {
+            // ë‹¤ì‹œ ì°ê¸°
+        }
     }
 }
