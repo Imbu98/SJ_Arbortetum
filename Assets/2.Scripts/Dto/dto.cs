@@ -113,7 +113,7 @@ namespace Data
     [System.Serializable]
     public class ChatMessage
     {
-        public string role;   // "User" or "AI"
+        public string UID;   // 구글 또는 애플 로그인 시 나오는 UID 사용
         public string msg;
     }
 
@@ -134,5 +134,11 @@ namespace Data
         public string quizDescription; // 퀴즈 설명
 
         public List<string> quizChoices; // 퀴즈 객관식 보기
+    }
+
+    [System.Serializable]
+    public class SavedPlantWrapper
+    {
+        public List<string> plantList;
     }
 }

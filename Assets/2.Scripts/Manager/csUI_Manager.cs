@@ -21,7 +21,7 @@ public class csUI_Manager : MonoBehaviour
     private GameObject currentPanel;
 
 
-    [SerializeField] private Button skipButton;
+    //[SerializeField] private Button skipButton;
     public TextMeshProUGUI mainScreenAIText;   // 메인 화면 텍스트
     private Coroutine typingRoutine;
     private bool isTyping = false;
@@ -104,12 +104,12 @@ public class csUI_Manager : MonoBehaviour
         isTyping = true;
         mainScreenAIText.text = "";
 
-        float delay = 0.3f;
+        float delay = 0.1f;
 
         // 화면 터치 시 전체 텍스트 즉시 표시되도록 이벤트 등록
         bool isSkipped = false;
-        Action skipAction = () => { isSkipped = true; };
-        RegisterSkip(skipAction);
+        //Action skipAction = () => { isSkipped = true; };
+        //RegisterSkip(skipAction);
 
         foreach (char c in text)
         {
@@ -123,22 +123,27 @@ public class csUI_Manager : MonoBehaviour
         // 스킵 시 전체 텍스트 즉시 표시
         mainScreenAIText.text = text;
 
-        UnregisterSkip(skipAction);
+        //UnregisterSkip(skipAction);
         isTyping = false;
         typingRoutine = null;
     }
 
+    public void ResetAIChatText()
+    {
+        string resetText = $"{csSingleton.Instance.strPlayerNickName}님 무엇을 도와드릴까요?";
 
+        SetAIChatText(resetText);
+    }
     
 
-    private void RegisterSkip(Action onSkip)
-    {
-        skipButton.onClick.AddListener(onSkip.Invoke);
-    }
+    //private void RegisterSkip(Action onSkip)
+    //{
+    //    skipButton.onClick.AddListener(onSkip.Invoke);
+    //}
 
-    private void UnregisterSkip(Action onSkip)
-    {
-        skipButton.onClick.RemoveListener(onSkip.Invoke);
-    }
+    //private void UnregisterSkip(Action onSkip)
+    //{
+    //    skipButton.onClick.RemoveListener(onSkip.Invoke);
+    //}
 
 }

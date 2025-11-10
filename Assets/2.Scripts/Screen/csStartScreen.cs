@@ -19,6 +19,9 @@ public class csStartScreen : MonoBehaviour
 
         // 채팅내역 불러오기
         csSaveLodeManager.Instance.LoadChatHistory();
+
+        // 저장 
+        csSaveLodeManager.Instance.LoadSavedPlant();
     }
 
     private void Start()

@@ -22,7 +22,7 @@ public class csQuizScreen : MonoBehaviour
     // 현재 퀴즈 타입
     [SerializeField] private QuizData quizData; // 현재 가지고있는 퀴즈데이터
     // 현재 선택한 정답
-    private int quizAnswer =-1;
+    private int userSelectQuizAnswer =-1;
 
     [Header("BottomButtons")]
     [SerializeField] private GameObject onQuizObject; // 퀴즈중일 때 활성화할 오브젝트 ( 정답선택 버튼)
@@ -131,13 +131,13 @@ public class csQuizScreen : MonoBehaviour
                 }
 
         }
-        quizAnswer = index+1; // index는 0부터 시작이니 정답은 +1
+        userSelectQuizAnswer = index+1; // index는 0부터 시작이니 정답은 +1
 
     }
 
     private void SubmitAnswer()
     {
-        if(quizAnswer==-1)
+        if(userSelectQuizAnswer == -1)
         {
             Debug.Log("No selectedChoice ");
             return;
@@ -171,18 +171,15 @@ public class csQuizScreen : MonoBehaviour
                 }
             case QuizType.FindRight:
                 {
-                    for (int i = 0; i < findRightButtons.Count; ++i)
+                    if(quizData.answer == userSelectQuizAnswer)
                     {
-                        if (i+1 == quizData.answer)
-                        {
-                            findRightButtons[i].GetComponent<Image>().color = correctColor;
-                            Instantiate(correctResultPrefab, findRightButtons[i].transform.GetChild(0).transform);
-                        }
-                        else
-                        {
-                            findRightButtons[i].GetComponent<Image>().color = inCorrectColor;
-                            Instantiate(inCorrectResultPrefab, findRightButtons[i].transform.GetChild(0).transform);
-                        }
+                        findRightButtons[userSelectQuizAnswer-1].GetComponent<Image>().color = correctColor;
+                        Instantiate(correctResultPrefab, findRightButtons[userSelectQuizAnswer-1].transform.GetChild(0).transform);
+                    }
+                    else
+                    {
+                        findRightButtons[userSelectQuizAnswer-1].GetComponent<Image>().color = inCorrectColor;
+                        Instantiate(inCorrectResultPrefab, findRightButtons[userSelectQuizAnswer-1].transform.GetChild(0).transform);
                     }
                     break;
                 }
@@ -195,6 +192,8 @@ public class csQuizScreen : MonoBehaviour
     private void QuitQuiz()
     {
         this.gameObject.SetActive(false);
+
+        csUI_Manager.Instance.ResetAIChatText();
     }
 
     private void SetQuiz()
@@ -204,14 +203,15 @@ public class csQuizScreen : MonoBehaviour
             // 퀴즈 데이터 있으면 초기화
             quizData = new QuizData();
         }
-        quizAnswer = -1;
+        userSelectQuizAnswer = -1;
 
         // 퀴즈데이터 가져오기
         quizData = GetRandomQuiz();// 테스트 퀴즈   
 
+        // 퀴즈 보기 text 설정
         if (quizData.quizChoices!=null)
         {
-            // 퀴즈 보기 text 설정
+        
             for (int i = 0; i < quizData.quizChoices.Count; ++i)
             {
 
@@ -220,7 +220,7 @@ public class csQuizScreen : MonoBehaviour
                 }
             }
         }
-        
+        csUI_Manager.Instance.SetAIChatText(quizData.quizDescription);
 
         SetBodyPart();
 

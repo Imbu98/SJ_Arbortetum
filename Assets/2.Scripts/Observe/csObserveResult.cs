@@ -185,6 +185,10 @@ public class csObserveResult : MonoBehaviour
         bool isSamePlant = isMissionInProgress &&
                            csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.name;
 
+        resultButton.onClick.AddListener(() =>
+        {
+            SaveCurrentPlantName();
+        });
         // 버튼 텍스트변경과 함수 바인딩
         if (isSamePlant)
         {
@@ -199,5 +203,22 @@ public class csObserveResult : MonoBehaviour
             resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "단서획득"; // 추후 로컬라제이션
         }
     }
+    private void SaveCurrentPlantName()
+    {
+        string plantName = currentPlantData.name;
+
+        if (!csSingleton.Instance.savedPlant.Contains(plantName))
+        {
+            csSingleton.Instance.savedPlant.Add(plantName);
+            csSaveLodeManager.Instance.SaveSavedPlant();
+            Debug.Log("식물 저장됨: " + plantName);
+        }
+        else
+        {
+            Debug.Log("이미 저장된 식물: " + plantName);
+        }
+    }
+
+
 
 }

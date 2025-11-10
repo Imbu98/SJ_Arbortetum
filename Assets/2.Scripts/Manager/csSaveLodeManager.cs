@@ -23,7 +23,7 @@ public class csSaveLodeManager : MonoBehaviour
     private string dataPath;
     private string dataSetPath;
     private string chatHistoryPath;
-
+    private string savedPlantPath;
 
     private void Awake()
     {
@@ -41,12 +41,14 @@ public class csSaveLodeManager : MonoBehaviour
     {
         dataSetPath = Path.Combine(Application.persistentDataPath, "gameSet.json");
         chatHistoryPath = Path.Combine(Application.persistentDataPath, "chatHistory.json");
+        savedPlantPath = Path.Combine(Application.persistentDataPath, "savedPlants.json");
     }
+        
 
     // ===========================================================
     // GameData 저장/로드
     // ===========================================================
-    public void SaveFile()
+    public void SaveData()
     {
         GameData data = new GameData();
         data.strPlayerNickName = csSingleton.Instance.strPlayerNickName;
@@ -68,7 +70,7 @@ public class csSaveLodeManager : MonoBehaviour
         else
         {
             Debug.Log("초기 데이터 생성");
-            SaveFile();
+            SaveData();
         }
     }
 
@@ -144,6 +146,34 @@ public class csSaveLodeManager : MonoBehaviour
         {
             csSingleton.Instance.strSavedChatHistory = new List<ChatMessage>();
             SaveChatHistory();
+        }
+    }
+
+    public void SaveSavedPlant()
+    {
+        SavedPlantWrapper wrapper = new SavedPlantWrapper
+        {
+            plantList = new List<string>(csSingleton.Instance.savedPlant)
+        };
+
+        string json = JsonUtility.ToJson(wrapper, true);
+        File.WriteAllText(savedPlantPath, json);
+    }
+
+    public void LoadSavedPlant()
+    {
+        if (File.Exists(savedPlantPath))
+        {
+            string json = File.ReadAllText(savedPlantPath);
+            SavedPlantWrapper wrapper = JsonUtility.FromJson<SavedPlantWrapper>(json);
+
+            csSingleton.Instance.savedPlant =
+                wrapper.plantList != null ? new HashSet<string>(wrapper.plantList) : new HashSet<string>();
+        }
+        else
+        {
+            csSingleton.Instance.savedPlant = new HashSet<string>();
+            SaveSavedPlant();
         }
     }
 }

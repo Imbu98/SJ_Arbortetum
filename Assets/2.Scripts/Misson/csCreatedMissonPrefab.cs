@@ -7,18 +7,18 @@ using UnityEngine.UI;
 public class csCreatedMissonPrefab : MonoBehaviour
 {
     [SerializeField] private GameObject clearObject; // 미션을 깼는지에 대한 표시 UI
-    [SerializeField] private Image uiBackground_IMG; // 미션UI 배경
+    [SerializeField] private Image missionImageUI; // 미션UI
     [SerializeField] private TextMeshProUGUI createdMissonTitle_TMP; // 미션 제목
     [SerializeField] private TextMeshProUGUI createdMissonDescription_TMP; // 미션 설명
     [SerializeField] private TextMeshProUGUI createdMissonDistance_TMP; // 거리
     [SerializeField] private TextMeshProUGUI createdMissonTimeTaken_TMP; // 소요시간
     [SerializeField] private Button missionStart_BTN; // 미션 시작 버튼
 
-    [SerializeField] private List<Color> colors;
+    [SerializeField] private List<Sprite> sprites;
 
     public void Init(int missonIndex, Mission missionInfo)
     {
-        uiBackground_IMG.color = colors[missonIndex];
+        missionImageUI.sprite = sprites[missonIndex];
 
         createdMissonTitle_TMP.text = missionInfo.missionTitle;
         createdMissonDescription_TMP.text = missionInfo.Description;

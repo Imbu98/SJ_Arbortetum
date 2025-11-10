@@ -8,7 +8,7 @@ public class csSingleton : MonoBehaviour
     public static csSingleton Instance { get { return _Instance; } }
     private static csSingleton _Instance;
 
-    public string strPlayerNickName;
+    public string strPlayerNickName; // 나중에 private로 설정
 
     public bool bTermsofUse;//이용약관 동의
     public float fBgm;
@@ -25,6 +25,8 @@ public class csSingleton : MonoBehaviour
     public string UID;
 
     public List<ChatMessage> strSavedChatHistory;
+
+    public HashSet<string> savedPlant = new HashSet<string>();
 
 
     // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트
