@@ -16,7 +16,7 @@ public class csUI_Manager : MonoBehaviour
     public GameObject missionPopup; // 미션창
     public GameObject speechToTextScreen; // 음성 언어 입력 화면
     public GameObject quizScreen; // 퀴즈창
-
+    public GameObject settingScreen; // 설정창
 
     private GameObject currentScreen;
     private GameObject currentPanel;
@@ -69,14 +69,30 @@ public class csUI_Manager : MonoBehaviour
     // 지도 나타내기
     public void PopupMap(bool bShow)
     {
-        mapScreen.SetActive(bShow);
+        if(csMapManager.Instance.IsInsideBoundary(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude))
+        {
+            mapScreen.SetActive(bShow);
+        }
+        else
+        {
+            NotInsideInArboretum();
+
+        }
     }
 
     // 미션창 나타내기
 
     public void PopupMission(bool bShow)
     {
-        missionPopup.SetActive(bShow);
+        if (csMapManager.Instance.IsInsideBoundary(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude))
+        {
+            missionPopup.SetActive(bShow);
+            
+        }
+        else
+        {
+            NotInsideInArboretum();
+        }
     }
 
     public void PopupSpeechToText(bool bShow)
@@ -87,6 +103,11 @@ public class csUI_Manager : MonoBehaviour
     public void PopupQuizScreen(bool bShow)
     {
         quizScreen.SetActive(bShow);
+    }
+
+    public void PopupSettingScreen(bool bShow)
+    {
+        settingScreen.SetActive(bShow);
     }
 
 
@@ -121,7 +142,7 @@ public class csUI_Manager : MonoBehaviour
         isTyping = true;
         mainScreenAIText.text = "";
 
-        float delay = 0.1f;
+        float delay = 0.05f;
 
         // 화면 터치 시 전체 텍스트 즉시 표시되도록 이벤트 등록
         bool isSkipped = false;
@@ -151,8 +172,16 @@ public class csUI_Manager : MonoBehaviour
 
         SetAIChatText(resetText);
     }
+
+    public void NotInsideInArboretum()
+    {
+        string notInsideArboretumText = $"{csSingleton.Instance.strPlayerNickName}님, 해당 기능은 수목원 내에서만 사용가능한 기능입니다";
+
+        SetAIChatText(notInsideArboretumText);
+    }
     
 
+    // AIMainText스킵을 사용할거면 사용
     //private void RegisterSkip(Action onSkip)
     //{
     //    skipButton.onClick.AddListener(onSkip.Invoke);

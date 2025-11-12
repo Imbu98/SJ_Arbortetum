@@ -16,7 +16,6 @@ public class csObserveScreen : MonoBehaviour
         PickImage(
             () =>
             {
-                csObserveManager.Instance.SetObserveScreen(csObserveManager.Instance.observeLoadingObject);
                 csObserveManager.Instance.AnalyzeTexture();
             }
             );
@@ -103,19 +102,31 @@ public class csObserveScreen : MonoBehaviour
             Debug.LogError("File not found: " + path);
             return;
         }
+#if UNITY_ANDROID || UNITY_IOS
+        Texture2D texture = NativeCamera.LoadImageAtPath(path, 2048, false, true);
+
+        string fileName = $"Observe_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+
+        NativeGallery.SaveImageToGallery(texture, "ObservePhotos", fileName,
+            (success, savePath) =>
+            {
+                if (success)
+                    Debug.Log($"Success to save on gallery: {savePath}");
+                else
+                    Debug.LogWarning("failed To save on gallery");
+            });
+
+#elif UNITY_EDITOR
 
         byte[] fileData = File.ReadAllBytes(path);
         Texture2D texture = new Texture2D(2, 2);
         texture.LoadImage(fileData);
+#endif
 
         // 이미지 표시
         csObserveManager.Instance.targetDisplay.texture = texture;
         // 이미지 매니저에 현재 texture저장 
         csObserveManager.Instance.capturedTexture = texture;
-
-        //displayImage.SetNativeSize();
-
-        string imageName = Path.GetFileName(path);
 
         Debug.Log("Image loaded from: " + path);
         _onImageLoadSuccess?.Invoke();

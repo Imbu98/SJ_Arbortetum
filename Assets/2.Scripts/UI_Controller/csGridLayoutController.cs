@@ -9,7 +9,6 @@ public class csGridLayoutController : MonoBehaviour
     [Tooltip("한 줄에 표시할 열의 개수")]
     public int columnCount = 2;
     // 셀의 고정 높이 (필요에 따라 조정 가능)
-    private float cellHeight=500;
 
     [Header("계산 기준 Transform")]
     [Tooltip("셀 크기 계산의 기준이 될 부모 RectTransform (일반적으로 Content)")]
@@ -64,6 +63,6 @@ public class csGridLayoutController : MonoBehaviour
 
 
         // 4. 계산된 셀 크기 적용
-        grid.cellSize = new Vector2(cellWidth, cellHeight);
+        grid.cellSize = new Vector2(cellWidth,grid.cellSize.y);
     }
 }

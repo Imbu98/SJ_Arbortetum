@@ -31,6 +31,8 @@ namespace Datainfo
 
         public int nLanguage = 0;//언어설정
 
+        public string UID;
+
         public List<ChatMessage> strSavedChatHistory;
     }
 }

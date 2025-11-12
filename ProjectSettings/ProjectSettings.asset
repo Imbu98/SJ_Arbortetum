@@ -181,7 +181,7 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 24
+  AndroidMinSdkVersion: 23
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -274,7 +274,7 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: '{inproject}: SJ_arboretum.keystore'
+  AndroidKeystoreName: '{inproject}: Keystore/SJ_arboretum.keystore'
   AndroidKeyaliasName: ehancreative
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0

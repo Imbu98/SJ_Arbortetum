@@ -11,13 +11,13 @@ using UnityEngine.Localization.Components;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
-public class PopupPanel : MonoBehaviour
+public class csPopupPanel : MonoBehaviour
 {
-    public static PopupPanel Instance { get { return _Instance; } }
-    private static PopupPanel _Instance;
+    public static csPopupPanel Instance { get { return _Instance; } }
+    private static csPopupPanel _Instance;
 
     [Header("Popup Parts")]
-    [SerializeField] private PopupPart popupPart;
+    [SerializeField] private csPopupPart popupPart;
 
     [Header("TermsOfUse")]
     [SerializeField] private TextMeshProUGUI TermsOfUseText;
@@ -52,6 +52,13 @@ public class PopupPanel : MonoBehaviour
     public void CloseAllParts()
     {
         popupPart.gameObject.SetActive(false);
+    }
+
+    public void PopupSetScreenToCamera(UnityAction unityaction)
+    {
+        popupPart.gameObject.SetActive(true);
+        popupPart.InitText("PopupPanel", "Popup_SetToCameraScreen");
+        popupPart.InitButtonA("PopupPanel", "Popup_Yes", unityaction+CloseAllParts);
     }
 
     //public void PopupQuitGame()

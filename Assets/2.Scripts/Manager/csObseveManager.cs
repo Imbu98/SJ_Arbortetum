@@ -4,6 +4,7 @@ using System.IO;
 using System;
 using System.Threading.Tasks;
 using TMPro;
+using System.Collections;
 
 
 public class csObserveManager : MonoBehaviour
@@ -28,6 +29,8 @@ public class csObserveManager : MonoBehaviour
     public RawImage targetDisplay;
 
     [SerializeField] private TextMeshProUGUI loadingPercentage;
+
+    private bool isCanceled = false; // 중간에 카메라로 돌아가거나 화면을 끄면 분석내용을 보내지 않도록 
     private void Awake()
     {
         if (_Instance == null)
@@ -59,6 +62,8 @@ public class csObserveManager : MonoBehaviour
             currentObserve.SetActive(false);
             currentObserve = null;
         }
+
+        isCanceled = true;
     }
 
     // 카메라 촬영 화면으로
@@ -68,25 +73,34 @@ public class csObserveManager : MonoBehaviour
         {
             currentObserve.SetActive(false);
         }
-        observeScreenObject.SetActive(true);
         currentObserve = observeScreenObject;
+        isCanceled = true;
+        observeScreenObject.SetActive(true);
+        
     }
 
     async public void AnalyzeTexture()
     {
-        SetObserveScreen(observeLoadingObject);
+        isCanceled = false;
 
+        SetObserveScreen(observeLoadingObject);
 
         loadingPercentage.text = "0%";
         // 초기화
 
-        // ✅ 진행률 콜백에서 TMP 텍스트 업데이트
+        
         var analyzedPlantData = await csNetworkManager.Instance.AsyncGetPlantImageAsync(
             capturedTexture,
             (pct) =>
             {
                 loadingPercentage.text = $"{pct * 100f:F0}%";
             });
+
+        if(isCanceled)
+        {
+            Debug.Log(" 사용자 취소로 중단됨");
+            return;
+        }
 
         if (analyzedPlantData != null)
         {
@@ -95,10 +109,17 @@ public class csObserveManager : MonoBehaviour
 
             SetObserveScreen(observeResultObject);
             _observeResult.Init(analyzedPlantData);
+            
         }
         else if(analyzedPlantData==null/* || analyzedPlantData.score<21414*/)
         {
-            // 다시 찍기
+            csPopupPanel.Instance.PopupSetScreenToCamera(()=>SetCameraScreen());
         }
     }
 }
+
+
+
+
+
+

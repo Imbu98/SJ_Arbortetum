@@ -125,18 +125,22 @@ public class csNetworkManager : MonoBehaviour
         }
     }
 
-    public async UniTask<string> AsyncGetAIChatResult(string chatHistoryJson)
+    public async UniTask<string> AsyncGetAIChatResult(ChatMessage userChatMessage)
     {
-        string method = "/api/chat";
+        string method = "arboretum/api/chat";
 
         string methodUrl = url + method;
 
+        string jsonData = JsonConvert.SerializeObject(userChatMessage);
+
         using (UnityWebRequest request = new UnityWebRequest(methodUrl, "POST"))
         {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(chatHistoryJson);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Accept", "application/json");
 
             await request.SendWebRequest();
 
@@ -146,14 +150,24 @@ public class csNetworkManager : MonoBehaviour
                 return null;
             }
 
-            return request.downloadHandler.text;
+            string json = request.downloadHandler.text;
+
+            AIChatResponse res = JsonConvert.DeserializeObject<AIChatResponse>(json);
+
+            return res.response;
         }
     }
+
     async public UniTask<PlantResponse> AsyncGetPlantImageAsync(Texture2D texture, Action<float> onProgress = null)
     {
-        string method = "identify-plant";
+        if(texture==null)
+        {
+            Debug.Log("No Texutre To identify");
+        }
 
-        string methodUrl = /*url*/ "http://192.168.0.26:8001/" + method;
+        string method = "arboretum/identify-plant";
+
+        string methodUrl = url + method;
 
         // Texture2D → PNG
         Texture2D readable = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);

@@ -15,6 +15,8 @@ public class csObserveResult : MonoBehaviour
     [SerializeField] private Image showActiveImagePrefab; // 몇번째 이미지가 활성화 되었는지 알려주는 이미지 프리펩
     [SerializeField] private RectTransform showActiveImageHolder;
     private List<Image> showActiveImageIconList=new List<Image>(); // 생성된 이미지 아이콘 저장
+    [SerializeField] private Sprite currentPageSprite;
+    [SerializeField] private Sprite defaultPageSprite;
 
     [Header("Image")]
     [SerializeField] private Image imagePrefab; // 이미지 생성 프리팹
@@ -22,6 +24,11 @@ public class csObserveResult : MonoBehaviour
 
     [Header("Button")]
     [SerializeField] private Button resultButton;
+
+    [Header("Text")]
+    [SerializeField] private TextMeshProUGUI plantNameTMP;
+    [SerializeField] private TextMeshProUGUI plantScientificName_TMP;
+    [SerializeField] private TextMeshProUGUI plantDescriptionTMP;
 
     private int currentPageCount=0; // 몇번째 페이지의 이미지인지
     
@@ -165,11 +172,11 @@ public class csObserveResult : MonoBehaviour
             {
                 if(i == currentPageCount)
                 {
-                    showActiveImageIconList[i].color = Color.yellow;
+                    showActiveImageIconList[i].sprite = currentPageSprite;
                 }
                 else
                 {
-                    showActiveImageIconList[i].color = Color.white;
+                    showActiveImageIconList[i].sprite = defaultPageSprite;
                 }
             }
             
@@ -179,11 +186,20 @@ public class csObserveResult : MonoBehaviour
     // 식물 정보 UI 세팅
     private void SetUI()
     {
-        resultButton.onClick.RemoveAllListeners();
+        if(currentPlantData.commonNames.Count>0)
+        {
+            plantNameTMP.text = currentPlantData.commonNames[0];
+        }
+
+        plantScientificName_TMP.text = currentPlantData.plantScientificName;
+
 
         bool isMissionInProgress = csMissionManager.Instance.IsMissonOnProgress;
+        // 미션중일 때 미션의 요구식물과 같은지 확인
         bool isSamePlant = isMissionInProgress &&
-                           csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.scientificName;
+                           csMissionManager.Instance.GetCurrentMissionStep().plantName == currentPlantData.plantScientificName;
+
+        resultButton.onClick.RemoveAllListeners();
 
         resultButton.onClick.AddListener(() =>
         {
@@ -205,7 +221,7 @@ public class csObserveResult : MonoBehaviour
     }
     private void SaveCurrentPlantName()
     {
-        string plantName = currentPlantData.scientificName;
+        string plantName = currentPlantData.plantScientificName;
 
         if (!csSingleton.Instance.savedPlant.Contains(plantName))
         {

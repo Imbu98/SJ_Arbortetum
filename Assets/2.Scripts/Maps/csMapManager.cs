@@ -346,37 +346,30 @@ public class csMapManager : MonoBehaviour
     /// </summary>
     public void ClampMapPosition()
     {
-       RectTransform mapRect = mapRawImage.rectTransform;
-       Vector2 mapSize = mapRect.sizeDelta;
-       Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+        RectTransform mapRect = mapRawImage.rectTransform;
+        RectTransform parentRect = mapRect.parent as RectTransform;
 
         Vector2 pos = mapRect.anchoredPosition;
 
-        float halfMapWidth = mapSize.x / 2f * mapRect.localScale.x;
-        float halfMapHeight = mapSize.y / 2f * mapRect.localScale.y;
-        float halfScreenWidth = screenSize.x / 2f;
-        float halfScreenHeight = screenSize.y / 2f;
+        // 실제 크기 (scale 반영)
+        float mapWidth = mapRect.rect.width * mapRect.localScale.x;
+        float mapHeight = mapRect.rect.height * mapRect.localScale.y;
 
-        // 맵이 화면보다 클 경우에만 경계 제한 적용
-        if (mapSize.x > screenSize.x)
-        {
-            float maxX = (halfMapWidth - halfScreenWidth);
-            pos.x = Mathf.Clamp(pos.x, -maxX, maxX);
-        }
-        else
-        {
-            pos.x = 0; // 화면보다 작으면 가운데 고정
-        }
+        float viewWidth = parentRect.rect.width;
+        float viewHeight = parentRect.rect.height;
 
-        if (mapSize.y > screenSize.y)
-        {
-            float maxY = (halfMapHeight - halfScreenHeight);
-            pos.y = Mathf.Clamp(pos.y, -maxY, maxY);
-        }
-        else
-        {
-            pos.y = 0;
-        }
+        // pivot 고려한 절반 크기
+        float halfMapWidth = mapWidth * 0.5f;
+        float halfMapHeight = mapHeight * 0.5f;
+        float halfViewWidth = viewWidth * 0.5f;
+        float halfViewHeight = viewHeight * 0.5f;
+
+        // 실제 이동 가능 최대 경계
+        float limitX = Mathf.Max(0, halfMapWidth - halfViewWidth);
+        float limitY = Mathf.Max(0, halfMapHeight - halfViewHeight);
+
+        pos.x = Mathf.Clamp(pos.x, -limitX, limitX);
+        pos.y = Mathf.Clamp(pos.y, -limitY, limitY);
 
         mapRect.anchoredPosition = pos;
     }
@@ -627,6 +620,38 @@ public class csMapManager : MonoBehaviour
                 if (image!= null) Destroy(image.gameObject);
             }
             lineList.Clear();    
+    }
+
+    // 현재 수목원 내부에 있는지 확인하는 함수
+    public bool IsInsideBoundary(double currentLat, double currentLon)
+    {
+        // 좌측하단
+        double lat1 = 36.491670;
+        double lon1 = 127.275559;
+
+        // 좌상단
+        double lat2 = 36.500037;
+        double lon2 = 127.272919;
+
+        // 우상단
+        double lat3 = 36.501001;
+        double lon3 = 127.290610;
+
+        // 우측하단
+        double lat4 = 36.491615;
+        double lon4 = 127.291551;
+
+        // 4개의 꼭짓점 중 최소/최대 위도, 경도 계산
+        double minLat = Math.Min(Math.Min(lat1, lat2), Math.Min(lat3, lat4));
+        double maxLat = Math.Max(Math.Max(lat1, lat2), Math.Max(lat3, lat4));
+        double minLon = Math.Min(Math.Min(lon1, lon2), Math.Min(lon3, lon4));
+        double maxLon = Math.Max(Math.Max(lon1, lon2), Math.Max(lon3, lon4));
+
+        // 현재 좌표가 범위 내에 있는지 판정
+        bool isInside = (currentLat >= minLat && currentLat <= maxLat &&
+                         currentLon >= minLon && currentLon <= maxLon);
+
+        return isInside;
     }
 
 

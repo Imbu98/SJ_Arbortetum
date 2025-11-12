@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 
-public class PopupPart : MonoBehaviour
+public class csPopupPart : MonoBehaviour
 {
     [Header("Info Texts")]
     [SerializeField] private LocalizeTextSetter infoText;
@@ -26,7 +26,7 @@ public class PopupPart : MonoBehaviour
         buttonB.gameObject.SetActive(false);
     }
 
-    public void InitText( string titleKey, string infoTable, string infoKey)
+    public void InitText(string infoTable, string infoKey)
     {
         infoText.GetComponent<TMP_Text>().text = string.Empty;
         infoText.Init(infoTable, infoKey);

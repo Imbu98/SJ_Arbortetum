@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: PopupPanel
+  m_EditorClassIdentifier: 
+  m_SharedTableData: {fileID: 11400000, guid: 2eab40c0823d93847bd3b84be9b21c52, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: ff415d0e12ccb60459bb2c900b79c63a, type: 2}
+  - {fileID: 11400000, guid: 9ce8605fb5af9964d95d4b1e0f200f28, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

@@ -21,6 +21,10 @@ public class csSpeechPanel : MonoBehaviour
     {
         if (keyboard != null)
         {
+            var area = TouchScreenKeyboard.area;
+
+            //MoveButtonAboveKeyboard(area);
+
             if (keyboard.status == TouchScreenKeyboard.Status.Done)
             {
                 // 입력 완료 처리
@@ -47,6 +51,7 @@ public class csSpeechPanel : MonoBehaviour
     private void OnDisable()
     {
         startSpeechToTextButton.onClick.RemoveAllListeners();
+
     }
 
     // 대화하기 버튼 클릭 시 키보드와 음성 대화 버튼 등장
@@ -59,9 +64,34 @@ public class csSpeechPanel : MonoBehaviour
         TouchScreenKeyboard.hideInput = false;
 
         startSpeechToTextButton.gameObject.SetActive(true);
+
+        
 #endif
 
     }
+
+    private void MoveButtonAboveKeyboard(Rect area)
+    {
+        // pivot = (0,0) 기준 → 버튼의 왼쪽 아래를 키보드 오른쪽 위에 붙임
+        Vector2 targetScreenPos = new Vector2(
+            area.x + area.width - 16f,     // 오른쪽에서 여백만 빼기
+            area.y + area.height - 16f     // 위에서 여백만 빼기
+        );
+        RectTransform btnRect = startSpeechToTextButton.GetComponent<RectTransform>();
+
+        RectTransform parent = btnRect.parent as RectTransform;
+        Vector2 anchoredPos;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parent,
+            targetScreenPos,
+            null,
+            out anchoredPos
+        );
+
+        btnRect.anchoredPosition = anchoredPos;
+    }
+
 
     // 입력 완료 이벤트
     public void OnInputEndEdit(string text)
@@ -101,16 +131,16 @@ public class csSpeechPanel : MonoBehaviour
 
         ChatMessage userChatMessage = new ChatMessage
         {
-            UID = csSingleton.Instance.UID,
-            msg = result
+            user_id = csSingleton.Instance.UID,
+            message = result
         };
 
         //List<ChatMessage> tempChatList = new List<ChatMessage>(csSingleton.Instance.strSavedChatHistory);
         //tempChatList.Add(userChatMessage);
 
-        string jsonData = JsonConvert.SerializeObject(userChatMessage);
+        
 
-        var aITextResult =  await csNetworkManager.Instance.AsyncGetAIChatResult(jsonData);
+        var aITextResult =  await csNetworkManager.Instance.AsyncGetAIChatResult(userChatMessage);
 
         //AI 응답이 null/빈 문자열이면 → 저장하지 않고 return
         if (string.IsNullOrEmpty(aITextResult))

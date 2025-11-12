@@ -68,7 +68,7 @@ namespace Data
     [System.Serializable]
     public class PlantResponse
     {
-        public string scientificName;
+        public string plantScientificName;
         public List<string> commonNames;
         public float score;
         public string gbif;
@@ -118,11 +118,20 @@ namespace Data
         public List<ChatMessage> chatList;
     }
 
+    
     [System.Serializable]
     public class ChatMessage
     {
-        public string UID;   // 구글 또는 애플 로그인 시 나오는 UID 사용
-        public string msg;
+        public string user_id;   // 구글 또는 애플 로그인 시 나오는 UID 사용
+        public string message;
+    }
+
+    public class AIChatResponse
+    {
+        public string response;
+        public bool route_finalized;
+        public List<object> route;
+        public Dictionary<string, object> quest;
     }
 
     [System.Serializable]

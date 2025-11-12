@@ -1,18 +1,15 @@
 KoreanName,EnglishName,Latitude,Longitude,ID
-세종카페거리,Sejong Cafe Street,36.496980,127.283210,1
-세종시작은도서관,Sejong Small Library,36.495450,127.282890,2
-호수공원입구,Lake Park Entrance,36.496120,127.281870,3
-첫마을공원,Cheotmaeul Park,36.495980,127.284950,4
-나성빌딩,Naeseong Building,36.496530,127.285470,5
-세종마트,Sejong Mart,36.497180,127.284180,6
-로터리카페,Rotary Cafe,36.496600,127.282200,7
-행복약국,Happy Pharmacy,36.495880,127.283020,8
-우리편의점,Our Convenience Store,36.496340,127.284350.9
-호수앞벤치,Lakefront Bench,36.497010,127.283870,10
-테스트장소1,test1,36.494897,127.279341,11
-테스트장소2,test2,36.493773,127.278891,12
-방문자센터,VisitorCenter,36.497903,127.285559,13
-사계절전시온실,FourSeasons,36.497550,127.288021,14
-화장실,toilet,36.497384, 127.278374,101
-화장실,toilet,36.497954, 127.284082,101
-화장실,toilet,36.494788, 127.282258,101
+민속식물원,Folk Botanical Garden,36.494296,127.278894,1
+단풍나무원,Maple Tree Garden,36.495418,127.279759,2
+안내센터(대형),Information Center (Main),36.494283,127.277862,3
+어린이정원,Children's Garden,36.495576,127.282232,4
+희귀특산식물전시온실,Rare Plants Exhibition Greenhouse,36.494137,127.281617,5
+안내센터(소형),Information Center(Small),36.492429,127.278332,6
+식물분류원,Plant Taxonomy Garden,36.492704,127.280032,7
+양서류관찰원,Amphibian Observation Garden,36.492874,127.282057,8
+습지형생태숲,Wetland Ecological Forest,36.492832,127.282588,9
+
+화장실,Toilet,36.495851,127.280768,101
+화장실,Toilet,36.494442,127.277862,101
+화장실,Toilet,36.494765,127.282384,101
+화장실,Toilet,36.494277,127.285024,101

@@ -91,6 +91,8 @@ public class csSaveLodeManager : MonoBehaviour
         data.nSavedLoginType = csSingleton.Instance.nSavedLoginType;
         data.nLanguage = csSingleton.Instance.nLanguage;
 
+        data.UID = csSingleton.Instance.UID;
+
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(dataSetPath, json);
 
@@ -114,6 +116,8 @@ public class csSaveLodeManager : MonoBehaviour
             csSingleton.Instance.bAutoLogin = data.bAutoLogin;
             csSingleton.Instance.nSavedLoginType = data.nSavedLoginType;
             csSingleton.Instance.nLanguage = data.nLanguage;
+
+            csSingleton.Instance.UID = data.UID;
 
         }
         else

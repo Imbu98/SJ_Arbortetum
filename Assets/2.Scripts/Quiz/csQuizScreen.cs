@@ -16,6 +16,7 @@ public class csQuizScreen : MonoBehaviour
     [SerializeField] private Button answerSubmitButton;
     [SerializeField] private Button resetQuizButton;
     [SerializeField] private Button endQuizButton;
+    [SerializeField] private Button closeQuizScreenButton;
     [SerializeField] private Button nextQuizButton;
 
 
@@ -31,22 +32,22 @@ public class csQuizScreen : MonoBehaviour
     [Header("BodyParts")]
     [SerializeField] private GameObject multipleChoicePart;
     [SerializeField] private GameObject findRightPart;
+    [SerializeField] private TextMeshProUGUI quizText_TMP;
 
     [Header("MultipleChoice")]
     [SerializeField] private List<TextMeshProUGUI>  choiceTMP; // 보기 텍스트
 
     [Header("FindRight")]
-    [SerializeField] private RectTransform correctResultHolder;
-    [SerializeField] private RectTransform IncorrectResultHolder;
-
+    [SerializeField] private GameObject findrightSelectObject; 
+    [SerializeField] private RectTransform resultHolder;
     [SerializeField] private GameObject correctResultPrefab;
     [SerializeField] private GameObject inCorrectResultPrefab;
 
-    [SerializeField] private Color unSelectedColor; // O/X 버튼 비선택 색깔
-    [SerializeField] private Color selectedColor; // O/X 버튼 선택 색깔
-    [SerializeField] private Color inCorrectColor; // O/X 오답 배경 이미지
-    [SerializeField] private Color correctColor; // O/X 정답 배경 이미지
-
+    [Header("Answer Spirte")]
+    [SerializeField] private Sprite unSelectedSprite; //선택안됨
+    [SerializeField] private Sprite SelectedSprite;   // 선택됨
+    [SerializeField] private Sprite CorrectSprite;    // 정답
+    [SerializeField] private Sprite InCorrectSprite;  // 오답
 
     private void OnEnable()
     {
@@ -64,6 +65,7 @@ public class csQuizScreen : MonoBehaviour
         answerSubmitButton.onClick.AddListener(SubmitAnswer);
         resetQuizButton.onClick.AddListener(SetQuiz);
         endQuizButton.onClick.AddListener(QuitQuiz);
+        closeQuizScreenButton.onClick.AddListener(QuitQuiz);
         nextQuizButton.onClick.AddListener(SetQuiz);
 
         SetQuiz();
@@ -84,7 +86,53 @@ public class csQuizScreen : MonoBehaviour
         answerSubmitButton.onClick.RemoveAllListeners();
         resetQuizButton.onClick.RemoveAllListeners();
         endQuizButton.onClick.RemoveAllListeners();
+        closeQuizScreenButton.onClick.RemoveAllListeners();
         nextQuizButton.onClick.RemoveAllListeners();
+    }
+
+    private void SetQuiz()
+    {
+
+
+        if (quizData != null)
+        {
+            // 퀴즈 데이터 있으면 초기화
+            quizData = new QuizData();
+        }
+
+        answerSubmitButton.interactable = false;
+
+        userSelectQuizAnswer = -1;
+
+        // 퀴즈데이터 가져오기
+        quizData = GetRandomQuiz();// 테스트 퀴즈   
+
+        // 퀴즈 보기 text 설정
+        if (quizData.quizChoices != null)
+        {
+
+            for (int i = 0; i < quizData.quizChoices.Count; ++i)
+            {
+
+                {
+                    choiceTMP[i].text = quizData.quizChoices[i];
+                }
+            }
+        }
+
+        quizText_TMP.text = "Q." + quizData.quizDescription;
+
+        SetBodyPart();
+
+        // 퀴즈 하단 버튼 UI변경
+        SetOnQuizUI(true);
+    }
+
+    // 하단 버튼 UI 표시 설정
+    private void SetOnQuizUI(bool IsOnQuiz)
+    {
+        onQuizObject.gameObject.SetActive(IsOnQuiz); // 퀴즈 중일 때 정답 선택버튼 활성화
+        endQuizObject.gameObject.SetActive(!IsOnQuiz); // 퀴즈 끝나고 종료, 다음퀴즈 버튼 활성화
     }
 
     public void SelectChoice(int index)
@@ -102,13 +150,11 @@ public class csQuizScreen : MonoBehaviour
                     {
                         if (i == index)
                         {
-                            // 보기를 골랐으면 선택 이미지 활성화
-                            choiceButtons[i].transform.GetChild(0).gameObject.SetActive(true);
+                            choiceButtons[i].GetComponent<Image>().sprite = SelectedSprite;
                         }
                         else
                         {
-                            // 나머지 선택 이미지는 비활성화
-                            choiceButtons[i].transform.GetChild(0).gameObject.SetActive(false);
+                            choiceButtons[i].GetComponent<Image>().sprite = unSelectedSprite;
                         }
                     }
                     break;
@@ -119,11 +165,11 @@ public class csQuizScreen : MonoBehaviour
                     {
                         if (i == index)
                         {
-                            findRightButtons[i].GetComponent<Image>().color = selectedColor;
+                            findRightButtons[i].GetComponent<Image>().sprite = SelectedSprite;
                         }
                         else
                         {
-                            findRightButtons[i].GetComponent<Image>().color = unSelectedColor;
+                            findRightButtons[i].GetComponent<Image>().sprite = unSelectedSprite;
                             
                         }
                     }
@@ -132,6 +178,8 @@ public class csQuizScreen : MonoBehaviour
 
         }
         userSelectQuizAnswer = index+1; // index는 0부터 시작이니 정답은 +1
+
+        answerSubmitButton.interactable = true;
 
     }
 
@@ -156,15 +204,15 @@ public class csQuizScreen : MonoBehaviour
                 {
                     for (int i = 0; i < choiceButtons.Count; ++i)
                     {
-                        if (i+1 == quizData.answer)
+                        // 사용자가 선택한 정답과 퀴즈의 정답이 같으면 정답 스프라이트로 변경
+                        if(quizData.answer == userSelectQuizAnswer)
                         {
-                            // 퀴즈의 정답과 같은 index의 버튼의 정답 이미지 활성화
-                            choiceButtons[i].transform.GetChild(1).gameObject.SetActive(true);
+                            choiceButtons[quizData.answer-1].GetComponent<Image>().sprite = CorrectSprite;
                         }
+                        // 다르면 기존 선택 스프라이트는 냅두고 퀴즈의 정답만 오답 스프라이트로변경
                         else
                         {
-                            // 나머지 정답 이미지 비활성화
-                            choiceButtons[i].transform.GetChild(1).gameObject.SetActive(false);
+                            choiceButtons[quizData.answer-1].GetComponent<Image>().sprite = InCorrectSprite;
                         }
                     }
                     break;
@@ -173,21 +221,24 @@ public class csQuizScreen : MonoBehaviour
                 {
                     if(quizData.answer == userSelectQuizAnswer)
                     {
-                        findRightButtons[userSelectQuizAnswer-1].GetComponent<Image>().color = correctColor;
-                        Instantiate(correctResultPrefab, findRightButtons[userSelectQuizAnswer-1].transform.GetChild(0).transform);
+                        findrightSelectObject.SetActive(false);
+
+                        Instantiate(correctResultPrefab, resultHolder,false);
                     }
                     else
                     {
-                        findRightButtons[userSelectQuizAnswer-1].GetComponent<Image>().color = inCorrectColor;
-                        Instantiate(inCorrectResultPrefab, findRightButtons[userSelectQuizAnswer-1].transform.GetChild(0).transform);
+                        findrightSelectObject.SetActive(false);
+
+                        Instantiate(inCorrectResultPrefab, resultHolder, false);
+
                     }
                     break;
                 }
-
         }
-    }
 
-       
+        // 퀴즈 정답에 대한 설명 텍스트 추가
+        //quizText_TMP = 
+    }
     
     private void QuitQuiz()
     {
@@ -196,44 +247,7 @@ public class csQuizScreen : MonoBehaviour
         csUI_Manager.Instance.ResetAIChatText();
     }
 
-    private void SetQuiz()
-    {
-        if (quizData!=null)
-        {
-            // 퀴즈 데이터 있으면 초기화
-            quizData = new QuizData();
-        }
-        userSelectQuizAnswer = -1;
 
-        // 퀴즈데이터 가져오기
-        quizData = GetRandomQuiz();// 테스트 퀴즈   
-
-        // 퀴즈 보기 text 설정
-        if (quizData.quizChoices!=null)
-        {
-        
-            for (int i = 0; i < quizData.quizChoices.Count; ++i)
-            {
-
-                {
-                    choiceTMP[i].text = quizData.quizChoices[i];
-                }
-            }
-        }
-        csUI_Manager.Instance.SetAIChatText(quizData.quizDescription);
-
-        SetBodyPart();
-
-        // 퀴즈 하단 버튼 UI변경
-        SetOnQuizUI(true);
-    }
-
-    // 하단 버튼 UI 표시 설정
-    private void SetOnQuizUI(bool IsOnQuiz)
-    {
-        onQuizObject.gameObject.SetActive(IsOnQuiz); // 퀴즈 중일 때 정답 선택버튼 활성화
-        endQuizObject.gameObject.SetActive(!IsOnQuiz); // 퀴즈 끝나고 종료, 다음퀴즈 버튼 활성화
-    }
     private void SetBodyPart()
     {
         switch(quizData.quizType)
@@ -251,8 +265,7 @@ public class csQuizScreen : MonoBehaviour
                     // 선택,정답 이미지 비활성화
                     foreach (Button choiceButton in choiceButtons)
                     {
-                        choiceButton.transform.GetChild(0).gameObject.SetActive(false);
-                        choiceButton.transform.GetChild(1).gameObject.SetActive(false);
+                        choiceButton.GetComponent<Image>().sprite = unSelectedSprite;
                     }
                     break;
                 }
@@ -260,22 +273,17 @@ public class csQuizScreen : MonoBehaviour
                 {
                     multipleChoicePart.SetActive(false);
                     findRightPart.SetActive(true);
-
+                    findrightSelectObject.SetActive(true);
                     // 버튼 색 회색으로 초기화
                     foreach (Button findRightButton in findRightButtons)
                     {
-                        findRightButton.transform.GetComponent<Image>().color = Color.gray;
+                        findRightButton.GetComponent<Image>().sprite = unSelectedSprite;
                     }
-                    // 정답 결과 삭제
-                    foreach(Transform child in correctResultHolder)
+                    foreach(Transform child  in resultHolder)
                     {
                         Destroy(child.gameObject);
                     }
-                    // 정답 결과 삭제
-                    foreach (Transform child in IncorrectResultHolder)
-                    {
-                        Destroy(child.gameObject);
-                    }
+
                     break;
                 }
         }
