@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -7,35 +7,33 @@ using UnityEngine.Android;
 public class GPS : MonoBehaviour
 {
 
-    // °¡Â¥ GPS¿ë Á¶ÀÌ½ºÆ½
+    // ê°€ì§œ GPSìš© ì¡°ì´ìŠ¤í‹±
     public csVirtualJoystic joystick;
 
-    [Header("ÀÌµ¿ ¼Óµµ (µµ ´ÜÀ§)")]
+    [Header("ì´ë™ ì†ë„ (ë„ ë‹¨ìœ„)")]
     public double moveSpeed;
 
-    // ÇöÀç ÁÂÇ¥(ÀĞ±â¿ë)
+    // í˜„ì¬ ì¢Œí‘œ(ì½ê¸°ìš©)
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
 
-    // ÀÚµ¿ ½ÃÀÛ ¿©ºÎ
+    // ìë™ ì‹œì‘ ì—¬ë¶€
     [SerializeField] private bool autoStart = true;
+
+    private bool useGPS = false; // ëª¨ë“œ ì „í™˜ ìƒíƒœ
 
     [SerializeField] private TextMeshProUGUI latitudeTMP;
     [SerializeField] private TextMeshProUGUI longitudeTMP;
     IEnumerator Start()
     {
 #if UNITY_ANDROID
-        // ¾Èµå·ÎÀÌµå À§Ä¡ ±ÇÇÑ ¿äÃ»
+        // ì•ˆë“œë¡œì´ë“œ ìœ„ì¹˜ ê¶Œí•œ ìš”ì²­
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
             Permission.RequestUserPermission(Permission.FineLocation);
-
-        Latitude = 36.494243;
-        Longitude = 127.285061;
 #endif
 #if UNITY_EDITOR
-        // ¿¡µğÅÍ¿ë Å×½ºÆ® °æµµ,À§µµ
-        Latitude = 36.494243;
-        Longitude = 127.285061;
+        // ì—ë””í„°ìš© í…ŒìŠ¤íŠ¸ ê²½ë„,ìœ„ë„
+      
 #endif
         if (autoStart)
         
@@ -50,7 +48,7 @@ public class GPS : MonoBehaviour
             yield break;
         }
 
-        // Á¤È®µµ(distanceFilter 0.2m, 0.2m ¸¶´Ù ¾÷µ¥ÀÌÆ®)
+        // ì •í™•ë„(distanceFilter 0.2m, 0.2m ë§ˆë‹¤ ì—…ë°ì´íŠ¸)
         Input.location.Start(0.2f, 0.2f);
 
         int maxWait = 20;
@@ -72,31 +70,52 @@ public class GPS : MonoBehaviour
             yield break;
         }
 
-        // ³ªÄ§¹İ(¹æÀ§°¢) ÇÊ¿ä ½Ã È°¼ºÈ­ ÇÒ ¼ö ÀÖÀ½
+        // ë‚˜ì¹¨ë°˜(ë°©ìœ„ê°) í•„ìš” ì‹œ í™œì„±í™” í•  ìˆ˜ ìˆìŒ
         Input.compass.enabled = true;
     }
 
     void Update()
     {
-       
-        if (joystick == null || !joystick.isInput) return;
+        if (useGPS)
+        {
+            // ì‹¤ì œ GPS ìœ„ì¹˜ ì‚¬ìš©
+            if (Input.location.status == LocationServiceStatus.Running)
+            {
+                var last = Input.location.lastData;
+                Latitude = Math.Round(last.latitude, 6);
+                Longitude = Math.Round(last.longitude, 6);
+            }
+        }
+        else
+        {
+         
+            // ì¡°ì´ìŠ¤í‹±ìœ¼ë¡œ ìœ„ì¹˜ ì´ë™
+            if (joystick == null || !joystick.isInput) return;
 
-        // Á¶ÀÌ½ºÆ½ ÀÔ·Â°ª¿¡ µû¶ó À§µµ/°æµµ º¯°æ
-        Latitude += joystick.InputVector.y * moveSpeed;
-        Longitude += joystick.InputVector.x * moveSpeed;
+            Latitude += joystick.InputVector.y * moveSpeed;
+            Longitude += joystick.InputVector.x * moveSpeed;
+        }
 
-        latitudeTMP.text = Latitude.ToString("F4");
-        longitudeTMP.text = Longitude.ToString("F4");
+        // UI í‘œì‹œ
+        latitudeTMP.text = Latitude.ToString("F6");
+        longitudeTMP.text = Longitude.ToString("F6");
+    }
 
+    public void ToggleGPSMode()
+    {
+        useGPS = !useGPS;
 
-        if (Input.location.status != LocationServiceStatus.Running) return;
+        if (useGPS)
+        {
+            Debug.Log("ğŸ“ ë‚´ ìœ„ì¹˜(GPS ëª¨ë“œ) ì‚¬ìš© ì‹œì‘");
+        }
+        else
+        {
+            Latitude = 36.494243;
+            Longitude = 127.285061;
 
-
-        //var last = Input.location.lastData;
-        //Latitude = Math.Round(last.latitude, 6);
-        //Longitude = Math.Round(last.longitude, 6);
-        ////ÇÊ¿ä ½Ã:
-        //var heading = Input.compass.trueHeading;
+            Debug.Log("ğŸ® ì¡°ì´ìŠ¤í‹± ì´ë™ ëª¨ë“œë¡œ ì „í™˜");
+        }
     }
 
     void OnDisable()
@@ -107,11 +126,11 @@ public class GPS : MonoBehaviour
             Input.compass.enabled = false;
     }
 
-    // ===== °Å¸®/¹æÀ§ °è»ê À¯Æ¿ =====
+    // ===== ê±°ë¦¬/ë°©ìœ„ ê³„ì‚° ìœ í‹¸ =====
     public enum DistUnit { kilometer, meter }
 
     /// <summary>
-    /// µÎ ÁÂÇ¥ °£ °Å¸®(´ÜÀ§: m/km). ¿øº» ·ÎÁ÷(±¸¸é ÄÚ»çÀÎ ¹ıÄ¢) À¯Áö.
+    /// ë‘ ì¢Œí‘œ ê°„ ê±°ë¦¬(ë‹¨ìœ„: m/km). ì›ë³¸ ë¡œì§(êµ¬ë©´ ì½”ì‚¬ì¸ ë²•ì¹™) ìœ ì§€.
     /// </summary>
     public static double Distance(double lat1, double lon1, double lat2, double lon2, DistUnit unit)
     {
@@ -130,19 +149,19 @@ public class GPS : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç À§Ä¡¿¡¼­ ¸ñÇ¥ ÁÂÇ¥±îÁö °Å¸®(m ±âÁØ ±âº»)
+    /// í˜„ì¬ ìœ„ì¹˜ì—ì„œ ëª©í‘œ ì¢Œí‘œê¹Œì§€ ê±°ë¦¬(m ê¸°ì¤€ ê¸°ë³¸)
     /// </summary>
     public double DistanceTo(double targetLat, double targetLon, DistUnit unit = DistUnit.meter)
         => Distance(Latitude, Longitude, targetLat, targetLon, unit);
 
     /// <summary>
-    /// ÃÊ±â ¹æÀ§°¢(ÇöÀç¡æ¸ñÇ¥, 0~360)
+    /// ì´ˆê¸° ë°©ìœ„ê°(í˜„ì¬â†’ëª©í‘œ, 0~360)
     /// </summary>
     public static double InitialBearing(double lat1, double lon1, double lat2, double lon2)
         => (Bearing(lat1, lon1, lat2, lon2) + 360.0) % 360.0;
 
     /// <summary>
-    /// ÃÖÁ¾ ¹æÀ§°¢(¸ñÇ¥¡æÇöÀç ±âÁØÀÇ ¿ª¹æÀ§ + 180¡Æ, 0~360)
+    /// ìµœì¢… ë°©ìœ„ê°(ëª©í‘œâ†’í˜„ì¬ ê¸°ì¤€ì˜ ì—­ë°©ìœ„ + 180Â°, 0~360)
     /// </summary>
     public static double FinalBearing(double lat1, double lon1, double lat2, double lon2)
         => (Bearing(lat2, lon2, lat1, lon1) + 180.0) % 360.0;
@@ -159,7 +178,8 @@ public class GPS : MonoBehaviour
                           Math.Sin(phi1) * Math.Cos(phi2) * Math.Cos(lam2 - lam1)
                ) * 180.0 / Math.PI;
     }
-    
+
+  
     static double Deg2Rad(double deg) => deg * Math.PI / 180.0;
     static double Rad2Deg(double rad) => rad * 180.0 / Math.PI;
 }

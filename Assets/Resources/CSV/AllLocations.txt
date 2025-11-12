@@ -8,8 +8,14 @@ KoreanName,EnglishName,Latitude,Longitude,ID
 식물분류원,Plant Taxonomy Garden,36.492704,127.280032,7
 양서류관찰원,Amphibian Observation Garden,36.492874,127.282057,8
 습지형생태숲,Wetland Ecological Forest,36.492832,127.282588,9
-
+한국전통정원,Korean Traditional Garden,36.496332,127.283817,10
+분재전시관,Bonsai Exhibition Hall,36.494661,127.283893,11
+사계절전시온실,All Season Exhibition Greenhouse,36.497796,127.287831,12
+방문자센터,Visitor Center,36.498247, 127.286002,13
+(북쪽)보관소자전거대여소,(North) Bicycle Storage and Rental Station,36.497729,127.284053,14
+(동쪽)보관소자전거대여소 ,(East) Bicycle Storage and Rental Station,36.497876,127.289584,15
 화장실,Toilet,36.495851,127.280768,101
 화장실,Toilet,36.494442,127.277862,101
 화장실,Toilet,36.494765,127.282384,101
 화장실,Toilet,36.494277,127.285024,101
+화장실,Toilet,36.497894, 127.284000,101
