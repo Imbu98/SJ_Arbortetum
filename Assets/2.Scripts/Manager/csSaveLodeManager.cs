@@ -83,9 +83,11 @@ public class csSaveLodeManager : MonoBehaviour
 
         data.bTermsofUse = csSingleton.Instance.bTermsofUse;
         data.fSoundEffect = csSingleton.Instance.fSoundEffect;
-        data.nSoundEffectMute = csSingleton.Instance.nSoundEffectMute;
+        data.bSoundEffectMute = csSingleton.Instance.bSoundEffectMute;
         data.fBgm = csSingleton.Instance.fBgm;
-        data.nBgmMute = csSingleton.Instance.nBgmMute;
+        data.bBgmMute = csSingleton.Instance.bBgmMute;
+
+        data.fRecommendTimer = csSingleton.Instance.fRecommendTimer;
 
         data.bAutoLogin = csSingleton.Instance.bAutoLogin;
         data.nSavedLoginType = csSingleton.Instance.nSavedLoginType;
@@ -109,9 +111,11 @@ public class csSaveLodeManager : MonoBehaviour
 
             csSingleton.Instance.bTermsofUse = data.bTermsofUse;
             csSingleton.Instance.fSoundEffect = data.fSoundEffect;
-            csSingleton.Instance.nSoundEffectMute = data.nSoundEffectMute;
+            csSingleton.Instance.bSoundEffectMute = data.bSoundEffectMute;
             csSingleton.Instance.fBgm = data.fBgm;
-            csSingleton.Instance.nBgmMute = data.nBgmMute;
+            csSingleton.Instance.bBgmMute = data.bBgmMute;
+
+            csSingleton.Instance.fRecommendTimer = data.fRecommendTimer;
 
             csSingleton.Instance.bAutoLogin = data.bAutoLogin;
             csSingleton.Instance.nSavedLoginType = data.nSavedLoginType;

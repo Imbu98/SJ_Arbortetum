@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,8 +12,10 @@ public class csSelectMissonStyle : MonoBehaviour
 
     private int currentIndex = -1; // 현재 선택된 버튼 인덱스
     [Header("Button Colors")]
-    [SerializeField] private Color normalColor;
-    [SerializeField] private Color selectedColor;
+    [SerializeField] private Sprite selectedSprite;
+    [SerializeField] private Color selectedTextColor;
+    [SerializeField] private Sprite unSelectedSprite;
+    [SerializeField] private Color unSelectedTextColor;
 
     private void OnEnable()
     {
@@ -24,6 +27,10 @@ public class csSelectMissonStyle : MonoBehaviour
         {
             int index = i; // 클로저 문제 방지
             selectMissonStyleButtons[i].onClick.AddListener(() => OnSelectButtonClicked(index));
+            // UI초기화
+            selectMissonStyleButtons[i].image.sprite = unSelectedSprite;
+            selectMissonStyleButtons[i].GetComponentInChildren<TextMeshProUGUI>().color = unSelectedTextColor;
+
         }
 
         missonCreateButton.onClick.AddListener(OnClickMissonCreateButton);
@@ -35,7 +42,6 @@ public class csSelectMissonStyle : MonoBehaviour
         foreach (var btn in selectMissonStyleButtons)
         {
             btn.onClick.RemoveAllListeners();
-            btn.image.color = normalColor;
         }
 
         missonCreateButton.onClick.RemoveAllListeners();
@@ -60,11 +66,13 @@ public class csSelectMissonStyle : MonoBehaviour
         {
             if(i==index)
             {
-                selectMissonStyleButtons[i].image.color = selectedColor;
+                selectMissonStyleButtons[i].image.sprite = selectedSprite;
+                selectMissonStyleButtons[i].GetComponentInChildren<TextMeshProUGUI>().color = selectedTextColor;
             }
             else
             {
-                selectMissonStyleButtons[i].image.color = normalColor;
+                selectMissonStyleButtons[i].image.sprite = unSelectedSprite;
+                selectMissonStyleButtons[i].GetComponentInChildren<TextMeshProUGUI>().color = unSelectedTextColor;
             }
         }
 
@@ -73,15 +81,6 @@ public class csSelectMissonStyle : MonoBehaviour
     private void MissonCreateButtonInteractable(bool IsInteractable)
     {
         missonCreateButton.interactable = IsInteractable;
-
-        if (IsInteractable)
-        {
-            missonCreateButton.image.color = selectedColor;
-        }
-        else
-        {
-            missonCreateButton.image.color = normalColor;
-        }
     }
 
     private void OnClickMissonCreateButton()

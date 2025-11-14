@@ -22,8 +22,10 @@ namespace Datainfo
         public bool bGuestLogin;//커스텀 로그인인지
         public float fBgm;
         public float fSoundEffect;
-        public int nBgmMute;// 배경음 on/off
-        public int nSoundEffectMute;//효과음 on/off
+        public bool bBgmMute;// 배경음 on/off
+        public bool bSoundEffectMute;//효과음 on/off
+
+        public float fRecommendTimer;
 
         public bool bAutoLogin = false;//자동 로그인
 

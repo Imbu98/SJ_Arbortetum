@@ -11,10 +11,13 @@ public class csSingleton : MonoBehaviour
     public string strPlayerNickName; // 나중에 private로 설정
 
     public bool bTermsofUse=false;//이용약관 동의
+
     public float fBgm;
     public float fSoundEffect;
-    public int nBgmMute;// 배경음 on/off
-    public int nSoundEffectMute;//효과음 on/off
+    public bool bBgmMute;// 배경음 on/off
+    public bool bSoundEffectMute;//효과음 on/off
+
+    public float fRecommendTimer;
 
     public bool bAutoLogin = false;//자동 로그인
 
@@ -82,7 +85,7 @@ public class csSingleton : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"⚠️ CSV 파싱 실패: {lines[i]}");
+                Debug.LogWarning($" CSV 파싱 실패: {lines[i]}");
             }
         }
     }

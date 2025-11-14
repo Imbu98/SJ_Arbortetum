@@ -33,6 +33,7 @@ public class csMapManager : MonoBehaviour
 
     // 길 찾기
     [Header("PathFind")]
+    [SerializeField] private Transform linePrefabHolder;// 라인프리펩 부모 트랜스폼
     [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
     [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
     [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
@@ -242,7 +243,7 @@ public class csMapManager : MonoBehaviour
             Vector2 dir = endUI - startUI;
             float distance = dir.magnitude;
 
-            Image line = Instantiate(linePrefab, mapRawImage.transform);
+            Image line = Instantiate(linePrefab, linePrefabHolder);
             lineList.Add(line);
 
             line.color = lineColors[1];
