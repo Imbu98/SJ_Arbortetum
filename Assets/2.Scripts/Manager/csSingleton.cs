@@ -10,7 +10,7 @@ public class csSingleton : MonoBehaviour
 
     public string strPlayerNickName; // 나중에 private로 설정
 
-    public bool bTermsofUse;//이용약관 동의
+    public bool bTermsofUse=false;//이용약관 동의
     public float fBgm;
     public float fSoundEffect;
     public int nBgmMute;// 배경음 on/off

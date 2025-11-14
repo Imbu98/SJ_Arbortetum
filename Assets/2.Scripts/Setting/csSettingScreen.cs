@@ -4,9 +4,14 @@ using UnityEngine.UI;
 
 public class csSettingScreen : MonoBehaviour
 {
-    [SerializeField] Button signOutButton;
+    
+
     [SerializeField] TextMeshProUGUI UID_TMP;
     [SerializeField] TextMeshProUGUI userNickName_TMP;
+
+    [Header("Buttons")]
+    [SerializeField] Button closeAppButton;
+    [SerializeField] Button signOutButton;
 
     private void OnEnable()
     {

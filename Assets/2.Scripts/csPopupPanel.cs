@@ -20,8 +20,9 @@ public class csPopupPanel : MonoBehaviour
     [SerializeField] private csPopupPart popupPart;
 
     [Header("TermsOfUse")]
+    public GameObject termsOfUsePopup; // 약관 동의창
     [SerializeField] private TextMeshProUGUI TermsOfUseText;
-    [SerializeField] private GameObject TermsOfUsePopUp;
+    [SerializeField] private GameObject TermsOfUseDetailPopup;
 
 
     private void Awake()
@@ -61,11 +62,46 @@ public class csPopupPanel : MonoBehaviour
         popupPart.InitButtonA("PopupPanel", "Popup_Yes", unityaction+CloseAllParts);
     }
 
-    //public void PopupQuitGame()
-    //{
-    //    popupPart.gameObject.SetActive(true);
-    //    popupPart.InitText(null,null, "PopupPanel", "Popup_QuitTitle");
-    //    popupPart.InitButtonA("PopupPanel", "Popup_Yes", GameManager.I.QuitGame);
-    //    popupPart.InitButtonB("PopupPanel", "Popup_No", () => popupPart.gameObject.SetActive(false));
-    //}
+
+    // 약관 동의 메뉴 팝업 
+    public void PopupAgreeTermsOfUse(bool bShow)
+    {
+        termsOfUsePopup.SetActive(bShow);
+    }
+
+    public void OpenTermsOfUsePopUpButton(PolicyType policyType)
+    {
+
+        var localizedTermsOfUseString = new LocalizedString { TableReference = "MainPanel" };
+
+        if (policyType == PolicyType.Service)
+        {
+            localizedTermsOfUseString.TableEntryReference = "Key_ServicePolicy";
+        }
+        else if (policyType == PolicyType.Privacy)
+        {
+            localizedTermsOfUseString.TableEntryReference = "Key_PrivacyPolicy";
+        }
+        else if (policyType == PolicyType.Marketing)
+        {
+            localizedTermsOfUseString.TableEntryReference = "Key_MarketingPolicy";
+
+        }
+        else
+        {
+            Debug.LogError($"Invalid popUpType: {policyType.ToString()}");
+            return;
+        }
+
+
+        var modeHandle = localizedTermsOfUseString.GetLocalizedStringAsync();
+        modeHandle.Completed += (handle) =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                TermsOfUseText.text = handle.Result;
+                TermsOfUseDetailPopup.SetActive(true);
+            }
+        };
+    }
 }

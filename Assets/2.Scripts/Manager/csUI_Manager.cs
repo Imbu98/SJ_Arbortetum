@@ -17,6 +17,7 @@ public class csUI_Manager : MonoBehaviour
     public GameObject speechToTextScreen; // 음성 언어 입력 화면
     public GameObject quizScreen; // 퀴즈창
     public GameObject settingScreen; // 설정창
+    
 
     private GameObject currentScreen;
     private GameObject currentPanel;
@@ -65,6 +66,8 @@ public class csUI_Manager : MonoBehaviour
         newPanel.SetActive(true);
         currentPanel = newPanel;
     }
+
+   
 
     // 지도 나타내기
     public void PopupMap(bool bShow)

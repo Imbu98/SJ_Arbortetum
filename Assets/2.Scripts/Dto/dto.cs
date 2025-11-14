@@ -97,20 +97,7 @@ namespace Data
         }
     }
 
-    // 지도 이용 시 길찾기 중인지, 장소 검색만 하는 중인지 판별
-    public enum SearchStatus
-    {
-        None=0, // 아무 상태도 아님
-        SearchPath=1, // 내 위치로부터 도착지를 찾을 때 활성화
-    }
-
-    // 미션의 생성 상태 확인 
-    public enum MissionStatus
-    {
-        None=0,
-        MissionCreating=1,
-        MissonCreated=2,
-    }
+  
 
     [System.Serializable]
     public class ChatHistoryWrapper
@@ -134,13 +121,7 @@ namespace Data
         public Dictionary<string, object> quest;
     }
 
-    [System.Serializable]
-    public enum QuizType
-    {
-        None = 0,
-        MultipleChoice=1, // 객관식
-        FindRight=2, //  O/X 퀴즈
-    }
+   
 
     public class QuizData
     {
@@ -157,5 +138,34 @@ namespace Data
     public class SavedPlantWrapper
     {
         public List<string> plantList;
+    }
+    public enum PolicyType
+    {
+        Service,
+        Privacy,
+        Marketing
+    }
+
+    [System.Serializable]
+    public enum QuizType
+    {
+        None = 0,
+        MultipleChoice = 1, // 객관식
+        FindRight = 2, //  O/X 퀴즈
+    }
+
+    // 지도 이용 시 길찾기 중인지, 장소 검색만 하는 중인지 판별
+    public enum SearchStatus
+    {
+        None = 0, // 아무 상태도 아님
+        SearchPath = 1, // 내 위치로부터 도착지를 찾을 때 활성화
+    }
+
+    // 미션의 생성 상태 확인 
+    public enum MissionStatus
+    {
+        None = 0,
+        MissionCreating = 1,
+        MissonCreated = 2,
     }
 }

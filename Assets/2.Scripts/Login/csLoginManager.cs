@@ -62,19 +62,14 @@ private void Awake()
     {
         if (status == SignInStatus.Success)
         {
-            Debug.Log("GOOGLE LOGIN SUCCESS");
-            string name = PlayGamesPlatform.Instance.GetUserDisplayName();
-            string id = PlayGamesPlatform.Instance.GetUserId();
-
-            csSingleton.Instance.bAutoLogin = true;
-            csSingleton.Instance.UID = id;
-            csSingleton.Instance.nSavedLoginType = 1;
-
-            csSaveLodeManager.Instance.SaveSet();
-
-
-            csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
-
+            if(csSingleton.Instance.bTermsofUse)
+            {
+                GoogleLoginSuccess();
+            }
+            else
+            {
+                csPopupPanel.Instance.PopupAgreeTermsOfUse(true);
+            }
         }
         else
         {
@@ -83,6 +78,24 @@ private void Awake()
             // to ask users to sign-in. Clicking it should call
            
         }
+    }
+
+    public void GoogleLoginSuccess()
+    {
+        Debug.Log("GOOGLE LOGIN SUCCESS");
+        string name = PlayGamesPlatform.Instance.GetUserDisplayName();
+        string id = PlayGamesPlatform.Instance.GetUserId();
+
+        csSingleton.Instance.bAutoLogin = true;
+        csSingleton.Instance.UID = id;
+        csSingleton.Instance.nSavedLoginType = 1;
+        csSingleton.Instance.bTermsofUse = true;
+
+        csSaveLodeManager.Instance.SaveSet();
+
+
+        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
+        csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
    
 #endif
@@ -126,9 +139,19 @@ private void Awake()
                         0,
                         appleIdCredential.IdentityToken.Length);
 
-                    csSingleton.Instance.bAutoLogin = true;
                     csSingleton.Instance.UID = appleIdCredential.User;
-                    csSingleton.Instance.nSavedLoginType = 2;
+
+                    if (csSingleton.Instance.bTermsofUse)
+                    {
+                        AppleLoginSuccess();
+                        
+                    }
+                    else
+                    {
+                        csPopupPanel.Instance.PopupAgreeTermsOfUse(true);
+                    }
+
+                  
                 }
                 else
                 {
@@ -140,6 +163,17 @@ private void Awake()
                 Debug.LogError("Apple login failed: " + error.LocalizedDescription);
             }
         );
+    }
+
+    public void AppleLoginSuccess()
+    {
+        csSingleton.Instance.bAutoLogin = true;
+        csSingleton.Instance.nSavedLoginType = 2;
+        csSingleton.Instance.bTermsofUse = true;
+
+        csSaveLodeManager.Instance.SaveSet();
+        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.startScreen);
+        csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
 
     // 로그아웃 시 어플에 로컬 정보들만 지우기
