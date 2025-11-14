@@ -9,6 +9,7 @@ public class csLocationInfo : MonoBehaviour
     [SerializeField] private Button setStartLocationButton;
     [SerializeField] private Button setEndLocationButton;
     [SerializeField] private TextMeshProUGUI locationNameTMP;
+    [SerializeField] private TextMeshProUGUI locationDistanceTMP;
 
 
     public void Init(LocationData data)
@@ -32,6 +33,26 @@ public class csLocationInfo : MonoBehaviour
         });
 
         locationNameTMP.text = data.GetLocalizedName();
+
+        double distance = csMapManager.Instance.GetDistanceMeters(data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude);
+
+        string distanceText;
+
+        if (distance < 1000)
+        {
+            // 1000m 미만 → 미터 단위
+            distanceText = distance.ToString("F0") + " m";
+        }
+        else
+        {
+            // 1km 이상 → km 단위
+            double km = distance / 1000.0;
+            distanceText = km.ToString("F1") + " km";
+        }
+
+        // UI 적용
+        locationDistanceTMP.text = distanceText;
+
     }
 
     public void clear()

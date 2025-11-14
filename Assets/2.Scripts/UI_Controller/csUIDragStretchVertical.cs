@@ -5,16 +5,12 @@ public class csUIDragStretchVertical : MonoBehaviour, IBeginDragHandler, IDragHa
 {
     [SerializeField] private RectTransform target;  // stretchµÈ ÆÐ³Î
     [SerializeField] private float minHeight = 200f;
-    private float maxHeight;
+    [SerializeField] private float maxHeight;
 
     private Vector2 startMousePos;
     private float startOffsetY;
 
-    private void Start()
-    {
-        maxHeight = Screen.height *0.7f;
-    }
-
+   
     public void OnBeginDrag(PointerEventData eventData)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(

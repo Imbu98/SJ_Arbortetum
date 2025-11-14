@@ -39,6 +39,18 @@ MonoBehaviour:
     m_Key: Key_Introduce2
     m_Metadata:
       m_Items: []
+  - m_Id: 4046096765923328
+    m_Key: Key_ServicePolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4046155502956544
+    m_Key: Key_PrivacyPolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4046207759790080
+    m_Key: MarketingPolicy
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

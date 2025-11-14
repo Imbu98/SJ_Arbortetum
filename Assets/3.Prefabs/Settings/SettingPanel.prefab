@@ -1013,9 +1013,9 @@ RectTransform:
   m_Children:
   - {fileID: 1611944964378056310}
   - {fileID: 4560041227552522124}
-  - {fileID: 929345664481684303}
   - {fileID: 4994447057769859998}
   - {fileID: 8120378123632313256}
+  - {fileID: 929345664481684303}
   m_Father: {fileID: 2001768852887573434}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1070,7 +1070,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.812
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3177,7 +3177,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 8419827781743623708}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -5871,9 +5871,9 @@ RectTransform:
   m_Children:
   - {fileID: 6879124378515528166}
   - {fileID: 5729778795151136181}
-  - {fileID: 1345374096720828238}
   - {fileID: 688950322404369443}
   - {fileID: 1184833144059137148}
+  - {fileID: 1345374096720828238}
   m_Father: {fileID: 542740676460560439}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6398,7 +6398,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 8944417547837644312}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []

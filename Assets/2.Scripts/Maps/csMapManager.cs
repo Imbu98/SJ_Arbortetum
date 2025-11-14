@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Networking;
 using UnityEngine.Timeline;
+using System.Linq;
 using UnityEngine.UI;
 
 public class csMapManager : MonoBehaviour
@@ -117,9 +118,9 @@ public class csMapManager : MonoBehaviour
     private void Update()
     {
         // 길찾기 중일 때
-        if(E_searchStatus == SearchStatus.SearchPath&&IsMapOpened)
+        if(E_searchStatus == SearchStatus.SearchPath/*&&IsMapOpened*/)
         {
-            LineConnenctToMarker();
+            // LineConnenctToMarker();
             CheckOnArrive();
         }
         //print("location" + latitude + " " + longitude);
@@ -200,14 +201,13 @@ public class csMapManager : MonoBehaviour
                 // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
                 if (startMarker) Destroy(startMarker.gameObject);
             }
-        
-            foreach (var lineImage in lineList)
-            {
-                if (lineImage != null)
-                    Destroy(lineImage.gameObject);
-            }
-            lineList.Clear();        
-        
+
+        foreach (Transform child in linePrefabHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        lineList.Clear();
+
 
         currentGeoCoordinate = new SearchPathCoordinate();
 
@@ -246,7 +246,7 @@ public class csMapManager : MonoBehaviour
             Image line = Instantiate(linePrefab, linePrefabHolder);
             lineList.Add(line);
 
-            line.color = lineColors[1];
+            line.color = lineColors[0];
             RectTransform rect = line.rectTransform;
             rect.anchoredPosition = startUI;
             rect.sizeDelta = new Vector2(distance, lineSize);
@@ -429,34 +429,26 @@ public class csMapManager : MonoBehaviour
     }
 
 
+    // 목적지 도착 체크 
     private void CheckOnArrive()
     {
-        // 목적지 도착 체크 로직
+        
         if(currentGeoCoordinate==null)
             return;
 
-        int missionIndex = csMissionManager.Instance.currentMissionStepIndex;
         SearchPathCoordinate searchPathCoordinate = currentGeoCoordinate;
 
-        double targetLat = searchPathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Latitude;
-        double targetLon = searchPathCoordinate.pathCoordinates[CurrentTargetCoordnateIndex+1].Longitude;
+        int lastIndex = searchPathCoordinate.pathCoordinates.Count - 1;
 
-        if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 10.0))
+        // 마지막 좌표를 목표좌표로 설정
+        double targetLat = searchPathCoordinate.pathCoordinates[lastIndex].Latitude;
+        double targetLon = searchPathCoordinate.pathCoordinates[lastIndex].Longitude;
+
+        // 마지막 좌표에 도착했는지 확인 
+        if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 15.0))
         {
-            lineList[CurrentTargetCoordnateIndex].gameObject.SetActive(false); // 도착한 구간 선 비활성화
-
-            // 다음 구간이 아직 남아있다면 인덱스 증가
-            if (CurrentTargetCoordnateIndex + 1 < searchPathCoordinate.pathCoordinates.Count - 1)
-            {
-                CurrentTargetCoordnateIndex++;
-            }
-            else
-            {
-                // 마지막 도착점에 도달함
-                CurrentTargetCoordnateIndex = 0;
-                ClearPathFindUI();
-                DestroyPathFindPrefab();
-            }
+            ClearPathFindUI();
+            DestroyPathFindPrefab();
         }
     }
 
@@ -615,12 +607,11 @@ public class csMapManager : MonoBehaviour
             endMarker = null;
         }
 
-
-            foreach (var image in lineList)
-            {
-                if (image!= null) Destroy(image.gameObject);
-            }
-            lineList.Clear();    
+        foreach(Transform child in linePrefabHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        lineList.Clear();
     }
 
     // 현재 수목원 내부에 있는지 확인하는 함수

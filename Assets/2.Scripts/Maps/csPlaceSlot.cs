@@ -8,17 +8,21 @@ public class csPlaceSlot : MonoBehaviour
 
     public TextMeshProUGUI placeText;
 
+    public TextMeshProUGUI distanceText;
+
     [HideInInspector]public string placeName = string.Empty; // 검색 장소 이름
 
     [HideInInspector]public double placeLatitude = 0; // 검색 장소 위도
 
     [HideInInspector]public double placelongitude = 0; // 검색 장소 경도
 
-    public void SetProperty(string text,double Latitude,double longitude)
+    public void SetProperty(string text,double Latitude,double longitude,string distancetext)
     {
         placeName = text;
         placeText.text = text;
         placeLatitude = Latitude;
         placelongitude = longitude;
+
+        distanceText.text = distancetext;
     }
 }

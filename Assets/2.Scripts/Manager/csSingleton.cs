@@ -8,28 +8,28 @@ public class csSingleton : MonoBehaviour
     public static csSingleton Instance { get { return _Instance; } }
     private static csSingleton _Instance;
 
-    public string strPlayerNickName; // 나중에 private로 설정
+    [HideInInspector]public string strPlayerNickName; // 나중에 private로 설정
 
-    public bool bTermsofUse=false;//이용약관 동의
+    [HideInInspector] public bool bTermsofUse=false;//이용약관 동의
 
-    public float fBgm;
-    public float fSoundEffect;
-    public bool bBgmMute;// 배경음 on/off
-    public bool bSoundEffectMute;//효과음 on/off
+    [HideInInspector] public float fBgm;
+    [HideInInspector] public float fSoundEffect;
+    [HideInInspector] public bool bBgmMute;// 배경음 on/off
+    [HideInInspector] public bool bSoundEffectMute;//효과음 on/off
 
-    public float fRecommendTimer;
+    [HideInInspector] public float fRecommendTimer;
 
-    public bool bAutoLogin = false;//자동 로그인
+    [HideInInspector] public bool bAutoLogin = false;//자동 로그인
 
-    public int nSavedLoginType = 0;//로그인 타입 1: 구글, 2: 애플
+    [HideInInspector] public int nSavedLoginType = 0;//로그인 타입 1: 구글, 2: 애플
 
-    public int nLanguage = 0;//언어설정
+    [HideInInspector] public int nLanguage = 0;//언어설정
 
-    public string UID;
+    [HideInInspector] public string UID;
 
-    public List<ChatMessage> strSavedChatHistory;
+    [HideInInspector] public List<ChatMessage> strSavedChatHistory;
 
-    public HashSet<string> savedPlant = new HashSet<string>();
+    [HideInInspector] public HashSet<string> savedPlant = new HashSet<string>();
 
 
     // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트

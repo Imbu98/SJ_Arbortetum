@@ -43,6 +43,18 @@ MonoBehaviour:
     m_Localized: How should I address you so that I can guide you comfortably?
     m_Metadata:
       m_Items: []
+  - m_Id: 4046096765923328
+    m_Localized: ServicePolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4046155502956544
+    m_Localized: PrivacyPolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4046207759790080
+    m_Localized: MarketingPolicy
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
