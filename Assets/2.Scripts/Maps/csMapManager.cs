@@ -27,21 +27,18 @@ public class csMapManager : MonoBehaviour
     public SearchPathCoordinate currentGeoCoordinate; // 현재 목적지까지 가는 좌표 리스트
 
     private int CurrentTargetCoordnateIndex; // 현재 목적지 좌표 인덱스 ( 0에는 시작 위치 , 목적지는 1부터 시작)
-
     
+
     // 맵 이미지
     public RawImage mapRawImage;
 
     // 길 찾기
     [Header("PathFind")]
-    [SerializeField] private Transform linePrefabHolder;// 라인프리펩 부모 트랜스폼
-    [SerializeField] private Image linePrefab;// 각 좌표 사이를 선으로 잇기 위한프리펩
+    public csUILineMeshRenderer uiLineRenderer;
+
     [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
     [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
     [SerializeField] private Image SearchLocationMarkerPrefab; //검색 결과 지점 마커 프리펩 
-    private List<Image> lineList=new List<Image>(); // 저장 후 삭제할 선 리스트
-    private float lineSize = 20f; // 선 두께
-    [SerializeField] private List<Color> lineColors; // 선 색상
     private Image startMarker; // 시작지점 마커 프리팹 저장
     private Image endMarker; // 도착지점 마커 프리팹 저장
     private Image SearchLocationMarker; // 검색 결과 지점 마커 프리팹 저장
@@ -202,11 +199,11 @@ public class csMapManager : MonoBehaviour
                 if (startMarker) Destroy(startMarker.gameObject);
             }
 
-        foreach (Transform child in linePrefabHolder)
+        if (uiLineRenderer != null)
         {
-            Destroy(child.gameObject);
+            uiLineRenderer.points.Clear();
+            uiLineRenderer.SetVerticesDirty(); // 다시 그려서 완전 삭제
         }
-        lineList.Clear();
 
 
         currentGeoCoordinate = new SearchPathCoordinate();
@@ -224,62 +221,55 @@ public class csMapManager : MonoBehaviour
     // AI에서 받아온 좌표마다 이어주는 함수
     IEnumerator DrawPathAnimated(List<GeoCoordinate> coords, double centerLat, double centerLon)
     {
-        
-
         if (coords == null || coords.Count < 2)
             yield break;
 
-
-        for (int i = 0; i < coords.Count - 1; i++)
+        if (uiLineRenderer != null)
         {
-            // 위도, 경도를 네이버 지도 기준 상대 좌표로 변환
-            Vector2 p1 = LatLonToRelativePosition(coords[i].Latitude, coords[i].Longitude, centerLat, centerLon, zoom);
-            Vector2 p2 = LatLonToRelativePosition(coords[i + 1].Latitude, coords[i + 1].Longitude, centerLat, centerLon, zoom);
-
-            // UI 상의 실제 위치로 변환
-            Vector2 startUI = RelativeToUIPosition(p1, mapRawImage);
-            Vector2 endUI = RelativeToUIPosition(p2, mapRawImage);
-
-            Vector2 dir = endUI - startUI;
-            float distance = dir.magnitude;
-
-            Image line = Instantiate(linePrefab, linePrefabHolder);
-            lineList.Add(line);
-
-            line.color = lineColors[0];
-            RectTransform rect = line.rectTransform;
-            rect.anchoredPosition = startUI;
-            rect.sizeDelta = new Vector2(distance, lineSize);
-            rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
-
-            // 마지막 좌표일 때 도착 마커 생성
-            if (i == coords.Count - 2)
-            {
-                if (endMarker != null && endMarker.gameObject != null)
-                {
-                    Destroy(endMarker.gameObject);
-                    endMarker = null;
-                }
-                endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
-                endMarker.rectTransform.anchoredPosition = endUI;
-            }
-
-            //// 선이 그려지는 애니메이션
-            //line.fillAmount = 0;
-            //float t = 0;
-            //while (t < 1)
-            //{
-            //    t += Time.deltaTime;
-            //    line.fillAmount = t;
-            //    yield return null;
-            //}
-            
+            uiLineRenderer.points.Clear();
+            uiLineRenderer.SetVerticesDirty(); // 다시 그려서 완전 삭제
         }
+
+
+        // 2) Mesh LineRenderer에 넣을 UI 좌표 리스트 준비
+        List<Vector2> uiPoints = new List<Vector2>();
+
+        for (int i = 0; i < coords.Count; i++)
+        {
+            Vector2 p = LatLonToRelativePosition(
+                coords[i].Latitude,
+                coords[i].Longitude,
+                centerLat,
+                centerLon,
+                zoom
+            );
+
+            Vector2 ui = RelativeToUIPosition(p, mapRawImage);
+            uiPoints.Add(ui);
+
+            yield return null; // 애니메이션 효과 유지하고 싶으면 남겨둠
+        }
+
+        // 3) UILineMeshRenderer에 적용
+        uiLineRenderer.SetPoints(uiPoints);
+
+        // 4) 도착 마커 생성
+        Vector2 endUI = uiPoints[uiPoints.Count - 1];
+
+        if (endMarker != null)
+        {
+            Destroy(endMarker.gameObject);
+            endMarker = null;
+        }
+
+        endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
+        endMarker.rectTransform.anchoredPosition = endUI;
     }
 
 
+
     // 중심 좌표 기준 상대 픽셀 좌표 계산
-    Vector2 LatLonToRelativePosition(double lat, double lon, double centerLat, double centerLon, int zoom)
+    public Vector2 LatLonToRelativePosition(double lat, double lon, double centerLat, double centerLon, int zoom)
     {
         Vector2 centerPixel = LatLonToPixel(centerLat, centerLon, zoom);
         Vector2 pointPixel = LatLonToPixel(lat, lon, zoom);
@@ -287,7 +277,7 @@ public class csMapManager : MonoBehaviour
     }
 
     // UI(RawImage) 좌표로 변환
-    Vector2 RelativeToUIPosition(Vector2 relative, RawImage mapImage)
+    public Vector2 RelativeToUIPosition(Vector2 relative, RawImage mapImage)
     {
         RectTransform rect = mapImage.rectTransform;
         float scaleX = rect.rect.width / (float)mapImage.texture.width;
@@ -415,17 +405,17 @@ public class csMapManager : MonoBehaviour
         Vector2 dir = endUI - startUI;
         float distance = dir.magnitude;
 
-        if(lineList.Count > 0)
-        {
-            Image line = lineList[CurrentTargetCoordnateIndex];
-            if(line != null)
-            {
-                RectTransform rect = line.rectTransform;
-                rect.anchoredPosition = startUI;
-                rect.sizeDelta = new Vector2(distance, lineSize);
-                rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
-            }
-        }
+        //if(lineList.Count > 0)
+        //{
+        //    Image line = lineList[CurrentTargetCoordnateIndex];
+        //    if(line != null)
+        //    {
+        //        RectTransform rect = line.rectTransform;
+        //        rect.anchoredPosition = startUI;
+        //        rect.sizeDelta = new Vector2(distance, lineSize);
+        //        rect.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+        //    }
+        //}
     }
 
 
@@ -447,8 +437,8 @@ public class csMapManager : MonoBehaviour
         // 마지막 좌표에 도착했는지 확인 
         if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 15.0))
         {
-            ClearPathFindUI();
-            DestroyPathFindPrefab();
+            // 목적지 도착시 검색화면 UI로 초기화
+            _searchManager.SetPathFindUI(false); 
         }
     }
 
@@ -607,11 +597,11 @@ public class csMapManager : MonoBehaviour
             endMarker = null;
         }
 
-        foreach(Transform child in linePrefabHolder)
+        if (uiLineRenderer != null)
         {
-            Destroy(child.gameObject);
+            uiLineRenderer.points.Clear();
+            uiLineRenderer.SetVerticesDirty(); // 다시 그려서 완전 삭제
         }
-        lineList.Clear();
     }
 
     // 현재 수목원 내부에 있는지 확인하는 함수

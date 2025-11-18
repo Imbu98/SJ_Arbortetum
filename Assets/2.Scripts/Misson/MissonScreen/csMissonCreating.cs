@@ -15,6 +15,6 @@ public class csMissonCreating : MonoBehaviour
 
     private void OnClickCancelCreateMission()
     {
-        csMissionManager.Instance.CancleCreateMisson();
+        csMissionManager.Instance.PopupCancleCreateMisson();
     }
 }

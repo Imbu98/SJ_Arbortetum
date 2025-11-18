@@ -63,7 +63,7 @@ public class csQuizScreen : MonoBehaviour
             findRightButtons[i].onClick.AddListener(() => SelectChoice(index));
         }
         answerSubmitButton.onClick.AddListener(SubmitAnswer);
-        resetQuizButton.onClick.AddListener(SetQuiz);
+        resetQuizButton.onClick.AddListener(PopupResetQuiz);
         endQuizButton.onClick.AddListener(QuitQuiz);
         closeQuizScreenButton.onClick.AddListener(QuitQuiz);
         nextQuizButton.onClick.AddListener(SetQuiz);
@@ -242,7 +242,7 @@ public class csQuizScreen : MonoBehaviour
     
     private void QuitQuiz()
     {
-        this.gameObject.SetActive(false);
+        csUI_Manager.Instance.PopupQuizScreen(false);
 
         csUI_Manager.Instance.ResetAIChatText();
     }
@@ -289,6 +289,10 @@ public class csQuizScreen : MonoBehaviour
         }
     }
 
+    private void PopupResetQuiz()
+    {
+        csPopupPanel.Instance.PopupResetQuiz(SetQuiz);
+    }
 
     public QuizData GetRandomQuiz()
     {

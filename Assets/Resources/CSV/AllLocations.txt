@@ -1,7 +1,7 @@
 KoreanName,EnglishName,Latitude,Longitude,ID
 민속식물원,Folk Botanical Garden,36.494296,127.278894,1
 단풍나무원,Maple Tree Garden,36.495418,127.279759,2
-안내센터(대형),Information Center (Main),36.494283,127.277862,3
+안내센터(대형),Information Center(Main),36.494283,127.277862,3
 어린이정원,Children's Garden,36.495576,127.282232,4
 희귀특산식물전시온실,Rare Plants Exhibition Greenhouse,36.494137,127.281617,5
 안내센터(소형),Information Center(Small),36.492429,127.278332,6

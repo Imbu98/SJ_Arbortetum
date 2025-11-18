@@ -27,6 +27,18 @@ MonoBehaviour:
     m_Key: Popup_No
     m_Metadata:
       m_Items: []
+  - m_Id: 2103157311516672
+    m_Key: Popup_ResetMission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2104333495021568
+    m_Key: Popup_Reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2106930515783680
+    m_Key: Popup_Forgive
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

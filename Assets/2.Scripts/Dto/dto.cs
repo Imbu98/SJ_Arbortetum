@@ -74,6 +74,7 @@ namespace Data
         public string gbif;
     }
 
+    [System.Serializable]
     public class LocationData
     {
         public string koreanName;

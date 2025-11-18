@@ -112,5 +112,7 @@ public class csMainScreen : MonoBehaviour
         mainUI.SetActive(true);
 
         uiAnimator.SetBool("IsSettedNickName", true);
+
+        csUI_Manager.Instance.SetIsInMainScreen(true);
     }
 }

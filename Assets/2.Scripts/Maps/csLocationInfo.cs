@@ -8,8 +8,10 @@ public class csLocationInfo : MonoBehaviour
 {
     [SerializeField] private Button setStartLocationButton;
     [SerializeField] private Button setEndLocationButton;
+    [SerializeField] private Button closeLocationInfoButton;
     [SerializeField] private TextMeshProUGUI locationNameTMP;
     [SerializeField] private TextMeshProUGUI locationDistanceTMP;
+
 
 
     public void Init(LocationData data)
@@ -31,6 +33,9 @@ public class csLocationInfo : MonoBehaviour
                 csMapManager.Instance._searchManager.SetSearchUI(data, 2);
                 clear();
         });
+
+        closeLocationInfoButton.onClick.RemoveAllListeners();
+        closeLocationInfoButton.onClick.AddListener(()=>csMapManager.Instance._searchManager.ClearSearchUI());
 
         locationNameTMP.text = data.GetLocalizedName();
 

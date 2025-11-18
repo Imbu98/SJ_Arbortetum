@@ -76,11 +76,14 @@ public class csMissionManager : MonoBehaviour
     }
 
     // 미션 생성 취소
-    public void CancleCreateMisson()
+    public void PopupCancleCreateMisson()
     {
         // 미션받아오기 전에 전에 취소 누르면 상태바꾸고 취소전환
-        E_missonStatus = MissionStatus.None;
-        csUI_Manager.Instance.PopupMission(false);
+        csPopupPanel.Instance.PopupCancelMission(() =>
+        {
+            E_missonStatus = MissionStatus.None;
+            csUI_Manager.Instance.PopupMission(false);
+        });
     }
 
     // 현재 미션목록을 기반으로 미션 목록 UI 생성
@@ -210,9 +213,14 @@ public class csMissionManager : MonoBehaviour
         return mission.missionStepDetails[currentMissionStepIndex];
     }
 
-    // 현재 미션포기버튼
     // MissionForgiveButton OnClick 연결
-    public void ForgiveCurrentMission()
+    public void PopupForgiveCurrentMission()
+    {
+        csPopupPanel.Instance.PopupForgiveCurrentMission(ForgiveCurrentMission);
+    }
+
+    // 현재 미션포기
+    private void ForgiveCurrentMission()
     {
         currentMissionStepIndex = 0;
 
@@ -237,9 +245,15 @@ public class csMissionManager : MonoBehaviour
         // 미션 포기 후 생성 미션 목록으로 이동
         _missonUIManager.ChangeToMission();
     }
-    
-    // 만들어진 미션 초기화 ( MissionResetButton Onclick이벤트에 연결)
-    public void ResetCreatedMission()
+
+     // 미션 초기화 팝업 띄우기 ( MissionResetButton Onclick이벤트에 연결)
+    public void PopupResetCreatedMission()
+    {
+        csPopupPanel.Instance.PopupResetMission(ResetCreatedMission);
+    }
+
+    // 만들어진 미션 초기화
+    private void ResetCreatedMission()
     {
 
         aiCreatedMissions = null;

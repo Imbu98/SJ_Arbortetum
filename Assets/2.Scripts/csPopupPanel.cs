@@ -62,6 +62,37 @@ public class csPopupPanel : MonoBehaviour
         popupPart.InitButtonA("PopupPanel", "Popup_Yes", unityaction+CloseAllParts);
     }
 
+    public void PopupCancelMission(UnityAction unityaction)
+    {
+        popupPart.gameObject.SetActive(true);
+        popupPart.InitText("PopupPanel", "Popup_ResetMission");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Yes", unityaction + CloseAllParts);
+    }
+
+    public void PopupResetMission(UnityAction unityaction)
+    {
+        popupPart.gameObject.SetActive(true);
+        popupPart.InitText("PopupPanel", "Popup_ResetMission");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Reset", unityaction + CloseAllParts);
+    }
+    public void PopupForgiveCurrentMission(UnityAction unityaction)
+    {
+        popupPart.gameObject.SetActive(true);
+        popupPart.InitText("PopupPanel", "Popup_ResetMission");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Forgive", unityaction + CloseAllParts);
+    }
+
+    public void PopupResetQuiz(UnityAction unityaction)
+    {
+        popupPart.gameObject.SetActive(true);
+        popupPart.InitText("PopupPanel", "Popup_ResetMission");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Reset", unityaction + CloseAllParts);
+    }
+
 
     // 약관 동의 메뉴 팝업 
     public void PopupAgreeTermsOfUse(bool bShow)

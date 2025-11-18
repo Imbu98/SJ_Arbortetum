@@ -1,3 +1,4 @@
+using Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,16 +18,23 @@ public class csUI_Manager : MonoBehaviour
     public GameObject speechToTextScreen; // 음성 언어 입력 화면
     public GameObject quizScreen; // 퀴즈창
     public GameObject settingScreen; // 설정창
-    
 
     private GameObject currentScreen;
     private GameObject currentPanel;
 
 
     //[SerializeField] private Button skipButton;
+    [Header("SpeechToText")]
     public TextMeshProUGUI mainScreenAIText;   // 메인 화면 텍스트
     private Coroutine typingRoutine;
     private bool isTyping = false;
+
+    [Header("AutoRecommend")]
+    private bool isInMainScreen;
+    private Coroutine timerRoutine;
+
+
+
 
     void Awake()
     {
@@ -67,52 +75,70 @@ public class csUI_Manager : MonoBehaviour
         currentPanel = newPanel;
     }
 
-   
-
-    // 지도 나타내기
-    public void PopupMap(bool bShow)
+    private void TogglePopup(GameObject popup, bool show, bool returnToMain = true)
     {
-        if(csMapManager.Instance.IsInsideBoundary(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude))
+        if (show)
         {
-            mapScreen.SetActive(bShow);
-        }
-        else
-        {
-            NotInsideInArboretum();
-
-        }
-    }
-
-    // 미션창 나타내기
-
-    public void PopupMission(bool bShow)
-    {
-        if (csMapManager.Instance.IsInsideBoundary(csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude))
-        {
-            missionPopup.SetActive(bShow);
+            popup.SetActive(true);
+            if(timerRoutine!=null)
+            {
+                StopCoroutine(timerRoutine);
+            }
             
         }
         else
         {
-            NotInsideInArboretum();
+            popup.SetActive(false);
+            if (returnToMain)
+                SetIsInMainScreen(true);
         }
     }
 
-    public void PopupSpeechToText(bool bShow)
+
+
+    public void PopupMap(bool show)
     {
-        speechToTextScreen.SetActive(bShow);
+        if (!IsInsideArboretum())
+        {
+            NotInsideInArboretum();
+            return;
+        }
+
+        TogglePopup(mapScreen, show);
     }
 
-    public void PopupQuizScreen(bool bShow)
+    public void PopupMission(bool show)
     {
-        quizScreen.SetActive(bShow);
+        if (!IsInsideArboretum())
+        {
+            NotInsideInArboretum();
+            return;
+        }
+
+        TogglePopup(missionPopup, show);
     }
 
-    public void PopupSettingScreen(bool bShow)
+    public void PopupQuizScreen(bool show)
     {
-        settingScreen.SetActive(bShow);
+        TogglePopup(quizScreen, show);
     }
 
+    public void PopupSpeechToText(bool show)
+    {
+        TogglePopup(speechToTextScreen, show, false);
+    }
+
+    public void PopupSettingScreen(bool show)
+    {
+        TogglePopup(settingScreen, show);
+    }
+    private bool IsInsideArboretum()
+    {
+        return csMapManager.Instance.IsInsideBoundary(
+            csMapManager.Instance.MyGPS.Latitude,
+            csMapManager.Instance.MyGPS.Longitude
+        );
+    }
 
     public void SetAIChatText(string text)
     {
@@ -122,6 +148,8 @@ public class csUI_Manager : MonoBehaviour
 
         typingRoutine = StartCoroutine(TypeTextRoutine(text));
     }
+
+    
     public IEnumerator PlayAIChatSequence(List<string> messages, System.Action onComplete = null)
     {
         foreach (var msg in messages)
@@ -182,7 +210,58 @@ public class csUI_Manager : MonoBehaviour
 
         SetAIChatText(notInsideArboretumText);
     }
-    
+
+    // 메인화면을 띄울 때, 메인화면으로 돌아갈 때 자동 미션 추천 타이머를 실행시키기 위한 함수
+
+    public void SetIsInMainScreen(bool value)
+    {
+        isInMainScreen = value;
+
+        if (!isInMainScreen)
+            return;
+
+        if (timerRoutine != null)
+            StopCoroutine(timerRoutine);
+
+        timerRoutine = StartCoroutine(StartRecommendTimer());
+    }
+
+    private IEnumerator StartRecommendTimer()
+    {
+        float timer = csSingleton.Instance.fRecommendTimer;
+
+        if (timer <= 0f) yield break;
+
+        while (timer > 0f)
+        {
+
+            yield return new WaitForSeconds(1f);
+            timer--;
+        }
+        ShowRandomScreenBasedOnMissionStatus();
+    }
+        private void ShowRandomScreenBasedOnMissionStatus()
+    {
+        bool isMissionAvailable = csMissionManager.Instance.E_missonStatus == MissionStatus.None;
+        bool isInArboreteum = IsInsideArboretum();
+
+        int rand = UnityEngine.Random.Range(0, 2);
+        // 0 = Mission
+        // 1 = Quiz
+
+        if (rand == 0 && isMissionAvailable && isInArboreteum)
+        {
+            // 미션 가능 & 미션 선택됨
+            PopupMission(true);
+        }
+        else
+        {
+            // 미션 불가능 → 무조건 퀴즈
+            // 선택이 퀴즈였어도 정상 실행
+            PopupQuizScreen(true);
+        }
+    }
+
 
     // AIMainText스킵을 사용할거면 사용
     //private void RegisterSkip(Action onSkip)

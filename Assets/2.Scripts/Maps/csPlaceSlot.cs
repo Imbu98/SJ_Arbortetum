@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class csPlaceSlot : MonoBehaviour
 {
-    public Button placeSlotClickButton;
-
     public TextMeshProUGUI placeText;
 
     public TextMeshProUGUI distanceText;

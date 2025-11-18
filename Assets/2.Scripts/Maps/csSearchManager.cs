@@ -111,9 +111,12 @@ public class csSearchManager : MonoBehaviour
                 UpdatePathButtonText(pathFind_EndButton, data);
                 break;
         }
-        if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_StartLocationData))
+        if(offset!=0)
         {
-            TryStartPathFinding();
+            if (IsValidLocation(pathFind_StartLocationData) && IsValidLocation(pathFind_EndLocationData))
+            {
+                TryStartPathFinding();
+            }
         }
     }
 
