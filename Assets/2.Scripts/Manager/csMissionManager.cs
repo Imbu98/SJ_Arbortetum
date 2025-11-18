@@ -13,7 +13,20 @@ public class csMissionManager : MonoBehaviour
     public csMissonUIManager _missonUIManager;
 
     // 만들어진 미션 목록 정보 저장
-    private AICreatedMissions aiCreatedMissions;
+    private AICreatedMissions _aiCreatedMissions;
+
+    // AICreatedMissions안의 값이 바뀌면 자동으로 csSingleton에 저장된 값도 바뀌도록 getter/setter 사용
+    public AICreatedMissions aiCreatedMissions
+    {
+        get { return _aiCreatedMissions; }
+        set
+        {
+            _aiCreatedMissions = value;
+
+            if (csSingleton.Instance.savedMissions != null)
+                csSingleton.Instance.savedMissions = value;
+        }
+    }
 
     // 현재 진행중인 미션 저장
     private Mission mission;
@@ -38,10 +51,6 @@ public class csMissionManager : MonoBehaviour
     // 현재 미션의 생성 상태
     [HideInInspector] public MissionStatus E_missonStatus=MissionStatus.None;
 
-    // 몇 번째 생성미션인지 확인하는 인덱스
-    [HideInInspector] public int currentMissionIndex = 0;
-    // 몇 번째 미션 진행중인지 확인하는 인덱스
-    [HideInInspector]public int currentMissionStepIndex = 0;
     // 미션 중인지 확인하는 인덱스
     [HideInInspector]public bool IsMissonOnProgress = false;
 
@@ -59,6 +68,35 @@ public class csMissionManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        aiCreatedMissions = csSingleton.Instance.savedMissions;
+
+        if(aiCreatedMissions.missionIndex!=-1)
+        {
+            E_missonStatus = MissionStatus.MissonCreated;
+
+            IsMissonOnProgress = true;
+
+            SetMissonUI();
+
+            SetMissionStepUI();
+        }
+        else
+        {
+            if(aiCreatedMissions.missions.Count>0)
+            {
+                E_missonStatus = MissionStatus.MissonCreated;
+
+                SetMissonUI();
+            }
+            else
+            {
+                E_missonStatus = MissionStatus.None;
+            }
+        }
+    }
+
     // 서버로부터 미션 받아오는 함수
     public async void CreateMisson()
     {
@@ -67,11 +105,20 @@ public class csMissionManager : MonoBehaviour
         _missonUIManager.ChangeMissonPanel(1);
         // 네트워크에서 await로 미션 생성, 다되면 missonCreated로 변경
         // aiCreatedMissions =  await csNetworkManager.Instance.Get~~
-        aiCreatedMissions = CreateTestAIMissions();
+
+        // 
+        aiCreatedMissions= CreateTestAIMissions();
+
+        aiCreatedMissions.missionIndex = -1;
+        aiCreatedMissions.missionStepIndex = -1;
 
         E_missonStatus = MissionStatus.MissonCreated;
 
         _missonUIManager.ChangeToMission();
+
+        csSingleton.Instance.savedMissions = aiCreatedMissions;
+
+        csSaveLodeManager.Instance.SaveMission();
 
     }
 
@@ -122,9 +169,15 @@ public class csMissionManager : MonoBehaviour
 
         mission = aiCreatedMissions.missions[missionIndex];
 
+        aiCreatedMissions.missionIndex = missionIndex;
+
+        aiCreatedMissions.missionStepIndex = 0;
+
         _missonUIManager.ChangeToMissionStep();
 
-        currentMissionIndex = missionIndex;
+        
+
+        csSaveLodeManager.Instance.SaveMission();
     }
 
     public void SetMissionStepUI()
@@ -165,26 +218,25 @@ public class csMissionManager : MonoBehaviour
 
     public void ClearCurrentMissionStep()
     {
-        MissionStep currentMissionDto = aiCreatedMissions.missions[currentMissionIndex].missionStepDetails[currentMissionIndex];
+        aiCreatedMissions.missions[aiCreatedMissions.missionIndex].missionStepDetails[aiCreatedMissions.missionStepIndex].IsCleared = true;
 
-        currentMissionDto.IsCleared = true;
+        missionStepList[aiCreatedMissions.missionStepIndex].SetClearUI();
 
-        missionStepList[currentMissionStepIndex].SetClearUI();
-
-        currentMissionStepIndex++;
+        aiCreatedMissions.missionStepIndex++;
 
         // 미션스텝 디테일보다 크면 해당 미션 클리어
-        if(currentMissionStepIndex >= mission.missionStepDetails.Count)
+        if(aiCreatedMissions.missionStepIndex >= mission.missionStepDetails.Count)
         {
-            currentMissionStepIndex = 0;
+            aiCreatedMissions.missionStepIndex = 0;
 
             ClearCurrentMission();
         }
         // 아니면 다음 미션을 진행 UI로 변경
         else
         {
-            missionStepList[currentMissionStepIndex].SetProgressUI();
+            missionStepList[aiCreatedMissions.missionStepIndex].SetProgressUI();
         }
+        csSaveLodeManager.Instance.SaveMission();
     }
     
     // 현재 진행중이던 미션 클리어
@@ -197,10 +249,10 @@ public class csMissionManager : MonoBehaviour
         }
 
         // 미션 클리어 상태로 변경
-        aiCreatedMissions.missions[currentMissionIndex].IsCleared = true;
+        aiCreatedMissions.missions[aiCreatedMissions.missionIndex].IsCleared = true;
 
         // 클리어 UI 활성화
-        missionList[currentMissionIndex].SetClearUI();
+        missionList[aiCreatedMissions.missionIndex].SetClearUI();
 
         // 다시 미션 목록창으로 변경
         _missonUIManager.ChangeMissonPanel(2);
@@ -210,7 +262,7 @@ public class csMissionManager : MonoBehaviour
 
     public MissionStep GetCurrentMissionStep()
     {
-        return mission.missionStepDetails[currentMissionStepIndex];
+        return mission.missionStepDetails[aiCreatedMissions.missionStepIndex];
     }
 
     // MissionForgiveButton OnClick 연결
@@ -222,7 +274,11 @@ public class csMissionManager : MonoBehaviour
     // 현재 미션포기
     private void ForgiveCurrentMission()
     {
-        currentMissionStepIndex = 0;
+        aiCreatedMissions.missionIndex = -1;
+
+        aiCreatedMissions.missionStepIndex = -1;
+
+        
 
         if(mission==null)
         {
@@ -244,9 +300,12 @@ public class csMissionManager : MonoBehaviour
 
         // 미션 포기 후 생성 미션 목록으로 이동
         _missonUIManager.ChangeToMission();
+
+        csSaveLodeManager.Instance.SaveMission();
+
     }
 
-     // 미션 초기화 팝업 띄우기 ( MissionResetButton Onclick이벤트에 연결)
+    // 미션 초기화 팝업 띄우기 ( MissionResetButton Onclick이벤트에 연결)
     public void PopupResetCreatedMission()
     {
         csPopupPanel.Instance.PopupResetMission(ResetCreatedMission);
@@ -255,8 +314,9 @@ public class csMissionManager : MonoBehaviour
     // 만들어진 미션 초기화
     private void ResetCreatedMission()
     {
-
-        aiCreatedMissions = null;
+        aiCreatedMissions = new AICreatedMissions();
+        aiCreatedMissions.missionIndex = -1;
+        aiCreatedMissions.missionStepIndex = -1;
 
         foreach (var mission in missionList)
         {
@@ -265,7 +325,11 @@ public class csMissionManager : MonoBehaviour
         }
         missionList.Clear();
 
+        E_missonStatus = MissionStatus.None;
+
         _missonUIManager.ChangeMissonPanel(0);
+
+        csSaveLodeManager.Instance.SaveMission();
     }
 
     AICreatedMissions CreateTestAIMissions()

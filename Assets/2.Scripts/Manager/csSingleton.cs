@@ -31,6 +31,8 @@ public class csSingleton : MonoBehaviour
 
     [HideInInspector] public HashSet<string> savedPlant = new HashSet<string>();
 
+    [HideInInspector] public AICreatedMissions savedMissions;
+
 
     // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트
     public List<LocationData> AllLocations = new List<LocationData>();

@@ -24,26 +24,23 @@ public class csSaveLodeManager : MonoBehaviour
     private string dataSetPath;
     private string chatHistoryPath;
     private string savedPlantPath;
+    private string missionDataPath;
+
 
     private void Awake()
     {
         DontDestroyOnLoad(this);
         Initialize();
-        InitializeSetting();
     }
 
     public void Initialize()
     {
         dataPath = Path.Combine(Application.persistentDataPath, "gameData.json");
-    }
-
-    public void InitializeSetting()
-    {
         dataSetPath = Path.Combine(Application.persistentDataPath, "gameSet.json");
         chatHistoryPath = Path.Combine(Application.persistentDataPath, "chatHistory.json");
         savedPlantPath = Path.Combine(Application.persistentDataPath, "savedPlants.json");
+        missionDataPath = Path.Combine(Application.persistentDataPath, "missionData.json");
     }
-        
 
     // ===========================================================
     // GameData 저장/로드
@@ -182,6 +179,41 @@ public class csSaveLodeManager : MonoBehaviour
         {
             csSingleton.Instance.savedPlant = new HashSet<string>();
             SaveSavedPlant();
+        }
+    }
+
+    /// <summary>
+    /// 미션 저장
+    /// </summary>
+    public void SaveMission()
+    {
+        AICreatedMissions data = csSingleton.Instance.savedMissions;
+
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(missionDataPath, json);
+
+        Debug.Log("미션 데이터 저장 완료: " + missionDataPath);
+    }
+
+    /// <summary>
+    /// 미션 불러오기
+    /// </summary>
+    public void LoadSavedMission()
+    {
+        if (File.Exists(missionDataPath))
+        {
+            string json = File.ReadAllText(missionDataPath);
+            AICreatedMissions data = JsonUtility.FromJson<AICreatedMissions>(json);
+
+            csSingleton.Instance.savedMissions = data ?? new AICreatedMissions();
+
+            Debug.Log("미션 데이터 로드 완료: " + missionDataPath);
+            
+        }
+        else
+        {
+            csSingleton.Instance.savedMissions = new AICreatedMissions();
+            SaveMission();
         }
     }
 }

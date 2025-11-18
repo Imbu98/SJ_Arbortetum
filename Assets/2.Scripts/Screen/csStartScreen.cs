@@ -54,6 +54,8 @@ public class csStartScreen : MonoBehaviour
 
         // ÀúÀå 
         csSaveLodeManager.Instance.LoadSavedPlant();
+
+        csSaveLodeManager.Instance.LoadSavedMission();
     }
 
     private void Start()

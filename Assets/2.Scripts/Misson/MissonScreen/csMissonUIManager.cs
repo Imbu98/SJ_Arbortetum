@@ -13,7 +13,7 @@ public class csMissonUIManager : MonoBehaviour
     {
         if(csMissionManager.Instance.IsMissonOnProgress)
         {
-            ChangeMissonPanel(3);
+            ChangeToMissionStep();
         }
         else
         {
@@ -30,9 +30,7 @@ public class csMissonUIManager : MonoBehaviour
             // 미션이 생성 됐을 때 미션목록 보여주기
             else if (csMissionManager.Instance.E_missonStatus == MissionStatus.MissonCreated)
             {
-                ChangeMissonPanel(2);
-
-                csMissionManager.Instance.SetMissonUI();
+                ChangeToMission();
             }
         }
         

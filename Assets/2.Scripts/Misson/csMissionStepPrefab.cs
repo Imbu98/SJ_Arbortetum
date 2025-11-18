@@ -24,7 +24,7 @@ public class csMissionStepPrefab : MonoBehaviour
 
     public void Init(int missionIndex, MissionStep missionStep)
     {
-        int currentStepIndex = csMissionManager.Instance.currentMissionStepIndex;
+        int currentStepIndex = csMissionManager.Instance.aiCreatedMissions.missionStepIndex;
         bool isCleared = missionStep.IsCleared;
         bool isCurrentStep = (missionIndex == currentStepIndex);
 

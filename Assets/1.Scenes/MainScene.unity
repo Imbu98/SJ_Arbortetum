@@ -836,8 +836,6 @@ MonoBehaviour:
   progressMissonHolder: {fileID: 1752344874}
   progressMissonPrefab: {fileID: 6367651557853540536, guid: 8105760bafe7ece4e87c55bf08f09d95, type: 3}
   E_missonStatus: 0
-  currentMissionIndex: 0
-  currentMissionStepIndex: 0
   IsMissonOnProgress: 0
 --- !u!1 &39236910
 GameObject:
@@ -14928,6 +14926,10 @@ MonoBehaviour:
   nLanguage: 0
   UID: 
   strSavedChatHistory: []
+  savedMissions:
+    missions: []
+    missionIndex: -1
+    missionStepIndex: -1
   AllLocations: []
   languageCode: ko
 --- !u!4 &840469570

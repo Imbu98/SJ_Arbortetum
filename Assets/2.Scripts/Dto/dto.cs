@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace Data
 {
+
     // 공통 속성 정의
+    [System.Serializable]
     public abstract class BaseMission
     {
         public string Description;
@@ -12,12 +14,18 @@ namespace Data
     }
 
     // AI가 생성한 전체 미션 목록을 받아오는 dto
+    [System.Serializable]
     public class AICreatedMissions
     {
-        public List<Mission> missions;
+        public List<Mission> missions = new List<Mission>();
+
+        public int missionIndex=-1; // 몇번째 미션인지
+
+        public int missionStepIndex=-1; // 미션의 몇번 째를 진행중인지
     }
 
     // 하나의 미션이 가지고 있는 여러 개의 세부 미션
+    [System.Serializable]
     public class Mission: BaseMission
     {
         public string missionTitle;
@@ -28,6 +36,7 @@ namespace Data
     }
 
     // 세부 미션이 가지고 있는 정보
+    [System.Serializable]
     public class MissionStep : BaseMission
     {
         public GeoCoordinate destinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
@@ -35,7 +44,6 @@ namespace Data
         public string destinationName; // 도착지 이름
 
         public string plantName; // 관찰하기 미션용 꽃 이름
-
     }
 
 
