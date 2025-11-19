@@ -1,4 +1,4 @@
-using Data;
+ï»¿using Data;
 using System;
 using TMPro;
 using UnityEngine;
@@ -12,13 +12,15 @@ public class csLocationInfo : MonoBehaviour
     [SerializeField] private TextMeshProUGUI locationNameTMP;
     [SerializeField] private TextMeshProUGUI locationDistanceTMP;
 
+    [SerializeField] private Image locationImage;
+
 
 
     public void Init(LocationData data)
     {
         this.gameObject.SetActive(true);
-        // °¢°¢ÅØ½ºÆ®³ª ¹öÆ°¿¡ ¿¬°á
-        // ¹öÆ°Àº Ãâ¹ßÀ» ¿ÀÇÁ¼Â1, µµÂøÀ» ¿ÀÇÁ¼Â2 data³Ñ±â±â
+        // ê°ê°í…ìŠ¤íŠ¸ë‚˜ ë²„íŠ¼ì— ì—°ê²°
+        // ë²„íŠ¼ì€ ì¶œë°œì„ ì˜¤í”„ì…‹1, ë„ì°©ì„ ì˜¤í”„ì…‹2 dataë„˜ê¸°ê¸°
 
         setStartLocationButton.onClick.RemoveAllListeners();
         setStartLocationButton.onClick.AddListener(() =>
@@ -45,19 +47,39 @@ public class csLocationInfo : MonoBehaviour
 
         if (distance < 1000)
         {
-            // 1000m ¹Ì¸¸ ¡æ ¹ÌÅÍ ´ÜÀ§
+            // 1000m ë¯¸ë§Œ â†’ ë¯¸í„° ë‹¨ìœ„
             distanceText = distance.ToString("F0") + " m";
         }
         else
         {
-            // 1km ÀÌ»ó ¡æ km ´ÜÀ§
+            // 1km ì´ìƒ â†’ km ë‹¨ìœ„
             double km = distance / 1000.0;
             distanceText = km.ToString("F1") + " km";
         }
 
-        // UI Àû¿ë
+        // UI ì ìš©
         locationDistanceTMP.text = distanceText;
 
+        LoadLocationImage(data.locationID);
+    }
+
+    private void LoadLocationImage(int locationID)
+    {
+        // ì˜ˆ: Resources/LocationImages/1.png
+        Sprite sprite = Resources.Load<Sprite>($"LocationImages/{locationID}");
+
+        if (sprite != null)
+        {
+            locationImage.sprite = sprite;
+            locationImage.color = Color.white;
+        }
+        else
+        {
+            Debug.LogWarning($"âš ï¸ ì´ë¯¸ì§€ ì—†ìŒ: LocationImages/{locationID}");
+            // í•„ìš”í•˜ë©´ placeholder ì´ë¯¸ì§€
+            locationImage.sprite = Resources.Load<Sprite>("LocationImages/default");
+            locationImage.color = Color.gray;
+        }
     }
 
     public void clear()
