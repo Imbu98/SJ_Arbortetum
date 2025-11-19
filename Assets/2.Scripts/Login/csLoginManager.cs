@@ -174,7 +174,7 @@ private void Awake()
         csSingleton.Instance.bTermsofUse = true;
 
         csSaveLodeManager.Instance.SaveSet();
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.startScreen);
+        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
 

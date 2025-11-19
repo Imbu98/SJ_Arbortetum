@@ -4208,7 +4208,7 @@ GameObject:
   - component: {fileID: 185778981}
   - component: {fileID: 185778982}
   m_Layer: 5
-  m_Name: RawImage
+  m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14308,7 +14308,7 @@ MonoBehaviour:
   closeLocationInfoButton: {fileID: 1743708416}
   locationNameTMP: {fileID: 1793142042}
   locationDistanceTMP: {fileID: 966410050}
-  locationImage: {fileID: 0}
+  locationImage: {fileID: 185778982}
 --- !u!1 &679971087
 GameObject:
   m_ObjectHideFlags: 0
@@ -27129,6 +27129,7 @@ GameObject:
   - component: {fileID: 1316097069}
   - component: {fileID: 1316097068}
   - component: {fileID: 1316097072}
+  - component: {fileID: 1316097073}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -27238,6 +27239,20 @@ MonoBehaviour:
   startRecordingButton: {fileID: 1541925558}
   recordingActiveObject: {fileID: 1549650920}
   resultText: {fileID: 704737512}
+--- !u!114 &1316097073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316097067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5c341968931a84fa5f0d317e06954c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tabletAspectRatioThreshold: 1.9
+  canvasScaler: {fileID: 1316097069}
 --- !u!1 &1325097108
 GameObject:
   m_ObjectHideFlags: 0
@@ -38360,7 +38375,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6c604acbfb1e0154495e6f48d81cb956, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b3efb7700eb26a14fa71107ccc2e90c2, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -38369,7 +38384,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!222 &1766555837
 CanvasRenderer:
   m_ObjectHideFlags: 0
