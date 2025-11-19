@@ -5,6 +5,9 @@ using AppleAuth.Native;
 #if UNITY_ANDROID
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+using System.Collections;
+using System.Collections.Generic;
+
 #endif
 using System.Text;
 using UnityEngine;
@@ -123,52 +126,88 @@ private void Awake()
         }
     }
 
+    public bool IsAppleAuthManagerSetted()
+    {
+        if(appleAuthManager!=null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void AppleLogin()
     {
         Debug.Log("애플 로그인 실행");
 
-        var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
-        appleAuthManager.LoginWithAppleId(
-            loginArgs,
-            credential =>
-            {
-                var appleIdCredential = credential as IAppleIDCredential;
-                if (appleIdCredential != null)
+#if UNITY_IOS
+    StartCoroutine(TryAppleLoginRoutine());
+#endif
+    }
+
+    private IEnumerator TryAppleLoginRoutine()
+    {
+        // appleAuthManager가 생길 때까지 대기
+        while (appleAuthManager == null)
+        {
+            yield return null;
+        }
+
+        // 초기화 완료—이제 로그인 실행
+        ExecAppleLogin();
+    }
+
+    private void ExecAppleLogin()
+    {
+       
+            var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
+            appleAuthManager.LoginWithAppleId(
+                loginArgs,
+                credential =>
                 {
-                    // Apple Identity Token 얻기 (JWT)
-                    string idToken = Encoding.UTF8.GetString(
-                        appleIdCredential.IdentityToken,
-                        0,
-                        appleIdCredential.IdentityToken.Length);
-
-                    csSingleton.Instance.UID = appleIdCredential.User;
-
-                    if (csSingleton.Instance.bTermsofUse)
+                    var appleIdCredential = credential as IAppleIDCredential;
+                    if (appleIdCredential != null)
                     {
-                        AppleLoginSuccess();
-                        
+                        // Apple Identity Token 얻기 (JWT)
+                        string idToken = Encoding.UTF8.GetString(
+                            appleIdCredential.IdentityToken,
+                            0,
+                            appleIdCredential.IdentityToken.Length);
+
+                        csSingleton.Instance.UID = appleIdCredential.User;
+
+                        if (csSingleton.Instance.bTermsofUse)
+                        {
+                            AppleLoginSuccess();
+
+                        }
+                        else
+                        {
+                            csPopupPanel.Instance.PopupAgreeTermsOfUse(true);
+                        }
+
+
                     }
                     else
                     {
-                        csPopupPanel.Instance.PopupAgreeTermsOfUse(true);
+                        Debug.LogError("appleIdCredential is null");
                     }
-
-                  
-                }
-                else
+                },
+                error =>
                 {
-                    Debug.LogError("appleIdCredential is null");
+                    Debug.LogError("Apple login failed: " + error.LocalizedDescription);
                 }
-            },
-            error =>
-            {
-                Debug.LogError("Apple login failed: " + error.LocalizedDescription);
-            }
-        );
+            );
     }
+
 
     public void AppleLoginSuccess()
     {
+
+        Debug.Log("Apple login Success");
+
         csSingleton.Instance.bAutoLogin = true;
         csSingleton.Instance.nSavedLoginType = 2;
         csSingleton.Instance.bTermsofUse = true;

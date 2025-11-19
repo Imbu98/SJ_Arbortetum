@@ -95,7 +95,9 @@ public class csStartScreen : MonoBehaviour
             // 애플로그인
             else if(csSingleton.Instance.nSavedLoginType == 2)
             {
-                csLoginManager.Instance.AppleLogin();
+               
+                    csLoginManager.Instance.AppleLogin();
+              
             }
         }
         else

@@ -19,15 +19,15 @@ public class csPostProcessBuild
 
         // 위치 권한
         root.SetString("NSLocationWhenInUseUsageDescription",
-            "지도 기능을 위해 위치 정보를 사용합니다.");
+            "Location information is used for map features.");
 
         // 카메라 권한
         root.SetString("NSCameraUsageDescription",
-            "카메라 기능이 필요합니다.");
+            "Camera functionality is required.");
 
         // 마이크(녹음) 권한
         root.SetString("NSMicrophoneUsageDescription",
-            "음성 입력 기능을 위해 마이크가 필요합니다.");
+            "A microphone is required for voice input functionality.");
 
         // 저장된 plist 다시 쓰기
         File.WriteAllText(plistPath, plist.WriteToString());
