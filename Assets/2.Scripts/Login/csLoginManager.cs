@@ -2,8 +2,10 @@
 using AppleAuth.Enums;
 using AppleAuth.Interfaces;
 using AppleAuth.Native;
+#if UNITY_ANDROID
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+#endif
 using System.Text;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
