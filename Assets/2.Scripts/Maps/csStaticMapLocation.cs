@@ -10,12 +10,14 @@ public class csStaticMapLocation : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI locationText;
 
+    [SerializeField] private Button locationButton;
+
 
     void Start()
     {
         if (locationData == null) return;
 
-        this.GetComponent<Button>().onClick.AddListener(() => csMapManager.Instance._searchManager.SetSearchUI(locationData, 0));
+        locationButton.onClick.AddListener(() => csMapManager.Instance._searchManager.SetSearchUI(locationData, 0));
 
         Vector2 p = csMapManager.Instance.LatLonToRelativePosition(
            locationData.geoCoordinate.Latitude,

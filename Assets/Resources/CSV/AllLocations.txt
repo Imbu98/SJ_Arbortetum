@@ -6,14 +6,17 @@ KoreanName,EnglishName,Latitude,Longitude,ID
 희귀특산식물전시온실,Rare Plants Exhibition Greenhouse,36.494137,127.281617,5
 안내센터(소형),Information Center(Small),36.492429,127.278332,6
 식물분류원,Plant Taxonomy Garden,36.492704,127.280032,7
-양서류관찰원,Amphibian Observation Garden,36.492874,127.282057,8
-습지형생태숲,Wetland Ecological Forest,36.492832,127.282588,9
+양서류관찰원,Amphibian Observation Garden,36.49278,127.282034,8
+습지형생태숲,Wetland Ecological Forest,36.492839,127.282577,9
 한국전통정원,Korean Traditional Garden,36.496332,127.283817,10
 분재전시관,Bonsai Exhibition Hall,36.494661,127.283893,11
 사계절전시온실,All Season Exhibition Greenhouse,36.497796,127.287831,12
-방문자센터,Visitor Center,36.498247, 127.286002,13
-(북쪽)보관소자전거대여소,(North) Bicycle Storage and Rental Station,36.497729,127.284053,14
-(동쪽)보관소자전거대여소 ,(East) Bicycle Storage and Rental Station,36.497876,127.289584,15
+방문자센터,Visitor Center,36.498247,127.286002,13
+연구동,Research Building,36.495785,127.289814,14
+축제마당,Festival Plaza,36.497277,127.286488,15
+감각정원,Sensory Garden,36.496505,127.287406,16
+치유정원,Healing Garden,36.493393,127.284042,17
+편의시설동,Convenience Facility Building,36.493962,127.285077,18
 화장실,Toilet,36.495851,127.280768,101
 화장실,Toilet,36.494442,127.277862,101
 화장실,Toilet,36.494765,127.282384,101

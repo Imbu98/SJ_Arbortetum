@@ -1,4 +1,4 @@
-using AppleAuth;
+ï»¿using AppleAuth;
 using AppleAuth.Enums;
 using AppleAuth.Interfaces;
 using AppleAuth.Native;
@@ -18,7 +18,7 @@ public class csLoginManager : MonoBehaviour
 
     private void Start()
     {
-        //¾ÖÇÃ·Î±×ÀÎ ÃÊ±âÈ­
+        //ì• í”Œë¡œê·¸ì¸ ì´ˆê¸°í™”
 #if UNITY_IOS
 InitializeAppleAuth();
 #endif
@@ -47,7 +47,7 @@ private void Awake()
     }
 
 #if UNITY_ANDROID
-    // GPGS ·Î±×ÀÎ 
+    // GPGS ë¡œê·¸ì¸ 
     public void GoogleLogin()
     {
         PlayGamesPlatform.DebugLogEnabled = true;
@@ -55,7 +55,7 @@ private void Awake()
         PlayGamesPlatform.Instance.ManuallyAuthenticate(ProcessAuthentication);
     }
     /// <summary>
-    /// GPGS ·Î±×ÀÎ
+    /// GPGS ë¡œê·¸ì¸
     /// </summary>
     /// <param name="status"></param>
     void ProcessAuthentication(SignInStatus status)
@@ -102,7 +102,7 @@ private void Awake()
 
 
     /// <summary>
-    /// ¾ÖÇÃ ·Î±×ÀÎ ÃÊ±âÈ­
+    /// ì• í”Œ ë¡œê·¸ì¸ ì´ˆê¸°í™”
     /// </summary>
     void InitializeAppleAuth()
     {
@@ -113,7 +113,7 @@ private void Awake()
 
             appleAuthManager?.Update();
 
-            Debug.LogError("¾ÖÇÃ ·Î±×ÀÎ ÃÊ±âÈ­ ¿Ï·á");
+            Debug.LogError("ì• í”Œ ë¡œê·¸ì¸ ì´ˆê¸°í™” ì™„ë£Œ");
         }
         else
         {
@@ -123,7 +123,7 @@ private void Awake()
 
     public void AppleLogin()
     {
-        Debug.Log("¾ÖÇÃ ·Î±×ÀÎ ½ÇÇà");
+        Debug.Log("ì• í”Œ ë¡œê·¸ì¸ ì‹¤í–‰");
 
         var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
         appleAuthManager.LoginWithAppleId(
@@ -133,7 +133,7 @@ private void Awake()
                 var appleIdCredential = credential as IAppleIDCredential;
                 if (appleIdCredential != null)
                 {
-                    // Apple Identity Token ¾ò±â (JWT)
+                    // Apple Identity Token ì–»ê¸° (JWT)
                     string idToken = Encoding.UTF8.GetString(
                         appleIdCredential.IdentityToken,
                         0,
@@ -176,7 +176,7 @@ private void Awake()
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
 
-    // ·Î±×¾Æ¿ô ½Ã ¾îÇÃ¿¡ ·ÎÄÃ Á¤º¸µé¸¸ Áö¿ì±â
+    // ë¡œê·¸ì•„ì›ƒ ì‹œ ì–´í”Œì— ë¡œì»¬ ì •ë³´ë“¤ë§Œ ì§€ìš°ê¸°
     public void SignOut()
     {
         csSingleton.Instance.UID = "";

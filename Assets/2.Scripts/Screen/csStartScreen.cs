@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using Data;
 
@@ -6,7 +6,7 @@ public class csStartScreen : MonoBehaviour
 {
     
 
-    // ±¸±Û, ¾ÖÇÃ ·Î±×ÀÎ ¹öÆ°
+    // êµ¬ê¸€, ì• í”Œ ë¡œê·¸ì¸ ë²„íŠ¼
     [Header("Login Buttons")]
     [SerializeField] private Button startButton;
     [SerializeField] private Button googleLoginButton;
@@ -43,16 +43,16 @@ public class csStartScreen : MonoBehaviour
 
     private void Awake()
     {
-        // °ÔÀÓ µ¥ÀÌÅÍºÒ·¯¿À±â(´Ğ³×ÀÓ µî)
+        // ê²Œì„ ë°ì´í„°ë¶ˆëŸ¬ì˜¤ê¸°(ë‹‰ë„¤ì„ ë“±)
         csSaveLodeManager.Instance.Load();
 
-        // ¼¼ÆÃ ºÒ·¯¿À±â
+        // ì„¸íŒ… ë¶ˆëŸ¬ì˜¤ê¸°
         csSaveLodeManager.Instance.LoadSet();
 
-        // Ã¤ÆÃ³»¿ª ºÒ·¯¿À±â
+        // ì±„íŒ…ë‚´ì—­ ë¶ˆëŸ¬ì˜¤ê¸°
         csSaveLodeManager.Instance.LoadChatHistory();
 
-        // ÀúÀå 
+        // ì €ì¥ 
         csSaveLodeManager.Instance.LoadSavedPlant();
 
         csSaveLodeManager.Instance.LoadSavedMission();
@@ -67,8 +67,11 @@ public class csStartScreen : MonoBehaviour
     void OnEnable()
     {
         startButton?.onClick.AddListener(OnStartButtonClicked);
+#if UNITY_ANDROID
         googleLoginButton?.onClick.AddListener(csLoginManager.Instance.GoogleLogin);
+#elif UNITY_IOS
         appleLoginButton?.onClick.AddListener(csLoginManager.Instance.AppleLogin);
+#endif
         closeTermsOfUseButton.onClick.AddListener(CloseTermsOfUse);
 
         agreeAllButton.onClick.AddListener(AgreeAll);
@@ -82,12 +85,14 @@ public class csStartScreen : MonoBehaviour
 
         if (csSingleton.Instance.bAutoLogin)
         {
-            // ±¸±Û·Î±×ÀÎ
+            // êµ¬ê¸€ë¡œê·¸ì¸
             if(csSingleton.Instance.nSavedLoginType==1)
             {
+#if UNITY_ANDROID
                 csLoginManager.Instance.GoogleLogin();
+#endif
             }
-            // ¾ÖÇÃ·Î±×ÀÎ
+            // ì• í”Œë¡œê·¸ì¸
             else if(csSingleton.Instance.nSavedLoginType == 2)
             {
                 csLoginManager.Instance.AppleLogin();
@@ -221,7 +226,7 @@ public class csStartScreen : MonoBehaviour
         }
     }
 
-    // ¾à°ü µ¿ÀÇÃ¢ ´İ±â
+    // ì•½ê´€ ë™ì˜ì°½ ë‹«ê¸°
     private void CloseTermsOfUse()
     {
         isAgreeServicePolicy = false;

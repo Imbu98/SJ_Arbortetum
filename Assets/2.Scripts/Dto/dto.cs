@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 
 namespace Data
@@ -6,7 +6,7 @@ namespace Data
 
     #region mission
 
-    // ¹Ì¼Ç °øÅë ¼Ó¼º Á¤ÀÇ
+    // ë¯¸ì…˜ ê³µí†µ ì†ì„± ì •ì˜
     [System.Serializable]
     public abstract class BaseMission
     {
@@ -17,37 +17,37 @@ namespace Data
         public int missionDistance;
     }
 
-    // AI°¡ »ı¼ºÇÑ ÀüÃ¼ ¹Ì¼Ç ¸ñ·ÏÀ» ¹Ş¾Æ¿À´Â dto
+    // AIê°€ ìƒì„±í•œ ì „ì²´ ë¯¸ì…˜ ëª©ë¡ì„ ë°›ì•„ì˜¤ëŠ” dto
     [System.Serializable]
     public class AICreatedMissions
     {
         public List<Mission> missions = new List<Mission>();
 
-        public int missionIndex=-1; // ¸î¹øÂ° ¹Ì¼ÇÀÎÁö
+        public int missionIndex=-1; // ëª‡ë²ˆì§¸ ë¯¸ì…˜ì¸ì§€
 
-        public int missionStepIndex=-1; // ¹Ì¼ÇÀÇ ¸î¹ø Â°¸¦ ÁøÇàÁßÀÎÁö
+        public int missionStepIndex=-1; // ë¯¸ì…˜ì˜ ëª‡ë²ˆ ì§¸ë¥¼ ì§„í–‰ì¤‘ì¸ì§€
     }
 
-    // ÇÏ³ªÀÇ ¹Ì¼ÇÀÌ °¡Áö°í ÀÖ´Â ¿©·¯ °³ÀÇ ¼¼ºÎ ¹Ì¼Ç
+    // í•˜ë‚˜ì˜ ë¯¸ì…˜ì´ ê°€ì§€ê³  ìˆëŠ” ì—¬ëŸ¬ ê°œì˜ ì„¸ë¶€ ë¯¸ì…˜
     [System.Serializable]
     public class Mission: BaseMission
     {
         public string missionTitle;
 
-        public int missonTimeTaken; // ¹Ì¼Ç ¼Ò¿ä½Ã°£
+        public int missonTimeTaken; // ë¯¸ì…˜ ì†Œìš”ì‹œê°„
 
         public List<MissionStep> missionStepDetails;
     }
 
-    // ¼¼ºÎ ¹Ì¼ÇÀÌ °¡Áö°í ÀÖ´Â Á¤º¸
+    // ì„¸ë¶€ ë¯¸ì…˜ì´ ê°€ì§€ê³  ìˆëŠ” ì •ë³´
     [System.Serializable]
     public class MissionStep : BaseMission
     {
-        public GeoCoordinate destinationCoordinate; // ÇöÀç ¼¼ºÎ ¹Ì¼ÇÀÇ µµÂøÁö ÁÂÇ¥ Á¤º¸
+        public GeoCoordinate destinationCoordinate; // í˜„ì¬ ì„¸ë¶€ ë¯¸ì…˜ì˜ ë„ì°©ì§€ ì¢Œí‘œ ì •ë³´
 
-        public string destinationName; // µµÂøÁö ÀÌ¸§
+        public string destinationName; // ë„ì°©ì§€ ì´ë¦„
 
-        public string plantName; // °üÂûÇÏ±â ¹Ì¼Ç¿ë ²É ÀÌ¸§
+        public string plantName; // ê´€ì°°í•˜ê¸° ë¯¸ì…˜ìš© ê½ƒ ì´ë¦„
     }
 
     #endregion
@@ -55,17 +55,17 @@ namespace Data
 
     #region coordinate
 
-    // ¸ñÀûÁö¿¡ ´ëÇÑ ±æÃ£±â °æ·Î ÁÂÇ¥
+    // ëª©ì ì§€ì— ëŒ€í•œ ê¸¸ì°¾ê¸° ê²½ë¡œ ì¢Œí‘œ
     public class SearchPathCoordinate
     {
-        public List<GeoCoordinate> pathCoordinates; // ±æÃ£±â °æ·Î ÁÂÇ¥ ¸®½ºÆ®
+        public List<GeoCoordinate> pathCoordinates; // ê¸¸ì°¾ê¸° ê²½ë¡œ ì¢Œí‘œ ë¦¬ìŠ¤íŠ¸
     }
 
     [System.Serializable]
     public struct GeoCoordinate
     {
-        public double Latitude; //À§µµ
-        public double Longitude; //°æµµ
+        public double Latitude; //ìœ„ë„
+        public double Longitude; //ê²½ë„
 
         public GeoCoordinate(double latitude, double longitude)
         {
@@ -135,7 +135,7 @@ namespace Data
     [System.Serializable]
     public class ChatMessage
     {
-        public string user_id;   // ±¸±Û ¶Ç´Â ¾ÖÇÃ ·Î±×ÀÎ ½Ã ³ª¿À´Â UID »ç¿ë
+        public string user_id;   // êµ¬ê¸€ ë˜ëŠ” ì• í”Œ ë¡œê·¸ì¸ ì‹œ ë‚˜ì˜¤ëŠ” UID ì‚¬ìš©
         public string message;
     }
 
@@ -156,13 +156,13 @@ namespace Data
 
     public class QuizData
     {
-        public QuizType quizType; // ÄûÁî Å¸ÀÔ 
+        public QuizType quizType; // í€´ì¦ˆ íƒ€ì… 
 
-        public int answer; // ÄûÁî Á¤´ä
+        public int answer; // í€´ì¦ˆ ì •ë‹µ
 
-        public string quizDescription; // ÄûÁî ¼³¸í
+        public string quizDescription; // í€´ì¦ˆ ì„¤ëª…
 
-        public List<string> quizChoices; // ÄûÁî °´°ü½Ä º¸±â
+        public List<string> quizChoices; // í€´ì¦ˆ ê°ê´€ì‹ ë³´ê¸°
     }
 
     #endregion
@@ -179,8 +179,8 @@ namespace Data
     public enum QuizType
     {
         None = 0,
-        MultipleChoice = 1, // °´°ü½Ä
-        FindRight = 2, //  O/X ÄûÁî
+        MultipleChoice = 1, // ê°ê´€ì‹
+        FindRight = 2, //  O/X í€´ì¦ˆ
     }
 
     public enum PolicyType
@@ -190,14 +190,14 @@ namespace Data
         Marketing
     }
 
-    // Áöµµ ÀÌ¿ë ½Ã ±æÃ£±â ÁßÀÎÁö, Àå¼Ò °Ë»ö¸¸ ÇÏ´Â ÁßÀÎÁö ÆÇº°
+    // ì§€ë„ ì´ìš© ì‹œ ê¸¸ì°¾ê¸° ì¤‘ì¸ì§€, ì¥ì†Œ ê²€ìƒ‰ë§Œ í•˜ëŠ” ì¤‘ì¸ì§€ íŒë³„
     public enum SearchStatus
     {
-        None = 0, // ¾Æ¹« »óÅÂµµ ¾Æ´Ô
-        SearchPath = 1, // ³» À§Ä¡·ÎºÎÅÍ µµÂøÁö¸¦ Ã£À» ¶§ È°¼ºÈ­
+        None = 0, // ì•„ë¬´ ìƒíƒœë„ ì•„ë‹˜
+        SearchPath = 1, // ë‚´ ìœ„ì¹˜ë¡œë¶€í„° ë„ì°©ì§€ë¥¼ ì°¾ì„ ë•Œ í™œì„±í™”
     }
 
-    // ¹Ì¼ÇÀÇ »ı¼º »óÅÂ È®ÀÎ 
+    // ë¯¸ì…˜ì˜ ìƒì„± ìƒíƒœ í™•ì¸ 
     public enum MissionStatus
     {
         None = 0,
