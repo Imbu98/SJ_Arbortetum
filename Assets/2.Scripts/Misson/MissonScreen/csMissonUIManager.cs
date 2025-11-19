@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Data;
 
 public class csMissonUIManager : MonoBehaviour
@@ -8,6 +9,8 @@ public class csMissonUIManager : MonoBehaviour
     [SerializeField] private List<GameObject> missonPanels;
 
     private GameObject currentMissonPanel;
+
+    public Button missionClearButton;
 
     private void OnEnable()
     {
@@ -64,4 +67,12 @@ public class csMissonUIManager : MonoBehaviour
 
         csMissionManager.Instance.SetMissionStepUI();
     }
+
+    // 미션성공연출 화면으로 변경
+    public void ChangeToMissionClearPanel()
+    {
+        ChangeMissonPanel(4);
+    }
+
+
 }

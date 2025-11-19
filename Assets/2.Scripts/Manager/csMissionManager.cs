@@ -72,6 +72,7 @@ public class csMissionManager : MonoBehaviour
     {
         aiCreatedMissions = csSingleton.Instance.savedMissions;
 
+        // missionIndex가 -1이 아니면 미션을 진행중임
         if(aiCreatedMissions.missionIndex!=-1)
         {
             E_missonStatus = MissionStatus.MissonCreated;
@@ -84,7 +85,8 @@ public class csMissionManager : MonoBehaviour
         }
         else
         {
-            if(aiCreatedMissions.missions.Count>0)
+            // 생성된 미션 리스트는 있는데 미션을 진행하진 않았던 상태
+            if (aiCreatedMissions.missions.Count>0)
             {
                 E_missonStatus = MissionStatus.MissonCreated;
 
@@ -227,9 +229,19 @@ public class csMissionManager : MonoBehaviour
         // 미션스텝 디테일보다 크면 해당 미션 클리어
         if(aiCreatedMissions.missionStepIndex >= mission.missionStepDetails.Count)
         {
-            aiCreatedMissions.missionStepIndex = 0;
+            _missonUIManager.ChangeToMissionClearPanel();
 
-            ClearCurrentMission();
+
+            _missonUIManager.missionClearButton.onClick.RemoveAllListeners();
+            _missonUIManager.missionClearButton.onClick.AddListener(() =>
+            {
+                aiCreatedMissions.missionStepIndex = 0;
+                ClearCurrentMission();
+            });
+            
+            
+
+            
         }
         // 아니면 다음 미션을 진행 UI로 변경
         else
@@ -247,6 +259,9 @@ public class csMissionManager : MonoBehaviour
         {
             missionStep.IsCleared = false;
         }
+
+        // 미션스텝 정리
+        ResetMissionStepList();
 
         // 미션 클리어 상태로 변경
         aiCreatedMissions.missions[aiCreatedMissions.missionIndex].IsCleared = true;
@@ -278,9 +293,7 @@ public class csMissionManager : MonoBehaviour
 
         aiCreatedMissions.missionStepIndex = -1;
 
-        
-
-        if(mission==null)
+        if(mission ==null)
         {
             Debug.Log("No Mission Data To Forgive");
             return;
@@ -293,7 +306,7 @@ public class csMissionManager : MonoBehaviour
         }
 
 
-        // 현재 미션 
+        // 현재 미션 초기화
         mission = null;
 
         IsMissonOnProgress = false;

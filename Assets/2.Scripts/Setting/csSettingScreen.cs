@@ -11,6 +11,11 @@ public class csSettingScreen : MonoBehaviour
     [Header("UserInfo")]
     [SerializeField] private TextMeshProUGUI UID_TMP;
     [SerializeField] private TextMeshProUGUI userNickName_TMP;
+    [SerializeField] private Button nickNameChangeButton;
+    [SerializeField] private GameObject nickNameChangePopup;
+    [SerializeField] private TMP_InputField nickNameChangeInputField;
+    [SerializeField] private Button confirmNickNameChangeButton;
+    [SerializeField] private Button cancelNickNameChangeButton;
 
     [Header("Sounds")]
     [SerializeField] private Button bgmMuteToggleButton;
@@ -43,6 +48,12 @@ public class csSettingScreen : MonoBehaviour
 
     private void OnEnable()
     {
+        nickNameChangeButton.onClick.AddListener(OnClickNicknameChangeButton);
+        nickNameChangeInputField.onValueChanged.AddListener(InputUserNickName);
+        confirmNickNameChangeButton.onClick.AddListener(SetNickName);
+        cancelNickNameChangeButton.onClick.AddListener(CloseNickNameChangePopup);
+
+
         bgmMuteToggleButton.onClick.AddListener(ToggleBgmMute);
         bgmSlider.onValueChanged.AddListener(BgmSliderValueChanged);
 
@@ -70,6 +81,11 @@ public class csSettingScreen : MonoBehaviour
 
     private void OnDisable()
     {
+        nickNameChangeButton.onClick.RemoveAllListeners();
+        nickNameChangeInputField.onValueChanged.RemoveAllListeners();
+        confirmNickNameChangeButton.onClick.RemoveAllListeners();
+        cancelNickNameChangeButton.onClick.RemoveAllListeners();
+
         bgmMuteToggleButton.onClick.RemoveAllListeners();
         bgmSlider.onValueChanged.RemoveAllListeners();
 
@@ -229,5 +245,67 @@ public class csSettingScreen : MonoBehaviour
     {
         csSaveLodeManager.Instance.SaveSet();
         csUI_Manager.Instance.PopupSettingScreen(false);
+    }
+
+    private void OnClickNicknameChangeButton()
+    {
+        nickNameChangePopup.SetActive(true);
+    }
+
+    private void InputUserNickName(string text)
+    {
+        bool IsValidNickName = false;
+
+        // 1) ±æÀÌ Á¦ÇÑ (2~16ÀÚ)
+        if (text.Length >= 2 || text.Length <= 16)
+        {
+            IsValidNickName = true;
+        }
+
+        // 2) Æ¯¼ö¹®ÀÚ Æ÷ÇÔ ¿©ºÎ °Ë»ç
+        //    Çã¿ë ¹®ÀÚ: ÇÑ±Û, ¿µ¾î, ¼ýÀÚ
+        //    ±ÝÁö ¹®ÀÚ: Æ¯¼ö¹®ÀÚ ÀüÃ¼
+        //    ^ ¡æ ¹®ÀÚ¿­ ½ÃÀÛ, $ ¡æ ¹®ÀÚ¿­ ³¡
+        //    [] ¾È¿¡¼­ Çã¿ë ¹®ÀÚ Á¤ÀÇ
+        //    {2,16} ¡æ ±æÀÌµµ ´Ù½Ã Ã¼Å© °¡´É
+        System.Text.RegularExpressions.Regex regex =
+            new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9°¡-ÆR]{2,16}$");
+
+        IsValidNickName = regex.IsMatch(text);
+
+        if (IsValidNickName)
+        {
+            confirmNickNameChangeButton.interactable = true;
+        }
+        else
+        {
+            confirmNickNameChangeButton.interactable = false;
+        }
+
+    }
+
+    private void SetNickName()
+    {
+        if (nickNameChangeInputField.text.Length <= 0)
+        {
+            Debug.Log("No Input");
+        }
+        else
+        {
+            csSingleton.Instance.strPlayerNickName = nickNameChangeInputField.text;
+
+            userNickName_TMP.text = nickNameChangeInputField.text;
+
+            csSaveLodeManager.Instance.SaveData();
+
+            CloseNickNameChangePopup();
+        }
+    }
+
+    public void CloseNickNameChangePopup()
+    {
+        nickNameChangePopup.SetActive(false);
+
+        nickNameChangeInputField.text = string.Empty;
     }
 }

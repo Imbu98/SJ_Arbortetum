@@ -4,12 +4,16 @@ using System.Collections.Generic;
 namespace Data
 {
 
-    // 공통 속성 정의
+    #region mission
+
+    // 미션 공통 속성 정의
     [System.Serializable]
     public abstract class BaseMission
     {
         public string Description;
+
         public bool IsCleared;
+
         public int missionDistance;
     }
 
@@ -46,6 +50,10 @@ namespace Data
         public string plantName; // 관찰하기 미션용 꽃 이름
     }
 
+    #endregion
+
+
+    #region coordinate
 
     // 목적지에 대한 길찾기 경로 좌표
     public class SearchPathCoordinate
@@ -67,22 +75,6 @@ namespace Data
     }
 
     [System.Serializable]
-    public class PlantRequest
-    {
-        public string image;   
-        public string organs; 
-    }
-
-    [System.Serializable]
-    public class PlantResponse
-    {
-        public string plantScientificName;
-        public List<string> commonNames;
-        public float score;
-        public string gbif;
-    }
-
-    [System.Serializable]
     public class LocationData
     {
         public string koreanName;
@@ -90,7 +82,7 @@ namespace Data
         public GeoCoordinate geoCoordinate;
         public int locationID;
 
-        public LocationData(string ko=null, string en=null, double lat=0, double lon=0,int iD=0)
+        public LocationData(string ko = null, string en = null, double lat = 0, double lon = 0, int iD = 0)
         {
             koreanName = ko;
             englishName = en;
@@ -106,7 +98,32 @@ namespace Data
         }
     }
 
-  
+    #endregion
+
+    #region observePlant
+
+    [System.Serializable]
+    public class PlantRequest
+    {
+        public string image;   
+        public string organs; 
+    }
+
+    [System.Serializable]
+    public class PlantResponse
+    {
+        public string plantScientificName;
+        public List<string> commonNames;
+        public float score;
+        public string gbif;
+    }
+
+    #endregion
+
+
+
+
+    #region aiChat
 
     [System.Serializable]
     public class ChatHistoryWrapper
@@ -130,7 +147,12 @@ namespace Data
         public Dictionary<string, object> quest;
     }
 
-   
+    #endregion
+
+    #region Quiz
+
+
+
 
     public class QuizData
     {
@@ -143,17 +165,15 @@ namespace Data
         public List<string> quizChoices; // 퀴즈 객관식 보기
     }
 
+    #endregion
+
     [System.Serializable]
     public class SavedPlantWrapper
     {
         public List<string> plantList;
     }
-    public enum PolicyType
-    {
-        Service,
-        Privacy,
-        Marketing
-    }
+
+    #region Enum
 
     [System.Serializable]
     public enum QuizType
@@ -161,6 +181,13 @@ namespace Data
         None = 0,
         MultipleChoice = 1, // 객관식
         FindRight = 2, //  O/X 퀴즈
+    }
+
+    public enum PolicyType
+    {
+        Service,
+        Privacy,
+        Marketing
     }
 
     // 지도 이용 시 길찾기 중인지, 장소 검색만 하는 중인지 판별
@@ -177,4 +204,6 @@ namespace Data
         MissionCreating = 1,
         MissonCreated = 2,
     }
+
+    #endregion
 }
