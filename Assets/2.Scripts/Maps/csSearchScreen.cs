@@ -40,6 +40,8 @@ public class csSearchScreen : MonoBehaviour
     // 검색화면 열기
     public void OpenSearchScreen(int offset, Button currentButton,LocationData locationData)
     {
+        csUIManager.Instance.Push(this, OnCloseScreenButtonClicked);
+
         this.gameObject.SetActive (true);
         this.currentOffset = offset;
         this.currentButton = currentButton;
@@ -63,6 +65,8 @@ public class csSearchScreen : MonoBehaviour
     private void OnCloseScreenButtonClicked()
     {
         this.gameObject.SetActive(false);
+
+        csUIManager.Instance.Remove(this);
 
     }
 

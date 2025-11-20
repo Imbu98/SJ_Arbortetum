@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class csUIManager : MonoBehaviour
@@ -33,7 +34,22 @@ public class csUIManager : MonoBehaviour
     private bool isInMainScreen;
     private Coroutine timerRoutine;
 
+    private class BackStackEntry
+    {
+        public object key;            // UI별로 구분하는 키 (보통 this)
+        public UnityAction action;    // 뒤로가기로 실행할 동작
+    }
 
+    private Stack<BackStackEntry> backStack = new Stack<BackStackEntry>();
+
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ExecuteBack();
+        }
+    }
 
 
     void Awake()
@@ -84,13 +100,17 @@ public class csUIManager : MonoBehaviour
             {
                 StopCoroutine(timerRoutine);
             }
-            
+             Push(popup,() => TogglePopup(popup, false, returnToMain));
+
+
         }
         else
         {
             popup.SetActive(false);
             if (returnToMain)
                 SetIsInMainScreen(true);
+
+            Remove(popup);
         }
     }
 
@@ -262,6 +282,68 @@ public class csUIManager : MonoBehaviour
             // 선택이 퀴즈였어도 정상 실행
             PopupQuizScreen(true);
         }
+    }
+
+    // /// <summary>
+    /// UI 오픈 시 뒤로가기 Action을 등록  
+    /// 이 때 key는 보통 UI Script의 this
+    /// </summary>
+    public void Push(object key, UnityAction action)
+    {
+        backStack.Push(new BackStackEntry { key = key, action = action });
+    }
+
+    /// <summary>
+    /// 뒤로가기 버튼 동작
+    /// </summary>
+    public void ExecuteBack()
+    {
+        if (backStack.Count > 0)
+        {
+            backStack.Pop()?.action?.Invoke();
+            return;
+        }
+
+        // 스택이 비어있고 현재 mianScreen일 때 종료 팝업 띄우기
+        if (currentScreen == mainScreen)
+        {
+            csPopupPanel.Instance.PopupQuitApplication(csUIManager.Instance.QuitApplication);
+        }
+    }
+
+    /// <summary>
+    /// 해당 UI(key)의 등록된 Action을 스택에서 삭제  
+    /// (뒤로가기 말고 다른 버튼으로 닫을 때 사용)
+    /// </summary>
+    public void Remove(object key)
+    {
+        if (backStack.Count == 0)
+            return;
+
+        Stack<BackStackEntry> temp = new Stack<BackStackEntry>();
+
+        // key가 아닌 것만 임시 스택에 저장
+        while (backStack.Count > 0)
+        {
+            var entry = backStack.Pop();
+            if (!entry.key.Equals(key))
+                temp.Push(entry);
+        }
+
+        // 다시 backStack 순서 그대로 복원
+        while (temp.Count > 0)
+        {
+            backStack.Push(temp.Pop());
+        }
+    }
+
+    public void QuitApplication()
+    {
+        
+       csSaveLodeManager.Instance.SaveSet();
+
+        Application.Quit();
+           
     }
 
 

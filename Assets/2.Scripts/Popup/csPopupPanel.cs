@@ -53,44 +53,70 @@ public class csPopupPanel : MonoBehaviour
     public void CloseAllParts()
     {
         popupPart.gameObject.SetActive(false);
+
+        csUIManager.Instance.Remove(popupPart);
     }
 
     public void PopupSetScreenToCamera(UnityAction unityaction)
     {
-        popupPart.gameObject.SetActive(true);
+        OpendAndBindingBackButton();
         popupPart.InitText("PopupPanel", "Popup_SetToCameraScreen");
-        popupPart.InitButtonA("PopupPanel", "Popup_Yes", unityaction+CloseAllParts);
+        popupPart.InitButtonA("PopupPanel", "Popup_Yes", BindingActionAndClosePopup(unityaction));
     }
 
     public void PopupCancelMission(UnityAction unityaction)
     {
-        popupPart.gameObject.SetActive(true);
+        OpendAndBindingBackButton();
         popupPart.InitText("PopupPanel", "Popup_ResetMission");
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
-        popupPart.InitButtonB("PopupPanel", "Popup_Yes", unityaction + CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Yes", BindingActionAndClosePopup(unityaction));
     }
 
     public void PopupResetMission(UnityAction unityaction)
     {
-        popupPart.gameObject.SetActive(true);
+        OpendAndBindingBackButton();
         popupPart.InitText("PopupPanel", "Popup_ResetMission");
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
-        popupPart.InitButtonB("PopupPanel", "Popup_Reset", unityaction + CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Reset", BindingActionAndClosePopup(unityaction));
     }
     public void PopupForgiveCurrentMission(UnityAction unityaction)
     {
-        popupPart.gameObject.SetActive(true);
+        OpendAndBindingBackButton();
         popupPart.InitText("PopupPanel", "Popup_ResetMission");
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
-        popupPart.InitButtonB("PopupPanel", "Popup_Forgive", unityaction + CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Forgive", BindingActionAndClosePopup(unityaction));
     }
 
     public void PopupResetQuiz(UnityAction unityaction)
     {
-        popupPart.gameObject.SetActive(true);
+        OpendAndBindingBackButton();
         popupPart.InitText("PopupPanel", "Popup_ResetQuiz");
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
-        popupPart.InitButtonB("PopupPanel", "Popup_Reset", unityaction + CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Reset", BindingActionAndClosePopup(unityaction));
+    }
+
+    public void PopupQuitApplication(UnityAction unityaction)
+    {
+        OpendAndBindingBackButton();
+        popupPart.InitText("PopupPanel", "Popup_QuitApp");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Quit", BindingActionAndClosePopup(unityaction));
+    }
+
+    // 팝업이 호출 될 때, 팝업을 나타내고 뒤로가기에 팝업끄는 액션 바인딩
+    private void OpendAndBindingBackButton()
+    {
+        popupPart.gameObject.SetActive(true);
+        csUIManager.Instance.Push(popupPart, CloseAllParts);
+    }
+
+    private UnityAction BindingActionAndClosePopup(UnityAction unityaction)
+    {
+        return () =>
+        {
+            unityaction?.Invoke();
+            CloseAllParts();
+        };
     }
 
 

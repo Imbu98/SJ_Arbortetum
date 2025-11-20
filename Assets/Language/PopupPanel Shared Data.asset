@@ -43,6 +43,14 @@ MonoBehaviour:
     m_Key: Popup_ResetQuiz
     m_Metadata:
       m_Items: []
+  - m_Id: 2924688195301376
+    m_Key: Popup_QuitApp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2924757745250304
+    m_Key: Popup_Quit
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

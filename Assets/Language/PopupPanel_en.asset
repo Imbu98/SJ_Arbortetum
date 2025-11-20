@@ -38,6 +38,10 @@ MonoBehaviour:
     m_Localized: Forgive
     m_Metadata:
       m_Items: []
+  - m_Id: 2924757745250304
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -237,8 +237,7 @@ public class csSettingScreen : MonoBehaviour
 
     private void OnClickQuitApplicationButton()
     {
-        csSaveLodeManager.Instance.SaveSet();
-        Application.Quit();
+        csPopupPanel.Instance.PopupQuitApplication(csUIManager.Instance.QuitApplication);
     }
 
     private void OnClickCloseSettingScreenButton()

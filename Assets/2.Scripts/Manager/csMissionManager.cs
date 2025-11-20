@@ -182,7 +182,7 @@ public class csMissionManager : MonoBehaviour
         {
             StopCoroutine(missionCountDownRoutine);
         }
-        missionCountDownRoutine = StartCoroutine(MissionCountDownCoroutine());
+        //missionCountDownRoutine = StartCoroutine(MissionCountDownCoroutine());
 
         IsMissonOnProgress = true;
 
