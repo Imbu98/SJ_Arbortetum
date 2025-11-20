@@ -62,7 +62,7 @@ public class csStartScreen : MonoBehaviour
     {
 
 
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.startScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.startScreen);
     }
     void OnEnable()
     {
@@ -142,7 +142,7 @@ public class csStartScreen : MonoBehaviour
 
     void OnStartButtonClicked()
     {
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
     }
 
 

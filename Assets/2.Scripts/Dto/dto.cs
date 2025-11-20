@@ -13,8 +13,6 @@ namespace Data
         public string Description;
 
         public bool IsCleared;
-
-        public int missionDistance;
     }
 
     // AI가 생성한 전체 미션 목록을 받아오는 dto

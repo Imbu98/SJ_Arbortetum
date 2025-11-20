@@ -88,7 +88,7 @@ public class csPopupPanel : MonoBehaviour
     public void PopupResetQuiz(UnityAction unityaction)
     {
         popupPart.gameObject.SetActive(true);
-        popupPart.InitText("PopupPanel", "Popup_ResetMission");
+        popupPart.InitText("PopupPanel", "Popup_ResetQuiz");
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
         popupPart.InitButtonB("PopupPanel", "Popup_Reset", unityaction + CloseAllParts);
     }

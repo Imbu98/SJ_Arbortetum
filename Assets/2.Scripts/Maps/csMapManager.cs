@@ -216,6 +216,8 @@ public class csMapManager : MonoBehaviour
         currentGeoCoordinate.pathCoordinates = pathCoords;
 
         drawPathCoroutine = StartCoroutine(DrawPathAnimated(pathCoords, centerLat, centerLon));
+
+        csFirebaseLogManager.Instance.Log_StartPathFind();
     }
 
     // AI에서 받아온 좌표마다 이어주는 함수
@@ -431,11 +433,11 @@ public class csMapManager : MonoBehaviour
         int lastIndex = searchPathCoordinate.pathCoordinates.Count - 1;
 
         // 마지막 좌표를 목표좌표로 설정
-        double targetLat = searchPathCoordinate.pathCoordinates[lastIndex].Latitude;
-        double targetLon = searchPathCoordinate.pathCoordinates[lastIndex].Longitude;
+        GeoCoordinate targetGeoCoord = searchPathCoordinate.pathCoordinates[lastIndex];
+        GeoCoordinate myGeoCoord = new GeoCoordinate(MyGPS.Latitude,MyGPS.Longitude);
 
         // 마지막 좌표에 도착했는지 확인 
-        if (IsWithinRange(MyGPS.Latitude, MyGPS.Longitude,targetLat,targetLon, 15.0))
+        if (IsWithinRange(myGeoCoord, targetGeoCoord, 15.0))
         {
             // 목적지 도착시 검색화면 UI로 초기화
             _searchManager.SetPathFindUI(false); 
@@ -443,16 +445,16 @@ public class csMapManager : MonoBehaviour
     }
 
     // 위도/경도를 기반으로 두 점 사이 거리(m) 계산
-    public double GetDistanceMeters(double lat1, double lon1, double lat2, double lon2)
+    public double GetDistanceMeters(GeoCoordinate geoCoord1,GeoCoordinate geoCoord2)
     {
         double R = 6371000; // 지구 반지름 (m)
-        double dLat = Mathf.Deg2Rad * (float)(lat2 - lat1);
-        double dLon = Mathf.Deg2Rad * (float)(lon2 - lon1);
+        double dLat = Mathf.Deg2Rad * (float)(geoCoord2.Latitude - geoCoord1.Latitude);
+        double dLon = Mathf.Deg2Rad * (float)(geoCoord2.Longitude - geoCoord1.Longitude);
 
         double a =
             Mathf.Sin((float)(dLat / 2)) * Mathf.Sin((float)(dLat / 2)) +
-            Mathf.Cos((float)(Mathf.Deg2Rad * (float)lat1)) *
-            Mathf.Cos((float)(Mathf.Deg2Rad * (float)lat2)) *
+            Mathf.Cos((float)(Mathf.Deg2Rad * (float)geoCoord1.Latitude)) *
+            Mathf.Cos((float)(Mathf.Deg2Rad * (float)geoCoord2.Latitude)) *
             Mathf.Sin((float)(dLon / 2)) * Mathf.Sin((float)(dLon / 2));
 
         double c = 2 * Mathf.Atan2(Mathf.Sqrt((float)a), Mathf.Sqrt((float)(1 - a)));
@@ -461,9 +463,28 @@ public class csMapManager : MonoBehaviour
         return distance; // meter 단위 거리
     }
 
-    public  bool IsWithinRange(double lat1, double lon1, double lat2, double lon2, double radiusMeters)
+    public string DistanceToText(double distance)
     {
-        double distance = GetDistanceMeters(lat1, lon1, lat2, lon2);
+        string distanceText;
+
+        if (distance < 1000)
+        {
+            // 1000m 미만 → 미터 단위
+            distanceText = distance.ToString("F0") + " m";
+        }
+        else
+        {
+            // 1km 이상 → km 단위
+            double km = distance / 1000.0;
+            distanceText = km.ToString("F1") + " km";
+        }
+
+        return distanceText;
+    }
+
+    public  bool IsWithinRange(GeoCoordinate geoCoord1, GeoCoordinate geoCoord2, double radiusMeters)
+    {
+        double distance = GetDistanceMeters(geoCoord1,geoCoord2);
         return distance <= radiusMeters;
     }
     public void ToMyLocation()
@@ -636,5 +657,10 @@ public class csMapManager : MonoBehaviour
         return isInside;
     }
 
+
+    public GeoCoordinate GetMyGPS()
+    {
+        return new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude);
+    }
 
 }

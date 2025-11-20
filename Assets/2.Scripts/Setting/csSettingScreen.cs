@@ -244,7 +244,7 @@ public class csSettingScreen : MonoBehaviour
     private void OnClickCloseSettingScreenButton()
     {
         csSaveLodeManager.Instance.SaveSet();
-        csUI_Manager.Instance.PopupSettingScreen(false);
+        csUIManager.Instance.PopupSettingScreen(false);
     }
 
     private void OnClickNicknameChangeButton()
@@ -307,5 +307,7 @@ public class csSettingScreen : MonoBehaviour
         nickNameChangePopup.SetActive(false);
 
         nickNameChangeInputField.text = string.Empty;
+
+        csUIManager.Instance.ResetAIChatText();
     }
 }

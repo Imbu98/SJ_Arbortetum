@@ -48,7 +48,7 @@ public class csMainScreen : MonoBehaviour
         texts.Add(csLocalizationManager.Instance.LocalizationString("Key_Introduce1"));
         texts.Add(csLocalizationManager.Instance.LocalizationString("Key_Introduce2"));
 
-        StartCoroutine(csUI_Manager.Instance.PlayAIChatSequence(texts, () =>
+        StartCoroutine(csUIManager.Instance.PlayAIChatSequence(texts, () =>
         {
             userNickNameInputUI.gameObject.SetActive(true);
             uiAnimator.SetBool("IsFinishIntroduce", true);
@@ -113,6 +113,6 @@ public class csMainScreen : MonoBehaviour
 
         uiAnimator.SetBool("IsSettedNickName", true);
 
-        csUI_Manager.Instance.SetIsInMainScreen(true);
+        csUIManager.Instance.SetIsInMainScreen(true);
     }
 }

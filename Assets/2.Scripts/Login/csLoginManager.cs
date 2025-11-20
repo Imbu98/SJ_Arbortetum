@@ -5,10 +5,9 @@ using AppleAuth.Native;
 #if UNITY_ANDROID
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+#endif
 using System.Collections;
 using System.Collections.Generic;
-
-#endif
 using System.Text;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -99,7 +98,7 @@ private void Awake()
         csSaveLodeManager.Instance.SaveSet();
 
 
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
    
@@ -213,7 +212,7 @@ private void Awake()
         csSingleton.Instance.bTermsofUse = true;
 
         csSaveLodeManager.Instance.SaveSet();
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
 
@@ -226,7 +225,7 @@ private void Awake()
 
         csSaveLodeManager.Instance.SaveSet();
 
-        csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.startScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.startScreen);
     }
 
     //    PlayGamesPlatform.Instance.Authenticate(SignInInteractivity.CanPromptOnce, (bool success) =>
@@ -239,7 +238,7 @@ private void Awake()
     //            csSingleton.Instance.bAutoLogin = true;
     //            csSingleton.Instance.UID = id;
 
-    //            csUI_Manager.Instance.ChangeScreen(csUI_Manager.Instance.mainScreen);
+    //            csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
 
     //        }
     //        else

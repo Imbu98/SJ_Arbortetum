@@ -22,7 +22,11 @@ public class csCreatedMissonPrefab : MonoBehaviour
 
         createdMissonTitle_TMP.text = missionInfo.missionTitle;
         createdMissonDescription_TMP.text = missionInfo.Description;
-        createdMissonDistance_TMP.text = $"{missionInfo.missionDistance}m";
+
+        double distance = csMapManager.Instance.GetDistanceMeters(missionInfo.missionStepDetails[0].destinationCoordinate, csMapManager.Instance.GetMyGPS());
+
+        createdMissonDistance_TMP.text = csMapManager.Instance.DistanceToText(distance);
+
         createdMissonTimeTaken_TMP.text = missionInfo.missonTimeTaken.ToString(); // 추후 로컬라제이션 추가
         missionStart_BTN.onClick.AddListener(() => StartMission(missonIndex));
         clearObject.SetActive(missionInfo.IsCleared);

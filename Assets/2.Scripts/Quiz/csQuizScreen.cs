@@ -242,9 +242,9 @@ public class csQuizScreen : MonoBehaviour
     
     private void QuitQuiz()
     {
-        csUI_Manager.Instance.PopupQuizScreen(false);
+        csUIManager.Instance.PopupQuizScreen(false);
 
-        csUI_Manager.Instance.ResetAIChatText();
+        csUIManager.Instance.ResetAIChatText();
     }
 
 

@@ -7,34 +7,25 @@ public class csUIDragStretchVertical : MonoBehaviour, IBeginDragHandler, IDragHa
     [SerializeField] private float minHeight = 200f;
     [SerializeField] private float maxHeight;
 
-    private Vector2 startMousePos;
-    private float startOffsetY;
+    private float startHeight;
+    private Vector2 startPointerPos;
 
-   
     public void OnBeginDrag(PointerEventData eventData)
     {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            target, eventData.position, eventData.pressEventCamera, out startMousePos);
-        startOffsetY = target.offsetMax.y; // 상단 offset 기록
+        startHeight = target.rect.height;
+        startPointerPos = eventData.position;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 currentMousePos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            target, eventData.position, eventData.pressEventCamera, out currentMousePos);
+        // 1) Y 변화는 "Screen 기준"으로 직접 계산 → 최적 & 부드러움
+        float deltaY = eventData.position.y - startPointerPos.y;
 
-        float deltaY = currentMousePos.y - startMousePos.y;
+        // 2) 높이 = 시작 높이 + 손가락 이동량
+        float newHeight = Mathf.Clamp(startHeight + deltaY, minHeight, maxHeight);
 
-        // offsetMax.y는 “상단 여백”을 의미 (음수로 늘어남)
-        float newOffsetMaxY = startOffsetY - deltaY;
-
-        // 실제 높이를 계산해서 제한
-        float currentHeight = target.rect.height - (newOffsetMaxY - startOffsetY);
-        currentHeight = Mathf.Clamp(currentHeight, minHeight, maxHeight);
-
-        // 새 높이에 맞게 offset 조정
-        float desiredOffsetChange = (currentHeight - target.rect.height);
-        target.offsetMax += new Vector2(0, desiredOffsetChange);
+        // 3) offsetMax 기반으로 높이 변경 (pivot = bottom)
+        float deltaHeight = newHeight - target.rect.height;
+        target.offsetMax += new Vector2(0, deltaHeight);
     }
 }

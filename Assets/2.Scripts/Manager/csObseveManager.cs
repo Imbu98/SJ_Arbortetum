@@ -64,7 +64,7 @@ public class csObserveManager : MonoBehaviour
         }
 
         isCanceled = true;
-        csUI_Manager.Instance.SetIsInMainScreen(true);
+        csUIManager.Instance.SetIsInMainScreen(true);
     }
 
     // 카메라 촬영 화면으로
@@ -77,7 +77,7 @@ public class csObserveManager : MonoBehaviour
         currentObserve = observeScreenObject;
         isCanceled = true;
         observeScreenObject.SetActive(true);
-        csUI_Manager.Instance.SetIsInMainScreen(false);
+        csUIManager.Instance.SetIsInMainScreen(false);
         
     }
 

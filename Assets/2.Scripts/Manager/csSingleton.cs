@@ -1,6 +1,7 @@
 ﻿using Data;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.Localization.Settings;
 
 public class csSingleton : MonoBehaviour
@@ -127,7 +128,7 @@ public class csSingleton : MonoBehaviour
                 continue;
 
             //  거리 계산
-            double dist = csMapManager.Instance.GetDistanceMeters(myLat, myLon, loc.geoCoordinate.Latitude, loc.geoCoordinate.Longitude);
+            double dist = csMapManager.Instance.GetDistanceMeters(csMapManager.Instance.GetMyGPS(), loc.geoCoordinate);
 
             //  처음 등장한 이름이면 바로 저장
             if (!bestMap.TryGetValue(name, out var saved))

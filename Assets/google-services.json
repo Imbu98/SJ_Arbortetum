@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856028961442",
+    "project_id": "sjarboretum",
+    "storage_bucket": "sjarboretum.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856028961442:android:a0d6451c1b92c1562395fb",
+        "android_client_info": {
+          "package_name": "com.Ehancreative.sejongarboretum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADwOqyjwnMO6RgLvv5GS7jQVwAtFjrU4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

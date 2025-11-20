@@ -31,7 +31,10 @@ public class csMissionStepPrefab : MonoBehaviour
         missionDestination_TMP.text = missionStep.destinationName;
         infoDestination_TMP.text = missionStep.destinationName;
         infoDescription_TMP.text = missionStep.Description;
-        infoMissonDistance_TMP.text = missionStep.missionDistance + "m";
+
+        double distance = csMapManager.Instance.GetDistanceMeters(missionStep.destinationCoordinate, csMapManager.Instance.GetMyGPS());
+
+        infoMissonDistance_TMP.text = csMapManager.Instance.DistanceToText(distance);
 
         openMissionInfoButton.onClick.AddListener(OpenMissionInfo);
 
@@ -72,7 +75,7 @@ public class csMissionStepPrefab : MonoBehaviour
         missionPathFindButton.onClick.RemoveAllListeners();
         missionPathFindButton.onClick.AddListener(() =>
         {
-            csUI_Manager.Instance.PopupMap(true);
+            csUIManager.Instance.PopupMap(true);
 
             csMapManager.Instance._searchManager.ClearPathFindUI();
 

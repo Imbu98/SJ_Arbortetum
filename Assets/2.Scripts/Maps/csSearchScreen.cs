@@ -84,23 +84,9 @@ public class csSearchScreen : MonoBehaviour
                 var suggestion = Instantiate(placeSlotPrefab, searchPlaceListHolder);
 
                 // 현재 언어에 맞게 표시 이름 선택
-                double distance = csMapManager.Instance.GetDistanceMeters(data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, csMapManager.Instance.MyGPS.Latitude, csMapManager.Instance.MyGPS.Longitude);
-
-                string distanceText;
-
-                if (distance < 1000)
-                {
-                    // 1000m 미만 → 미터 단위
-                    distanceText = distance.ToString("F0") + " m";
-                }
-                else
-                {
-                    // 1km 이상 → km 단위
-                    double km = distance / 1000.0;
-                    distanceText = km.ToString("F2") + " km";
-                }
-
-                suggestion.SetProperty(data.GetLocalizedName(), data.geoCoordinate.Latitude, data.geoCoordinate.Longitude, distanceText);
+                double distance = csMapManager.Instance.GetDistanceMeters(data.geoCoordinate,csMapManager.Instance.GetMyGPS());
+                               
+                suggestion.SetProperty(data.GetLocalizedName(), data.geoCoordinate.Latitude, data.geoCoordinate.Longitude,csMapManager.Instance.DistanceToText(distance));
 
 
                 var closureData = data;

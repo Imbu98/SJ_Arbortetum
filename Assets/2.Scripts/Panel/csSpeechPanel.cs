@@ -1,5 +1,6 @@
 using Data;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -45,7 +46,7 @@ public class csSpeechPanel : MonoBehaviour
     {
         startSpeechToTextButton.onClick.AddListener(OpenSpeechToTextScreen);
 
-        csUI_Manager.Instance.ResetAIChatText();
+        csUIManager.Instance.ResetAIChatText();
     }
 
     private void OnDisable()
@@ -96,6 +97,8 @@ public class csSpeechPanel : MonoBehaviour
     // 입력 완료 이벤트
     public void OnInputEndEdit(string text)
     {
+        if (String.IsNullOrEmpty(text)) return;
+
         Debug.Log("입력 완료: " + text);
 
         startSpeechToTextButton.gameObject.SetActive(false);
@@ -108,7 +111,7 @@ public class csSpeechPanel : MonoBehaviour
     {
         startSpeechToTextButton.gameObject.SetActive(false);
 
-        csUI_Manager.Instance.PopupSpeechToText(true);
+        csUIManager.Instance.PopupSpeechToText(true);
 
         if (keyboard != null)
         {
@@ -119,13 +122,13 @@ public class csSpeechPanel : MonoBehaviour
 
     public void CloseSpeechToTextScreen()
     {
-        csUI_Manager.Instance.PopupSpeechToText(false);
+        csUIManager.Instance.PopupSpeechToText(false);
     }
 
     // 서버에 내용 보내기
     async public void SendResultToSerever(string result)
     {
-        csUI_Manager.Instance.PopupSpeechToText(false);
+        csUIManager.Instance.PopupSpeechToText(false);
 
         Debug.Log(result);
 
@@ -149,9 +152,11 @@ public class csSpeechPanel : MonoBehaviour
             return;
         }
 
-        csUI_Manager.Instance.SetAIChatText(aITextResult); // 메인화면의 text에 result 내용을 적기
+        csUIManager.Instance.SetAIChatText(aITextResult); // 메인화면의 text에 result 내용을 적기
 
-        
+        csFirebaseLogManager.Instance.Log_ChatWithAI(); // 애널리틱스에 대화Count추가 
+
+
         //// 응답이 왔으면 user text 먼저 저장
         //csSingleton.Instance.strSavedChatHistory.Add(userChatMessage);
 
@@ -162,7 +167,7 @@ public class csSpeechPanel : MonoBehaviour
         //};
         //// 이후 챗봇 Text 내역 저장
         //csSingleton.Instance.strSavedChatHistory.Add(aIChatMessage);
-        
+
         //csSaveLodeManager.Instance.SaveChatHistory();
     }
 }

@@ -39,6 +39,10 @@ MonoBehaviour:
     m_Key: Popup_Forgive
     m_Metadata:
       m_Items: []
+  - m_Id: 2866379652182016
+    m_Key: Popup_ResetQuiz
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
