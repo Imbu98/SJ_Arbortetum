@@ -99,7 +99,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # Firebase native libraries ignore
-/[Aa]ssets/Firebase/Plugins/*
+/[Aa]ssets/Firebase/*
 /[Aa]ssets/Plugins/Firebase/*
 /[Aa]ssets/Plugins/x86_64/*
 /[Aa]ssets/Plugins/x86/*
