@@ -35,6 +35,8 @@ namespace Datainfo
 
         public string UID;
 
+        public int nPoint;
+
         public List<ChatMessage> strSavedChatHistory;
     }
 }

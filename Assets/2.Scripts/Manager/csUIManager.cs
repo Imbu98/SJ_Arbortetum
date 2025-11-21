@@ -1,4 +1,4 @@
-using Data;
+ï»¿using Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,40 +12,51 @@ public class csUIManager : MonoBehaviour
     public static csUIManager Instance { get { return _Instance; } }
     private static csUIManager _Instance;
 
-    public GameObject startScreen; // ½ÃÀÛÈ­¸é
-    public GameObject mainScreen; // ¸ŞÀÎÈ­¸é
-    public GameObject mapScreen; // Áöµµ 
-    public GameObject missionPopup; // ¹Ì¼ÇÃ¢
-    public GameObject speechToTextScreen; // À½¼º ¾ğ¾î ÀÔ·Â È­¸é
-    public GameObject quizScreen; // ÄûÁîÃ¢
-    public GameObject settingScreen; // ¼³Á¤Ã¢
+    public GameObject startScreen; // ì‹œì‘í™”ë©´
+    public csMainScreen mainScreen; // ë©”ì¸í™”ë©´
+    public GameObject mapScreen; // ì§€ë„ 
+    public GameObject missionPopup; // ë¯¸ì…˜ì°½
+    public GameObject speechToTextScreen; // ìŒì„± ì–¸ì–´ ì…ë ¥ í™”ë©´
+    public GameObject quizScreen; // í€´ì¦ˆì°½
+    public GameObject settingScreen; // ì„¤ì •ì°½
+  
 
     private GameObject currentScreen;
     private GameObject currentPanel;
 
 
-    [SerializeField] private Button skipButton;
-    [Header("SpeechToText")]
-    public TextMeshProUGUI mainScreenAIText;   // ¸ŞÀÎ È­¸é ÅØ½ºÆ®
+    
+
+    [Header("AIText")]
+    public TextMeshProUGUI mainScreenAIText;   // ë©”ì¸ í™”ë©´ í…ìŠ¤íŠ¸
     private Coroutine typingRoutine;
     private bool isTyping = false;
+    [SerializeField] private Button skipButton;
+    [SerializeField] private ScrollRect scrollRect;
+
+    private float heightLimit = 400f;
 
     [Header("AutoRecommend")]
     private bool isInMainScreen;
     private Coroutine timerRoutine;
 
+    //Back Button Management
     private class BackStackEntry
     {
-        public object key;            // UIº°·Î ±¸ºĞÇÏ´Â Å° (º¸Åë this)
-        public UnityAction action;    // µÚ·Î°¡±â·Î ½ÇÇàÇÒ µ¿ÀÛ
+        public object key;            // UIë³„ë¡œ êµ¬ë¶„í•˜ëŠ” í‚¤
+        public UnityAction action;    // ë’¤ë¡œê°€ê¸°ë¡œ ì‹¤í–‰í•  ë™ì‘
     }
 
     private Stack<BackStackEntry> backStack = new Stack<BackStackEntry>();
 
+    private bool bBlocked = false; // ë’¤ë¡œê°€ê¸° ë²„íŠ¼ ë§‰ê¸° ì—¬ë¶€
+
+  
+
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape)&&bBlocked==false)
         {
             ExecuteBack();
         }
@@ -66,10 +77,10 @@ public class csUIManager : MonoBehaviour
     }
     void Start()
     {
-        
+
     }
 
-    // È­¸é ÀüÈ¯ ¸Ş¼­µå
+    // í™”ë©´ ì „í™˜ ë©”ì„œë“œ
     public void ChangeScreen(GameObject newScreen)
     {
         if (currentScreen != null)
@@ -80,7 +91,7 @@ public class csUIManager : MonoBehaviour
         currentScreen = newScreen;
     }
 
-    // ¸ŞÀÎ È­¸é ³»ÀÇ ÆĞ³Î ÀüÈ¯ ¸Ş¼­µå
+    // ë©”ì¸ í™”ë©´ ë‚´ì˜ íŒ¨ë„ ì „í™˜ ë©”ì„œë“œ
     public void ChangePanel(GameObject newPanel)
     {
         if (currentPanel != null)
@@ -160,9 +171,11 @@ public class csUIManager : MonoBehaviour
         );
     }
 
+    
+
     public void SetAIChatText(string text)
     {
-        // ÀÌÀü Å¸ÀÌÇÎ ÄÚ·çÆ¾ÀÌ ÀÖÀ¸¸é ÁßÁö
+        // ì´ì „ íƒ€ì´í•‘ ì½”ë£¨í‹´ì´ ìˆìœ¼ë©´ ì¤‘ì§€
         if (typingRoutine != null)
             StopCoroutine(typingRoutine);
 
@@ -174,14 +187,14 @@ public class csUIManager : MonoBehaviour
     {
         foreach (var msg in messages)
         {
-            // ¹®Àå Ãâ·Â
+            // ë¬¸ì¥ ì¶œë ¥
             SetAIChatText(msg);
 
-            // ÇöÀç ¹®ÀåÀÌ Å¸ÀÌÇÎµÇ´Â µ¿¾È ´ë±â
+            // í˜„ì¬ ë¬¸ì¥ì´ íƒ€ì´í•‘ë˜ëŠ” ë™ì•ˆ ëŒ€ê¸°
             while (isTyping)
                 yield return null;
 
-            // ¹®ÀåÀÇ ¸¶Áö¸· »óÅÂ(½ºÅµ ¿©ºÎ Æ÷ÇÔ) ÈÄ 0.1ÃÊ Á¤µµ ÅÒ
+            // ë¬¸ì¥ì˜ ë§ˆì§€ë§‰ ìƒíƒœ(ìŠ¤í‚µ ì—¬ë¶€ í¬í•¨) í›„ 0.1ì´ˆ ì •ë„ í…€
             yield return new WaitForSeconds(0.1f);
         }
 
@@ -195,7 +208,7 @@ public class csUIManager : MonoBehaviour
 
         float delay = 0.05f;
 
-        // È­¸é ÅÍÄ¡ ½Ã ÀüÃ¼ ÅØ½ºÆ® Áï½Ã Ç¥½ÃµÇµµ·Ï ÀÌº¥Æ® µî·Ï
+        // í™”ë©´ í„°ì¹˜ ì‹œ ì „ì²´ í…ìŠ¤íŠ¸ ì¦‰ì‹œ í‘œì‹œë˜ë„ë¡ ì´ë²¤íŠ¸ ë“±ë¡
         bool isSkipped = false;
         Action skipAction = () => { isSkipped = true; };
         RegisterSkip(skipAction);
@@ -206,34 +219,56 @@ public class csUIManager : MonoBehaviour
                 break;
 
             mainScreenAIText.text += c;
+
+            CheckScrollActivation();
+
             yield return new WaitForSeconds(delay);
         }
 
-        // ½ºÅµ ½Ã ÀüÃ¼ ÅØ½ºÆ® Áï½Ã Ç¥½Ã
+        // ìŠ¤í‚µ ì‹œ ì „ì²´ í…ìŠ¤íŠ¸ ì¦‰ì‹œ í‘œì‹œ
         mainScreenAIText.text = text;
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(mainScreenAIText.transform.parent.GetComponent<RectTransform>());
+        CheckScrollActivation();
 
         UnregisterSkip(skipAction);
         isTyping = false;
         typingRoutine = null;
     }
 
+    private void CheckScrollActivation()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(mainScreenAIText.transform.parent.GetComponent<RectTransform>());
+
+        float contentHeight = scrollRect.content.sizeDelta.y;
+
+        if (contentHeight <= heightLimit)
+        {
+            scrollRect.GetComponent<RectTransform>().sizeDelta= new Vector2(
+                scrollRect.GetComponent<RectTransform>().sizeDelta.x,
+                contentHeight
+            );
+        }
+        else
+        {
+            scrollRect.verticalNormalizedPosition= 0f; // ë§¨ ì•„ë˜ë¡œ ìŠ¤í¬ë¡¤
+        }
+    }
+
     public void ResetAIChatText()
     {
-        string resetText = $"{csSingleton.Instance.strPlayerNickName}´Ô ¹«¾ùÀ» µµ¿Íµå¸±±î¿ä?";
+        string resetText = $"{csSingleton.Instance.strPlayerNickName}ë‹˜ ë¬´ì—‡ì„ ë„ì™€ë“œë¦´ê¹Œìš”?";
 
         SetAIChatText(resetText);
     }
 
     public void NotInsideInArboretum()
     {
-        string notInsideArboretumText = $"{csSingleton.Instance.strPlayerNickName}´Ô, ÇØ´ç ±â´ÉÀº ¼ö¸ñ¿ø ³»¿¡¼­¸¸ »ç¿ë°¡´ÉÇÑ ±â´ÉÀÔ´Ï´Ù";
+        string notInsideArboretumText = $"{csSingleton.Instance.strPlayerNickName}ë‹˜, í•´ë‹¹ ê¸°ëŠ¥ì€ ìˆ˜ëª©ì› ë‚´ì—ì„œë§Œ ì‚¬ìš©ê°€ëŠ¥í•œ ê¸°ëŠ¥ì…ë‹ˆë‹¤";
 
         SetAIChatText(notInsideArboretumText);
     }
 
-    // ¸ŞÀÎÈ­¸éÀ» ¶ç¿ï ¶§, ¸ŞÀÎÈ­¸éÀ¸·Î µ¹¾Æ°¥ ¶§ ÀÚµ¿ ¹Ì¼Ç ÃßÃµ Å¸ÀÌ¸Ó¸¦ ½ÇÇà½ÃÅ°±â À§ÇÑ ÇÔ¼ö
+    // ë©”ì¸í™”ë©´ì„ ë„ìš¸ ë•Œ, ë©”ì¸í™”ë©´ìœ¼ë¡œ ëŒì•„ê°ˆ ë•Œ ìë™ ë¯¸ì…˜ ì¶”ì²œ íƒ€ì´ë¨¸ë¥¼ ì‹¤í–‰ì‹œí‚¤ê¸° ìœ„í•œ í•¨ìˆ˜
 
     public void SetIsInMainScreen(bool value)
     {
@@ -273,20 +308,20 @@ public class csUIManager : MonoBehaviour
 
         if (rand == 0 && isMissionAvailable && isInArboreteum)
         {
-            // ¹Ì¼Ç °¡´É & ¹Ì¼Ç ¼±ÅÃµÊ
+            // ë¯¸ì…˜ ê°€ëŠ¥ & ë¯¸ì…˜ ì„ íƒë¨
             PopupMission(true);
         }
         else
         {
-            // ¹Ì¼Ç ºÒ°¡´É ¡æ ¹«Á¶°Ç ÄûÁî
-            // ¼±ÅÃÀÌ ÄûÁî¿´¾îµµ Á¤»ó ½ÇÇà
+            // ë¯¸ì…˜ ë¶ˆê°€ëŠ¥ â†’ ë¬´ì¡°ê±´ í€´ì¦ˆ
+            // ì„ íƒì´ í€´ì¦ˆì˜€ì–´ë„ ì •ìƒ ì‹¤í–‰
             PopupQuizScreen(true);
         }
     }
 
     // /// <summary>
-    /// UI ¿ÀÇÂ ½Ã µÚ·Î°¡±â ActionÀ» µî·Ï  
-    /// ÀÌ ¶§ key´Â º¸Åë UI ScriptÀÇ this
+    /// UI ì˜¤í”ˆ ì‹œ ë’¤ë¡œê°€ê¸° Actionì„ ë“±ë¡  
+    /// ì´ ë•Œ keyëŠ” ë³´í†µ UI Scriptì˜ this
     /// </summary>
     public void Push(object key, UnityAction action)
     {
@@ -294,26 +329,29 @@ public class csUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// µÚ·Î°¡±â ¹öÆ° µ¿ÀÛ
+    /// ë’¤ë¡œê°€ê¸° ë²„íŠ¼ ë™ì‘
     /// </summary>
     public void ExecuteBack()
     {
+        Debug.Log("Execute Back Button");
+
         if (backStack.Count > 0)
         {
             backStack.Pop()?.action?.Invoke();
             return;
         }
-
-        // ½ºÅÃÀÌ ºñ¾îÀÖ°í ÇöÀç mianScreenÀÏ ¶§ Á¾·á ÆË¾÷ ¶ç¿ì±â
-        if (currentScreen == mainScreen)
+        // ìŠ¤íƒì´ ë¹„ì–´ìˆê³  í˜„ì¬ mianScreenì¼ ë•Œ ì¢…ë£Œ íŒì—… ë„ìš°ê¸°
+        if (currentScreen == mainScreen.gameObject)
         {
+            Debug.Log("PopUpQuit");
+
             csPopupPanel.Instance.PopupQuitApplication(csUIManager.Instance.QuitApplication);
         }
     }
 
     /// <summary>
-    /// ÇØ´ç UI(key)ÀÇ µî·ÏµÈ ActionÀ» ½ºÅÃ¿¡¼­ »èÁ¦  
-    /// (µÚ·Î°¡±â ¸»°í ´Ù¸¥ ¹öÆ°À¸·Î ´İÀ» ¶§ »ç¿ë)
+    /// í•´ë‹¹ UI(key)ì˜ ë“±ë¡ëœ Actionì„ ìŠ¤íƒì—ì„œ ì‚­ì œ  
+    /// (ë’¤ë¡œê°€ê¸° ë§ê³  ë‹¤ë¥¸ ë²„íŠ¼ìœ¼ë¡œ ë‹«ì„ ë•Œ ì‚¬ìš©)
     /// </summary>
     public void Remove(object key)
     {
@@ -322,7 +360,7 @@ public class csUIManager : MonoBehaviour
 
         Stack<BackStackEntry> temp = new Stack<BackStackEntry>();
 
-        // key°¡ ¾Æ´Ñ °Í¸¸ ÀÓ½Ã ½ºÅÃ¿¡ ÀúÀå
+        // keyê°€ ì•„ë‹Œ ê²ƒë§Œ ì„ì‹œ ìŠ¤íƒì— ì €ì¥
         while (backStack.Count > 0)
         {
             var entry = backStack.Pop();
@@ -330,11 +368,16 @@ public class csUIManager : MonoBehaviour
                 temp.Push(entry);
         }
 
-        // ´Ù½Ã backStack ¼ø¼­ ±×´ë·Î º¹¿ø
+        // ë‹¤ì‹œ backStack ìˆœì„œ ê·¸ëŒ€ë¡œ ë³µì›
         while (temp.Count > 0)
         {
             backStack.Push(temp.Pop());
         }
+    }
+
+    public void BlockBackButton(bool block)
+    {
+        bBlocked = block;
     }
 
     public void QuitApplication()
@@ -347,7 +390,7 @@ public class csUIManager : MonoBehaviour
     }
 
 
-    //AIMainText½ºÅµÀ» »ç¿ëÇÒ°Å¸é »ç¿ë
+    //AIMainTextìŠ¤í‚µì„ ì‚¬ìš©í• ê±°ë©´ ì‚¬ìš©
     private void RegisterSkip(Action onSkip)
     {
         skipButton.onClick.AddListener(onSkip.Invoke);

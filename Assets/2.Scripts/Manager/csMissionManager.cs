@@ -149,7 +149,7 @@ public class csMissionManager : MonoBehaviour
     // 현재 미션목록을 기반으로 미션 목록 UI 생성
     public void SetMissonUI()
     {
-            ClearCreatedMissionList();
+            ResetCreatedMissionList();
 
             for (int i=0; i< aiCreatedMissions.missions.Count;++i)
             {
@@ -165,7 +165,7 @@ public class csMissionManager : MonoBehaviour
             }
     }
 
-    private void ClearCreatedMissionList()
+    private void ResetCreatedMissionList()
     {
         foreach (var mission in missionList)
         {
@@ -251,10 +251,10 @@ public class csMissionManager : MonoBehaviour
         {
             _missonUIManager.ChangeToMissionClearPanel();
 
-
             _missonUIManager.missionClearButton.onClick.RemoveAllListeners();
             _missonUIManager.missionClearButton.onClick.AddListener(() =>
             {
+                csUIManager.Instance.BlockBackButton(false);
                 aiCreatedMissions.missionStepIndex = 0;
                 ClearCurrentMission();
             });
@@ -290,8 +290,12 @@ public class csMissionManager : MonoBehaviour
 
         IsMissonOnProgress = false;
 
+        csSingleton.Instance.RewardPoint(mission.missonRewardPoint);
+
         csFirebaseLogManager.Instance.Log_Mission(1);
     }
+
+    
 
     public MissionStep GetCurrentMissionStep()
     {
@@ -397,7 +401,7 @@ public class csMissionManager : MonoBehaviour
                 missionTitle = "도심 관찰 미션",
                 Description = "가까운 장소를 방문해 주변을 관찰해보세요.",
                 IsCleared = false,
-                missonTimeTaken = 180,
+                missonRewardPoint = 100,
                 missionStepDetails = new List<MissionStep>
                 {
                     new MissionStep
@@ -445,7 +449,7 @@ public class csMissionManager : MonoBehaviour
                 missionTitle = "꽃 찾기 미션",
                 Description = "주변의 꽃을 조사해보세요.",
                 IsCleared = false,
-                missonTimeTaken = 240,
+                 missonRewardPoint = 100,
                 missionStepDetails = new List<MissionStep>
                 {
                     new MissionStep
@@ -493,7 +497,7 @@ public class csMissionManager : MonoBehaviour
                 missionTitle = "동네 탐험 미션",
                 Description = "근처를 걸으며 탐험해봅시다.",
                 IsCleared = false,
-                missonTimeTaken = 300,
+                 missonRewardPoint = 100,
                 missionStepDetails = new List<MissionStep>
                 {
                     new MissionStep

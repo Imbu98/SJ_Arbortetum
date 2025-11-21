@@ -11,7 +11,7 @@ public class csCreatedMissonPrefab : MonoBehaviour
     [SerializeField] private TextMeshProUGUI createdMissonTitle_TMP; // 미션 제목
     [SerializeField] private TextMeshProUGUI createdMissonDescription_TMP; // 미션 설명
     [SerializeField] private TextMeshProUGUI createdMissonDistance_TMP; // 거리
-    [SerializeField] private TextMeshProUGUI createdMissonTimeTaken_TMP; // 소요시간
+    [SerializeField] private TextMeshProUGUI createdMissonRewardPoint_TMP; // 소요시간
     [SerializeField] private Button missionStart_BTN; // 미션 시작 버튼
 
     [SerializeField] private List<Sprite> sprites;
@@ -27,7 +27,7 @@ public class csCreatedMissonPrefab : MonoBehaviour
 
         createdMissonDistance_TMP.text = csMapManager.Instance.DistanceToText(distance);
 
-        createdMissonTimeTaken_TMP.text = missionInfo.missonTimeTaken.ToString(); // 추후 로컬라제이션 추가
+        createdMissonRewardPoint_TMP.text = missionInfo.missonRewardPoint.ToString(); // 추후 로컬라제이션 추가
         missionStart_BTN.onClick.AddListener(() => StartMission(missonIndex));
         clearObject.SetActive(missionInfo.IsCleared);
     }

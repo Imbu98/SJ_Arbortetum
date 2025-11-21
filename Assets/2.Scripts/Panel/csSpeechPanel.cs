@@ -1,7 +1,9 @@
+using Cysharp.Threading.Tasks;
 using Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -141,18 +143,23 @@ public class csSpeechPanel : MonoBehaviour
         //List<ChatMessage> tempChatList = new List<ChatMessage>(csSingleton.Instance.strSavedChatHistory);
         //tempChatList.Add(userChatMessage);
 
-        
+        string aiTextResult = null;
 
-        var aITextResult =  await csNetworkManager.Instance.AsyncGetAIChatResult(userChatMessage);
-
-        //AI 응답이 null/빈 문자열이면 → 저장하지 않고 return
-        if (string.IsNullOrEmpty(aITextResult))
+        try
         {
-            Debug.LogWarning("AI 응답이 null 이므로 User 메시지를 저장하지 않습니다.");
+            aiTextResult = await csNetworkManager.Instance.AsyncGetAIChatResult(userChatMessage);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("AIChat Exception:" + ex.Message);
+
+            // UI에 표시
+            csUIManager.Instance.SetAIChatText(csLocalizationManager.Instance.LocalizationString("Key_Warning_NetworkError"));
+
             return;
         }
 
-        csUIManager.Instance.SetAIChatText(aITextResult); // 메인화면의 text에 result 내용을 적기
+        csUIManager.Instance.SetAIChatText(aiTextResult); // 메인화면의 text에 result 내용을 적기
 
         csFirebaseLogManager.Instance.Log_ChatWithAI(); // 애널리틱스에 대화Count추가 
 

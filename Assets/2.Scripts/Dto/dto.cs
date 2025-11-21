@@ -32,7 +32,7 @@ namespace Data
     {
         public string missionTitle;
 
-        public int missonTimeTaken; // 미션 소요시간
+        public int missonRewardPoint; // 미션 소요시간
 
         public List<MissionStep> missionStepDetails;
     }

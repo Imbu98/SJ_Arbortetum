@@ -146,8 +146,7 @@ public class csNetworkManager : MonoBehaviour
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("AI 서버 요청 실패: " + request.error);
-                return null;
+                throw new Exception(request.error);
             }
 
             string json = request.downloadHandler.text;

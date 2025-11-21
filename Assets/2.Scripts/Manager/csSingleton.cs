@@ -26,13 +26,16 @@ public class csSingleton : MonoBehaviour
 
     [HideInInspector] public int nLanguage = 0;//언어설정
 
-    [HideInInspector] public string UID;
+    [HideInInspector] public string UID; // 유저 고유 아이디
 
-    [HideInInspector] public List<ChatMessage> strSavedChatHistory;
+    [HideInInspector] public List<ChatMessage> strSavedChatHistory; // 채팅 기록 
 
-    [HideInInspector] public HashSet<string> savedPlant = new HashSet<string>();
+    [HideInInspector] public HashSet<string> savedPlant = new HashSet<string>(); // 관찰한 식물 
 
-    [HideInInspector] public AICreatedMissions savedMissions;
+    [HideInInspector] public AICreatedMissions savedMissions; // 미션 저장
+
+    [HideInInspector] public int nPoint; // 미션 포인트(재화)
+
 
 
     // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트
@@ -155,5 +158,13 @@ public class csSingleton : MonoBehaviour
     //  GC 최소화를 위한 빈 리스트 패턴
     private static readonly List<LocationData> _emptyList = new List<LocationData>(0);
 
+    public void RewardPoint(int reward)
+    {
+        nPoint += reward;
+
+        csSaveLodeManager.Instance.SaveSet();
+
+        csUIManager.Instance.mainScreen.UpdatePointUI();
+    }
 
 }

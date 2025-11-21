@@ -23,6 +23,7 @@ public class csPopupPanel : MonoBehaviour
     public GameObject termsOfUsePopup; // 약관 동의창
     [SerializeField] private TextMeshProUGUI TermsOfUseText;
     [SerializeField] private GameObject TermsOfUseDetailPopup;
+    public GameObject missionClearScreen; // 미션 성공 시 뜨는 창
 
 
     private void Awake()
@@ -123,10 +124,12 @@ public class csPopupPanel : MonoBehaviour
     // 약관 동의 메뉴 팝업 
     public void PopupAgreeTermsOfUse(bool bShow)
     {
+
         termsOfUsePopup.SetActive(bShow);
+        
     }
 
-    public void OpenTermsOfUsePopUpButton(PolicyType policyType)
+    public void OpenTermsOfUseDetailPopUpButton(PolicyType policyType)
     {
 
         var localizedTermsOfUseString = new LocalizedString { TableReference = "MainPanel" };
@@ -158,7 +161,15 @@ public class csPopupPanel : MonoBehaviour
             {
                 TermsOfUseText.text = handle.Result;
                 TermsOfUseDetailPopup.SetActive(true);
+                csUIManager.Instance.Push(TermsOfUseDetailPopup, CloseTermsOfUseDetail);
             }
         };
+    }
+
+    public void CloseTermsOfUseDetail()
+    {
+        TermsOfUseDetailPopup.SetActive(false);
+
+        csUIManager.Instance.Remove(TermsOfUseDetailPopup);
     }
 }

@@ -49,6 +49,8 @@ public class csQuizScreen : MonoBehaviour
     [SerializeField] private Sprite CorrectSprite;    // 정답
     [SerializeField] private Sprite InCorrectSprite;  // 오답
 
+    private bool bOnQuiz = true;
+
     private void OnEnable()
     {
         for(int i = 0; i < choiceButtons.Count; i++)
@@ -129,14 +131,18 @@ public class csQuizScreen : MonoBehaviour
     }
 
     // 하단 버튼 UI 표시 설정
-    private void SetOnQuizUI(bool IsOnQuiz)
+    private void SetOnQuizUI(bool isOnQuiz)
     {
-        onQuizObject.gameObject.SetActive(IsOnQuiz); // 퀴즈 중일 때 정답 선택버튼 활성화
-        endQuizObject.gameObject.SetActive(!IsOnQuiz); // 퀴즈 끝나고 종료, 다음퀴즈 버튼 활성화
+        onQuizObject.gameObject.SetActive(isOnQuiz); // 퀴즈 중일 때 정답 선택버튼 활성화
+        endQuizObject.gameObject.SetActive(!isOnQuiz); // 퀴즈 끝나고 종료, 다음퀴즈 버튼 활성화
+
+        bOnQuiz = isOnQuiz;
     }
 
     public void SelectChoice(int index)
     {
+        if (!bOnQuiz) return;
+
         switch (quizData.quizType)
         {
             case QuizType.None:
@@ -245,6 +251,8 @@ public class csQuizScreen : MonoBehaviour
         csUIManager.Instance.PopupQuizScreen(false);
 
         csUIManager.Instance.ResetAIChatText();
+
+        
     }
 
 
@@ -296,28 +304,49 @@ public class csQuizScreen : MonoBehaviour
 
     public QuizData GetRandomQuiz()
     {
-        QuizData testQuiz = new QuizData
+        QuizData testQuiz1 = new QuizData
         {
             quizType = QuizType.MultipleChoice,
-            answer = 2,
-            quizDescription = "다음 중 대한민국의 수도는 무엇인가?",
+            answer = 1,
+            quizDescription = "장미의 꽃말 중 하나는 무엇일까요?",
             quizChoices = new List<string>
         {
-            "부산",
-            "서울",
-            "인천",
-            "대전"
+            "질투",
+            "용기",
+            "순수",
+            "감사"
         }
         };
 
-        QuizData oxQuiz = new QuizData
+        QuizData testQuiz2 = new QuizData
         {
-            quizType = QuizType.FindRight,
-            answer = 1,
-            quizDescription = "지구는 태양을 중심으로 공전한다.",
+            quizType = QuizType.MultipleChoice,
+            answer = 2,
+            quizDescription = "해바라기가 태양을 따라 고개를 돌리는 현상을 무엇이라고 할까요?",
+            quizChoices = new List<string>
+        {
+            "광합성",
+            "주광성",
+            "음지성",
+            "반사광"
+        }
         };
 
-        QuizData[] quizPool = { testQuiz, oxQuiz };
+        QuizData testQuiz3 = new QuizData
+        {
+            quizType = QuizType.MultipleChoice,
+            answer = 1,
+            quizDescription = "벚꽃이 가장 화려하게 피는 계절은?",
+            quizChoices = new List<string>
+        {
+            "봄",
+            "여름",
+            "가을",
+            "겨울"
+        }
+        };
+
+        QuizData[] quizPool = { testQuiz1, testQuiz2, testQuiz3 };
         return quizPool[UnityEngine.Random.Range(0, quizPool.Length)];
     }
 

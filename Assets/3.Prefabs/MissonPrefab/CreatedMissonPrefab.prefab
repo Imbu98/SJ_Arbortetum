@@ -398,7 +398,7 @@ GameObject:
   - component: {fileID: 5369840586684573052}
   - component: {fileID: 8140135534477456955}
   m_Layer: 5
-  m_Name: TimeTakeObject
+  m_Name: PointObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -643,7 +643,7 @@ MonoBehaviour:
   createdMissonTitle_TMP: {fileID: 7095453125811237147}
   createdMissonDescription_TMP: {fileID: 2432816146431715021}
   createdMissonDistance_TMP: {fileID: 2302470118963604191}
-  createdMissonTimeTaken_TMP: {fileID: 3537934209318817266}
+  createdMissonRewardPoint_TMP: {fileID: 3537934209318817266}
   missionStart_BTN: {fileID: 6257930583162001337}
   sprites:
   - {fileID: 21300000, guid: 5c6dad297bd95404ba28f874537500b2, type: 3}
@@ -798,7 +798,7 @@ GameObject:
   - component: {fileID: 2094425777509803573}
   - component: {fileID: 886515788148167158}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -821,7 +821,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 37.759007, y: 40.525818}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8742935542948159686
 CanvasRenderer:
@@ -851,7 +851,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6d29bf0c605ccec44b482224f5320c36, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c742990ffeca98d4bb0202c5f57f94d3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1458,7 +1458,7 @@ GameObject:
   - component: {fileID: 3537934209318817266}
   - component: {fileID: 3912296032388203494}
   m_Layer: 5
-  m_Name: TimeTaken Text (TMP)
+  m_Name: Point Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

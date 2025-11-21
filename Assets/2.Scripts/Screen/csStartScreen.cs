@@ -79,9 +79,9 @@ public class csStartScreen : MonoBehaviour
         agreePrivacyPolicyButton.onClick.AddListener(TogglePrivacyPolicy);
         agreeMarketingPolicyButton.onClick.AddListener(ToggleMarketingPolicy);
 
-        showServicePolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Service));
-        showPrivacyPolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Privacy));
-        showMarketingPolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Marketing));
+        showServicePolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Service));
+        showPrivacyPolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Privacy));
+        showMarketingPolicyButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Marketing));
 
         if (csSingleton.Instance.bAutoLogin)
         {
@@ -142,7 +142,7 @@ public class csStartScreen : MonoBehaviour
 
     void OnStartButtonClicked()
     {
-        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen.gameObject);
     }
 
 

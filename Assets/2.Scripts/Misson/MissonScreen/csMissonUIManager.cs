@@ -71,6 +71,8 @@ public class csMissonUIManager : MonoBehaviour
     // 미션성공연출 화면으로 변경
     public void ChangeToMissionClearPanel()
     {
+        csUIManager.Instance.BlockBackButton(true);
+
         ChangeMissonPanel(4);
     }
 

@@ -1,4 +1,4 @@
-using Data;
+ï»¿using Data;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TMPro;
@@ -62,13 +62,13 @@ public class csSettingScreen : MonoBehaviour
 
         for(int i =0;i<recommendTimeButtonList.Count;i++)
         {
-            int capturedindex = i; // Å¬·ÎÀú ¹æÁö
+            int capturedindex = i; // í´ë¡œì € ë°©ì§€
             recommendTimeButtonList[i].onClick.AddListener(()=>SetRecommendTime(capturedindex));
         }
 
-        serviceTermsUseOfButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Service));
-        privacyTermsUseOfButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Privacy));
-        marketingTermsUseOfButton.onClick.AddListener(()=> csPopupPanel.Instance.OpenTermsOfUsePopUpButton(PolicyType.Marketing));
+        serviceTermsUseOfButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Service));
+        privacyTermsUseOfButton.onClick.AddListener(() => csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Privacy));
+        marketingTermsUseOfButton.onClick.AddListener(()=> csPopupPanel.Instance.OpenTermsOfUseDetailPopUpButton(PolicyType.Marketing));
 
 
         signOutButton.onClick.AddListener(OnClickSignOutButton);
@@ -176,19 +176,19 @@ public class csSettingScreen : MonoBehaviour
     private void BgmSliderValueChanged(float value)
     {
         csSingleton.Instance.fBgm = value;
-        bgmAmount_TMP.text = (value * 100f).ToString("F0"); // ¼Ò¼ö°ªÀÌ´Ï 100À» °öÇØ¼­ Á¤¼ö°ªÀ¸·Î Ç¥½Ã
+        bgmAmount_TMP.text = (value * 100f).ToString("F0"); // ì†Œìˆ˜ê°’ì´ë‹ˆ 100ì„ ê³±í•´ì„œ ì •ìˆ˜ê°’ìœ¼ë¡œ í‘œì‹œ
 
     }
 
     private void SoundEffectSliderValueChanged(float value)
     {
         csSingleton.Instance.fSoundEffect = value;
-        soundEffectAmount_TMP.text = (value * 100f).ToString("F0"); // ¼Ò¼ö°ªÀÌ´Ï 100À» °öÇØ¼­ Á¤¼ö°ªÀ¸·Î Ç¥½Ã
+        soundEffectAmount_TMP.text = (value * 100f).ToString("F0"); // ì†Œìˆ˜ê°’ì´ë‹ˆ 100ì„ ê³±í•´ì„œ ì •ìˆ˜ê°’ìœ¼ë¡œ í‘œì‹œ
     }
 
     private void SetRecommendTime(int index)
     {
-        // ¹öÆ° UI ¼³Á¤
+        // ë²„íŠ¼ UI ì„¤ì •
         for(int i=0;i<recommendTimeButtonList.Count;i++)
         {
             if(i==index)
@@ -255,20 +255,20 @@ public class csSettingScreen : MonoBehaviour
     {
         bool IsValidNickName = false;
 
-        // 1) ±æÀÌ Á¦ÇÑ (2~16ÀÚ)
+        // 1) ê¸¸ì´ ì œí•œ (2~16ì)
         if (text.Length >= 2 || text.Length <= 16)
         {
             IsValidNickName = true;
         }
 
-        // 2) Æ¯¼ö¹®ÀÚ Æ÷ÇÔ ¿©ºÎ °Ë»ç
-        //    Çã¿ë ¹®ÀÚ: ÇÑ±Û, ¿µ¾î, ¼ıÀÚ
-        //    ±İÁö ¹®ÀÚ: Æ¯¼ö¹®ÀÚ ÀüÃ¼
-        //    ^ ¡æ ¹®ÀÚ¿­ ½ÃÀÛ, $ ¡æ ¹®ÀÚ¿­ ³¡
-        //    [] ¾È¿¡¼­ Çã¿ë ¹®ÀÚ Á¤ÀÇ
-        //    {2,16} ¡æ ±æÀÌµµ ´Ù½Ã Ã¼Å© °¡´É
+        // 2) íŠ¹ìˆ˜ë¬¸ì í¬í•¨ ì—¬ë¶€ ê²€ì‚¬
+        //    í—ˆìš© ë¬¸ì: í•œê¸€, ì˜ì–´, ìˆ«ì
+        //    ê¸ˆì§€ ë¬¸ì: íŠ¹ìˆ˜ë¬¸ì ì „ì²´
+        //    ^ â†’ ë¬¸ìì—´ ì‹œì‘, $ â†’ ë¬¸ìì—´ ë
+        //    [] ì•ˆì—ì„œ í—ˆìš© ë¬¸ì ì •ì˜
+        //    {2,16} â†’ ê¸¸ì´ë„ ë‹¤ì‹œ ì²´í¬ ê°€ëŠ¥
         System.Text.RegularExpressions.Regex regex =
-            new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9°¡-ÆR]{2,16}$");
+            new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9ê°€-í£]{2,16}$");
 
         IsValidNickName = regex.IsMatch(text);
 

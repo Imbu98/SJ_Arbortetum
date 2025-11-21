@@ -51,6 +51,10 @@ MonoBehaviour:
     m_Key: Popup_Quit
     m_Metadata:
       m_Items: []
+  - m_Id: 3196700088184832
+    m_Key: Key_NetworkError
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -92,6 +92,10 @@ public class csSaveLodeManager : MonoBehaviour
 
         data.UID = csSingleton.Instance.UID;
 
+        data.nPoint = csSingleton.Instance.nPoint;
+
+
+
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(dataSetPath, json);
 
@@ -119,6 +123,8 @@ public class csSaveLodeManager : MonoBehaviour
             csSingleton.Instance.nLanguage = data.nLanguage;
 
             csSingleton.Instance.UID = data.UID;
+
+            csSingleton.Instance.nPoint = data.nPoint;
 
         }
         else

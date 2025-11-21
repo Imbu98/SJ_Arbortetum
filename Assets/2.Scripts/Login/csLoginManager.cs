@@ -98,7 +98,7 @@ private void Awake()
         csSaveLodeManager.Instance.SaveSet();
 
 
-        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen.gameObject);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
    
@@ -212,7 +212,7 @@ private void Awake()
         csSingleton.Instance.bTermsofUse = true;
 
         csSaveLodeManager.Instance.SaveSet();
-        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen);
+        csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen.gameObject);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
 

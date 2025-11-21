@@ -14,6 +14,12 @@ public class csMainScreen : MonoBehaviour
     [SerializeField] private GameObject mainUI;
     [SerializeField] private Animator uiAnimator;
 
+    // Reward
+    [SerializeField] private TextMeshProUGUI pointText_TMP;
+
+    [SerializeField] private GameObject settingButton;
+    [SerializeField] private GameObject pointUI;
+
 
 
     private void Awake()
@@ -108,11 +114,19 @@ public class csMainScreen : MonoBehaviour
     {
         userNickNameInputUI.SetActive(false);
 
-
         mainUI.SetActive(true);
+        settingButton.SetActive(true);
+        pointUI.SetActive(true);
 
         uiAnimator.SetBool("IsSettedNickName", true);
 
         csUIManager.Instance.SetIsInMainScreen(true);
+
+        UpdatePointUI();
+    }
+
+    public void UpdatePointUI()
+    {
+        pointText_TMP.text = csSingleton.Instance.nPoint.ToString();
     }
 }
