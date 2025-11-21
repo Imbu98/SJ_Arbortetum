@@ -107,4 +107,5 @@ InitTestScene*.unity*
 *.so
 *.bundle
 *.dll.meta
+/[Aa]ssets/Firebase.meta
 
