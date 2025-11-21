@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class csCanvasController : MonoBehaviour
 {
-     private float tabletAspectRatioThreshold = 1.4f;
+     private float tabletAspectRatioThreshold = 1.73f;
 
     [SerializeField] private CanvasScaler canvasScaler;
     void Awake()
@@ -27,13 +27,14 @@ public class csCanvasController : MonoBehaviour
         if (currentAspectRatio > tabletAspectRatioThreshold)
         {
             // 스마트폰과 같이 세로로 긴 기기일 경우
-            Debug.Log("태블릿 UI 모드: 높이(Height)를 기준으로 스케일링합니다. (Match = 1)");
+            Debug.Log("스마트폰 UI 모드: 너비(Width)를 기준으로 스케일링합니다. (Match = 0)");
+            
             canvasScaler.matchWidthOrHeight = 0; // 너비에 맞춤
         }
         else
         {
             // 태블릿과 같이 넓은 기기일 경우
-            Debug.Log("스마트폰 UI 모드: 너비(Width)를 기준으로 스케일링합니다. (Match = 0)");
+            Debug.Log("태블릿 UI 모드: 높이(Height)를 기준으로 스케일링합니다. (Match = 1)");
 
             canvasScaler.matchWidthOrHeight = 1; // 높이에 맞춤
         }
