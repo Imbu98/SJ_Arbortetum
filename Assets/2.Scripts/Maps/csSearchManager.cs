@@ -201,34 +201,25 @@ public class csSearchManager : MonoBehaviour
             locationID = -1
         };
     }
-    // 버튼 텍스트 업데이트
-    private void UpdatePathButtonText(Button button, LocationData data)
-    {
-        string text;
-
-        if (IsValidLocation(data))
-        {
-            text = data.GetLocalizedName();
-        }
-        else
-        {
-            // 버튼 종류에 따라 Localization Key 선택
-            string key = (button == pathFind_StartButton)
-                ? "Key_StartLocation"
-                : "Key_EndLocation";
-
-            text = csLocalizationManager.Instance.LocalizationString(key);
-        }
-
-        // 버튼 텍스트 변경
-        button.GetComponentInChildren<TextMeshProUGUI>().text = text;
-    }
+    
 
     // 서버에 길찾기 요청
     private async void TryStartPathFinding()
     {
         if (!IsValidLocation(pathFind_StartLocationData) || !IsValidLocation(pathFind_EndLocationData))
+        {
+            SetPathFindUI(false);
             return;
+
+        }
+
+        if (pathFind_StartLocationData.locationID == pathFind_EndLocationData.locationID)
+        {
+            Debug.Log("StartLocation and EndLocation are Same");
+            SetPathFindUI(false);
+            return;
+        }
+
 
         RefreshMyLocationIfNeeded(pathFind_StartLocationData);
         RefreshMyLocationIfNeeded(pathFind_EndLocationData);
@@ -269,10 +260,6 @@ public class csSearchManager : MonoBehaviour
             pathFind_StartLocationData = CreateMyLocation();
         }
 
-
-        // 현재 언어 코드 (예: "ko", "en")
-        string languageCode = csSingleton.Instance.languageCode; // 또는 현재 사용하는 언어 변수
-
         // 버튼 텍스트 교체 (없으면 기본 문구로)
         TextMeshProUGUI startText = pathFind_StartButton.GetComponentInChildren<TextMeshProUGUI>();
         TextMeshProUGUI endText = pathFind_EndButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -293,5 +280,28 @@ public class csSearchManager : MonoBehaviour
         TryStartPathFinding();
 
         Debug.Log("✅ 출발지와 도착지를 교체했습니다. (유효하지 않아도 처리됨)");
+    }
+
+    // 버튼 텍스트 업데이트
+    private void UpdatePathButtonText(Button button, LocationData data)
+    {
+        string text;
+
+        if (IsValidLocation(data))
+        {
+            text = data.GetLocalizedName();
+        }
+        else
+        {
+            // 버튼 종류에 따라 Localization Key 선택
+            string key = (button == pathFind_StartButton)
+                ? "Key_StartLocation"
+                : "Key_EndLocation";
+
+            text = csLocalizationManager.Instance.LocalizationString(key);
+        }
+
+        // 버튼 텍스트 변경
+        button.GetComponentInChildren<TextMeshProUGUI>().text = text;
     }
 }

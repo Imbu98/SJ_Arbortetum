@@ -1,24 +1,38 @@
 KoreanName,EnglishName,Latitude,Longitude,ID
-민속식물원,Folk Botanical Garden,36.494296,127.278894,1
-단풍나무원,Maple Tree Garden,36.495418,127.279759,2
-안내센터(대형),Information Center(Main),36.494283,127.277862,3
-어린이정원,Children's Garden,36.495576,127.282232,4
-희귀특산식물전시온실,Rare Plants Exhibition Greenhouse,36.494137,127.281617,5
-안내센터(소형),Information Center(Small),36.492429,127.278332,6
-식물분류원,Plant Taxonomy Garden,36.492704,127.280032,7
-양서류관찰원,Amphibian Observation Garden,36.49278,127.282034,8
+사계절전시온실,All Season Exhibition Greenhouse,36.497796,127.287831,1
+한국전통정원,Korean Traditional Garden,36.496332,127.283817,2
+방문자센터(수목원입구),Visitor Center,36.498247,127.286002,3
+생활정원,Lifestyle Garden,36.496948,127.282355,4
+축제마당,Festival Plaza,36.497277,127.286488,5
+어린이정원,Children's Garden,36.495576,127.282232,6
+분재원,Bonsai Garden,36.494850,127.283779,7
+청류지원,Cheongnyu Waterway,36.495911,127.287201,8
 습지형생태숲,Wetland Ecological Forest,36.492839,127.282577,9
-한국전통정원,Korean Traditional Garden,36.496332,127.283817,10
-분재전시관,Bonsai Exhibition Hall,36.494661,127.283893,11
-사계절전시온실,All Season Exhibition Greenhouse,36.497796,127.287831,12
-방문자센터,Visitor Center,36.498247,127.286002,13
-연구동,Research Building,36.495785,127.289814,14
-축제마당,Festival Plaza,36.497277,127.286488,15
-감각정원,Sensory Garden,36.496505,127.287406,16
-치유정원,Healing Garden,36.493393,127.284042,17
-편의시설동,Convenience Facility Building,36.493962,127.285077,18
+야생화원,Wildflower Garden,36.494026,127.282389,10
+단풍정원,Maple Garden,36.495418,127.279759,11
+담장정원,Walled Garden,36.494954,127.286320,12
+희귀특산식물전시원,Rare Plants Exhibition Greenhouse,36.494137,127.281617,13
+민속식물원,Folk Botanical Garden,36.494296,127.278894,14
+무궁화원,Hibiscus Garden,36.492527,127.279941,15
+치산녹화원,Erosion Control And Greening Garden,36.493212,127.277674,16
+정원식물가늠터,Garden Plant Trial Ground,36.492914,127.278779,17
+숲정원,Forest Garden,36.495413,127.287861,18
+치유정원,Healing Garden,36.494534,127.286018,19
+후계목정원,Successor Tree Garden,36.497418,127.283974,20
+폴리네이터가든,Pollinator Garden,36.493019,127.283640,21
+공유정원,Community Garden,36.496658,127.281783,22
+감각정원,Sensory Garden,36.496505,127.287406,23
+양서류관찰원,Amphibian Observation Garden,36.492789,127.282119,24
+연구동,Research Building,36.495785,127.289814,25
+유아숲체험원,Children's Forest Experience Garden,36.496027,127.291472,26
+탄소저감모델정원,Carbon Reduction Model Garden,36.497383,127.289215,27
+붓꽃원,Iris Garden,36.495386,127.281270,28
+안내센터(대형),Information Center(Main),36.494283,127.277862,29
+안내센터(소형),Information Center(Small),36.492429,127.278332,30
+편의시설동,Convenience Facility Building,36.493962,127.285077,31
 화장실,Toilet,36.495851,127.280768,101
 화장실,Toilet,36.494442,127.277862,101
 화장실,Toilet,36.494765,127.282384,101
 화장실,Toilet,36.494277,127.285024,101
 화장실,Toilet,36.497894, 127.284000,101
+
