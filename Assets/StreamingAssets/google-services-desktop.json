@@ -7,20 +7,22 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:856028961442:android:a0d6451c1b92c1562395fb",
+        "mobilesdk_app_id": "1:856028961442:ios:44d619fb5e306e652395fb",
         "android_client_info": {
           "package_name": "com.Ehancreative.sejongarboretum"
         }
       },
-      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyADwOqyjwnMO6RgLvv5GS7jQVwAtFjrU4c"
+          "current_key": "AIzaSyCqQM-wwFBnPVG999whRIsTtqzAwuTrbdM"
         }
       ],
       "services": {
+        "analytics_service": {
+          "status": 0
+        },
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "status": 1
         }
       }
     }

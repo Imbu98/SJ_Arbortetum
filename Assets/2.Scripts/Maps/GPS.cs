@@ -20,7 +20,7 @@ public class GPS : MonoBehaviour
     // 자동 시작 여부
     [SerializeField] private bool autoStart = true;
 
-    private bool useGPS = false; // 모드 전환 상태
+    private bool useGPS = true; // 모드 전환 상태
 
     [SerializeField] private TextMeshProUGUI latitudeTMP;
     [SerializeField] private TextMeshProUGUI longitudeTMP;

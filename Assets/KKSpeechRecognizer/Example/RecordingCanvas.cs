@@ -15,7 +15,9 @@ public class RecordingCanvas : MonoBehaviour
 
   public TextMeshProUGUI resultText;
 
-  void Start()
+
+
+    void Start()
   {
     if (SpeechRecognizer.ExistsOnDevice())
     {
@@ -40,7 +42,13 @@ public class RecordingCanvas : MonoBehaviour
 
   }
 
-  public void OnFinalResult(string result)
+    private void OnEnable()
+    {
+        ResetResultText();
+    }
+
+
+    public void OnFinalResult(string result)
   {
     recordingActiveObject.SetActive(false);
     resultText.text = result;
@@ -96,6 +104,7 @@ public class RecordingCanvas : MonoBehaviour
     Debug.LogError(error);
         recordingActiveObject.SetActive(false);
         startRecordingButton.enabled = true;
+        ResetResultText();
   }
 
   public void OnStartRecordingPressed()
@@ -112,6 +121,7 @@ public class RecordingCanvas : MonoBehaviour
 			SpeechRecognizer.StopIfRecording();
 			recordingActiveObject.SetActive(false);
 #endif
+            ResetResultText();
         }
         else
     {

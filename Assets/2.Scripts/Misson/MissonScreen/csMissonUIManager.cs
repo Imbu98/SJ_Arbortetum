@@ -74,6 +74,8 @@ public class csMissonUIManager : MonoBehaviour
         csUIManager.Instance.BlockBackButton(true);
 
         ChangeMissonPanel(4);
+
+        csAnimationManager.Instance.SetTrue("MissionClearUI");
     }
 
 

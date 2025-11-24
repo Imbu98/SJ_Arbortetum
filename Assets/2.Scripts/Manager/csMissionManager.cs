@@ -249,14 +249,18 @@ public class csMissionManager : MonoBehaviour
         // 미션스텝 디테일보다 크면 해당 미션 클리어
         if(aiCreatedMissions.missionStepIndex >= mission.missionStepDetails.Count)
         {
+            aiCreatedMissions.missionStepIndex = 0;
+            ClearCurrentMission();
             _missonUIManager.ChangeToMissionClearPanel();
 
             _missonUIManager.missionClearButton.onClick.RemoveAllListeners();
             _missonUIManager.missionClearButton.onClick.AddListener(() =>
             {
                 csUIManager.Instance.BlockBackButton(false);
-                aiCreatedMissions.missionStepIndex = 0;
-                ClearCurrentMission();
+
+                // 다시 미션 목록창으로 변경
+                _missonUIManager.ChangeMissonPanel(2);
+
             });
         }
         // 아니면 다음 미션을 진행 UI로 변경
@@ -285,14 +289,17 @@ public class csMissionManager : MonoBehaviour
         // 클리어 UI 활성화
         missionList[aiCreatedMissions.missionIndex].SetClearUI();
 
-        // 다시 미션 목록창으로 변경
-        _missonUIManager.ChangeMissonPanel(2);
-
         IsMissonOnProgress = false;
+
+        aiCreatedMissions.missionIndex = -1;
+
+        aiCreatedMissions.missionStepIndex = -1;
 
         csSingleton.Instance.RewardPoint(mission.missonRewardPoint);
 
         csFirebaseLogManager.Instance.Log_Mission(1);
+
+        csSoundManager.Instance.HashPlayEffectSound("5_Mission_Clear");
     }
 
     
@@ -316,6 +323,8 @@ public class csMissionManager : MonoBehaviour
             StopCoroutine(missionCountDownRoutine);
         }
 
+        IsMissonOnProgress = false;
+
         aiCreatedMissions.missionIndex = -1;
 
         aiCreatedMissions.missionStepIndex = -1;
@@ -335,8 +344,6 @@ public class csMissionManager : MonoBehaviour
 
         // 현재 미션 초기화
         mission = null;
-
-        IsMissonOnProgress = false;
 
         // 미션 포기 후 생성 미션 목록으로 이동
         _missonUIManager.ChangeToMission();

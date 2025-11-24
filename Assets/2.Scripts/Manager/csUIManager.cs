@@ -112,8 +112,6 @@ public class csUIManager : MonoBehaviour
                 StopCoroutine(timerRoutine);
             }
              Push(popup,() => TogglePopup(popup, false, returnToMain));
-
-
         }
         else
         {
@@ -123,6 +121,8 @@ public class csUIManager : MonoBehaviour
 
             Remove(popup);
         }
+        csSoundManager.Instance.HashPlayEffectSound("1_Touch_basic");
+
     }
 
 

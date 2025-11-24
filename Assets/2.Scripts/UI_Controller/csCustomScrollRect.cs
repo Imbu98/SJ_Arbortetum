@@ -1,17 +1,17 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
 /// <summary>
-/// ScrollRect¿¡ OnEndDrag ÀÌº¥Æ®¸¦ Ãß°¡ÇÑ È®Àå Å¬·¡½º
+/// ScrollRectì— OnEndDrag ì´ë²¤íŠ¸ë¥¼ ì¶”ê°€í•œ í™•ì¥ í´ë˜ìŠ¤
 /// </summary>
 public class csCustomScrollRect : ScrollRect
 {
     [System.Serializable]
     public class EndDragEvent : UnityEvent<PointerEventData> { }
 
-    // Inspector¿¡¼­ ¿¬°á °¡´ÉÇÑ EndDrag ÀÌº¥Æ®
+    // Inspectorì—ì„œ ì—°ê²° ê°€ëŠ¥í•œ EndDrag ì´ë²¤íŠ¸
     public EndDragEvent onEndDragEvent = new EndDragEvent();
 
     public override void OnEndDrag(PointerEventData eventData)

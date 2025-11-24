@@ -57,7 +57,7 @@ public class csMainScreen : MonoBehaviour
         StartCoroutine(csUIManager.Instance.PlayAIChatSequence(texts, () =>
         {
             userNickNameInputUI.gameObject.SetActive(true);
-            uiAnimator.SetBool("IsFinishIntroduce", true);
+            csAnimationManager.Instance.SetTrue("ShowNickNameInputUI");
             confirmUserNickNameButton.interactable = false;
         }));
     }
@@ -118,9 +118,11 @@ public class csMainScreen : MonoBehaviour
         settingButton.SetActive(true);
         pointUI.SetActive(true);
 
-        uiAnimator.SetBool("IsSettedNickName", true);
+        csAnimationManager.Instance.SetTrue("ShowMainUI");
 
         csUIManager.Instance.SetIsInMainScreen(true);
+
+        csUIManager.Instance.ResetAIChatText();
 
         UpdatePointUI();
     }
