@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
@@ -45,9 +44,11 @@ public class csNetworkManager : MonoBehaviour
         string methodUrl = url + method;
 
         //string methodUrl = "http://192.168.0.26:8080/" + method;
+
         // 요청 데이터 → JSON 문자열 변환
         var body = new
         {
+            uid =  csSingleton.Instance.UID,
             waypoints = new[]
             {
                 new { lat = startGeoCoordinate.Latitude, lon = startGeoCoordinate.Longitude },
@@ -78,14 +79,17 @@ public class csNetworkManager : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
+                string json = request.downloadHandler.text;
+                
+
                 string responseText = request.downloadHandler.text;
                 Debug.Log($"[csNetworkManager] 서버 응답:\n{responseText}");
 
                 try
                 {
                     // 2️⃣ JSON 파싱 (route_geometry.coordinates만 추출)
-                    JObject json = JObject.Parse(responseText);
-                    JArray coordinatesArray = (JArray)json["route_geometry"]?["coordinates"];
+                    JObject data = JObject.Parse(responseText);
+                    var coordinatesArray = data["features"][0]["geometry"]["coordinates"];
 
                     // 3️⃣ GeoCoordinate 리스트로 변환
                     List<GeoCoordinate> coords = new List<GeoCoordinate>();
@@ -133,7 +137,8 @@ public class csNetworkManager : MonoBehaviour
     async public UniTask<SearchPathCoordinate> GetDestinationCoordsAsyncByOsrm(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
     {
         string url = $"https://api.openrouteservice.org/v2/directions/foot-walking?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjgyYmU4Zjc5YzNjZTQzZjQ4YzI2MjMxZjkxMGJiOWZmIiwiaCI6Im11cm11cjY0In0=&start={startGeoCoordinate.Longitude},{startGeoCoordinate.Latitude}&end={EndGeoCoordinate.Longitude},{EndGeoCoordinate.Latitude}";
-        ;
+        
+
 
         using (UnityWebRequest req = UnityWebRequest.Get(url))
         {
@@ -253,7 +258,7 @@ public class csNetworkManager : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddBinaryData("image", pngBytes, "plant.png", "image/png");
         form.AddField("organs", "auto");
-        //form.AddField("uid", csSingleton.Instance.UID);
+        form.AddField("uid",csSingleton.Instance.UID);
 
         using (UnityWebRequest request = UnityWebRequest.Post(methodUrl, form))
         {
