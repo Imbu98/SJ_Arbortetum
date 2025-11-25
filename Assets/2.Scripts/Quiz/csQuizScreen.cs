@@ -332,42 +332,10 @@ public class csQuizScreen : MonoBehaviour
         csPopupPanel.Instance.PopupResetQuiz(SetQuiz);
     }
 
+    // 랜덤한 퀴즈를 추출( 안 풀었던 문제 먼저 )
     public QuizDataWrapper GetRandomQuiz()
     {
         QuizDataWrapperList quizDataWrapperList = csSingleton.Instance.savedQuizList;
-
-        if (quizDataWrapperList == null || quizDataWrapperList.quizDataWrapperList.Count == 0)
-        {
-            Debug.LogWarning("퀴즈 데이터가 존재하지 않습니다!");
-
-            QuizData testQuiz1 = new QuizData
-            {
-                quizType = QuizType.MultipleChoice,
-                answer = 1,
-                quizDescription = "장미의 꽃말 중 하나는 무엇일까요?",
-                quizChoices = new List<string>
-        {
-            "질투",
-            "용기",
-            "순수",
-            "감사"
-        }
-            };
-
-            QuizDataWrapper wrapper = new QuizDataWrapper
-            {
-                quizData = testQuiz1,
-                IsSolvedQuestion = false,
-                
-            };
-
-            csSingleton.Instance.savedQuizList.quizDataWrapperList.Add(wrapper);
-            currentQuizIndex = 0;
-            csSaveLodeManager.Instance.SaveQuizData();
-            return wrapper;
-
-            // 추후 이곳에 퀴즈데이터가 없으면 퀴즈에 들어오지 못하도록 처리 필요
-        }
 
         var unsolvedList = quizDataWrapperList.quizDataWrapperList
                .Where(q => !q.IsSolvedQuestion)
@@ -379,54 +347,6 @@ public class csQuizScreen : MonoBehaviour
 
         currentQuizIndex  = UnityEngine.Random.Range(0, targetList.Count);
         return targetList[currentQuizIndex];
-    }
-    
-    public QuizData GetRandomQuiz2()
-    {
-        QuizData testQuiz1 = new QuizData
-        {
-            quizType = QuizType.MultipleChoice,
-            answer = 1,
-            quizDescription = "장미의 꽃말 중 하나는 무엇일까요?",
-            quizChoices = new List<string>
-        {
-            "질투",
-            "용기",
-            "순수",
-            "감사"
-        }
-        };
-
-        QuizData testQuiz2 = new QuizData
-        {
-            quizType = QuizType.MultipleChoice,
-            answer = 2,
-            quizDescription = "해바라기가 태양을 따라 고개를 돌리는 현상을 무엇이라고 할까요?",
-            quizChoices = new List<string>
-        {
-            "광합성",
-            "주광성",
-            "음지성",
-            "반사광"
-        }
-        };
-
-        QuizData testQuiz3 = new QuizData
-        {
-            quizType = QuizType.MultipleChoice,
-            answer = 1,
-            quizDescription = "벚꽃이 가장 화려하게 피는 계절은?",
-            quizChoices = new List<string>
-        {
-            "봄",
-            "여름",
-            "가을",
-            "겨울"
-        }
-        };
-
-        QuizData[] quizPool = { testQuiz1, testQuiz2, testQuiz3 };
-        return quizPool[UnityEngine.Random.Range(0, quizPool.Length)];
     }
 
 }

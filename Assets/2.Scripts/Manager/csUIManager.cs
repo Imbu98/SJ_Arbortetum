@@ -159,6 +159,11 @@ public class csUIManager : MonoBehaviour
 
     public void PopupQuizScreen(bool show)
     {
+        if(csSingleton.Instance.savedQuizList.quizDataWrapperList.Count==0)
+        {
+            SetAIChatText("식물을 관찰하여 퀴즈를 생성해보세요");
+            return;
+        }
         TogglePopup(quizScreen, show);
     }
 

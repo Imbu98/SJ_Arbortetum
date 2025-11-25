@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using TMPro;
 using System.Collections;
+using Data;
 
 
 public class csObserveManager : MonoBehaviour
@@ -90,7 +91,6 @@ public class csObserveManager : MonoBehaviour
         loadingPercentage.text = "0%";
         // 초기화
 
-        
         var analyzedPlantData = await csNetworkManager.Instance.AsyncGetPlantInfoAsync(
             capturedTexture,
             (pct) =>
@@ -112,12 +112,33 @@ public class csObserveManager : MonoBehaviour
 
             SetObserveScreen(observeResultObject);
 
+            GetAndSaveQuizData(analyzedPlantData);
+
             csFirebaseLogManager.Instance.Log_Observe(1);
 
         }
-        else if(analyzedPlantData==null/* || analyzedPlantData.score<21414*/)
+        else if(analyzedPlantData==null || analyzedPlantData.score<0.21f)
         {
             csPopupPanel.Instance.PopupSetScreenToCamera(()=>SetCameraScreen());
+        }
+    }
+
+    private void GetAndSaveQuizData(GetPlantResponse plantData)
+    {
+        if(plantData.quizData!=null && plantData.quizData.Count>0)
+        {
+            foreach (var quiz in plantData.quizData)
+            {
+                QuizDataWrapper quizdataWrraper = new QuizDataWrapper
+                {
+                    quizData = quiz,
+                    IsSolvedQuestion = false,
+                    plantScientificName = plantData.plantScientificName
+
+                };
+                csSingleton.Instance.savedQuizList.quizDataWrapperList.Add(quizdataWrraper);
+            }
+            csSaveLodeManager.Instance.SaveQuizData();
         }
     }
 }

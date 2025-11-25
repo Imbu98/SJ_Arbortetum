@@ -175,7 +175,7 @@ namespace Data
 
     public class QuizData
     {
-        public QuizType quizType;
+        public QuizType quizType = QuizType.MultipleChoice;
 
         public string quizDescription; // 퀴즈 설명
 
@@ -186,8 +186,6 @@ namespace Data
 
     public class QuizDataWrapper
     {
-        
-
        public QuizData quizData;
 
        public bool IsSolvedQuestion; // 사용자가 처음 맞춘 문제인지에 대한 bool값

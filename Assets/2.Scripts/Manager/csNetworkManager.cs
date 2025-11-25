@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
@@ -39,9 +40,11 @@ public class csNetworkManager : MonoBehaviour
     /// </summary>
     async public UniTask<SearchPathCoordinate> GetDestinationCoordsAsync(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
     {
-        string method = "find-optimal-route";
+        string method = "get-route-geojson";
 
-        string methodUrl = url+ method;
+        string methodUrl = url + method;
+
+        //string methodUrl = "http://192.168.0.26:8080/" + method;
         // 요청 데이터 → JSON 문자열 변환
         var body = new
         {
@@ -127,13 +130,73 @@ public class csNetworkManager : MonoBehaviour
         }
     }
 
+    async public UniTask<SearchPathCoordinate> GetDestinationCoordsAsyncByOsrm(GeoCoordinate startGeoCoordinate, GeoCoordinate EndGeoCoordinate)
+    {
+        string url = $"https://api.openrouteservice.org/v2/directions/foot-walking?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjgyYmU4Zjc5YzNjZTQzZjQ4YzI2MjMxZjkxMGJiOWZmIiwiaCI6Im11cm11cjY0In0=&start={startGeoCoordinate.Longitude},{startGeoCoordinate.Latitude}&end={EndGeoCoordinate.Longitude},{EndGeoCoordinate.Latitude}";
+        ;
+
+        using (UnityWebRequest req = UnityWebRequest.Get(url))
+        {
+            var operation = req.SendWebRequest();
+            while (!operation.isDone)
+                await Task.Yield();
+
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("OSRM API Error: " + req.error);
+                Debug.LogError("[csNetworkManager] 요청 실패!");
+                Debug.LogError($"Error: {req.error}");
+                Debug.LogError($"ResponseCode: {req.responseCode}");
+                Debug.LogError($"DownloadText: {req.downloadHandler.text}");
+                return null;
+            }
+            try
+            {
+
+                string json = req.downloadHandler.text;
+                JObject data = JObject.Parse(json);
+
+                var geometry = data["features"][0]["geometry"]["coordinates"];
+                List<GeoCoordinate> coords = new List<GeoCoordinate>();
+                if (geometry != null)
+                {
+                    foreach (var point in geometry)
+                    {
+                        float lon = point[0].Value<float>();
+                        float lat = point[1].Value<float>();
+                        Debug.Log($"Path point: {lat}, {lon}");
+                        coords.Add(new GeoCoordinate(lat, lon));
+                        // 좌표를 Unity UI 상 위치로 변환해서 선 그리기 가능
+                    }
+                }
+                else
+                {
+                    Debug.Log("[csNetworkManager] coordinatesArray is Null");
+                }
+
+                // 4️⃣ 최종 반환 객체
+                SearchPathCoordinate result = new SearchPathCoordinate
+                {
+                    pathCoordinates = coords
+                };
+
+                Debug.Log($"[csNetworkManager] 경로 좌표 {coords.Count}개 수신 완료 ✅");
+                return result;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[csNetworkManager] JSON 파싱 실패: {e.Message}");
+                return null;
+            }
+    }
+}
     public async UniTask<string> AsyncGetAIChatResult(ChatMessage userChatMessage)
     {
         string method = "arboretum/api/chat";
 
-        //string methodUrl = url + method;
+        string methodUrl = url + method;
 
-        string methodUrl = "http://192.168.0.26:8080/" + method;
+        //string methodUrl = "http://192.168.0.26:8080/" + method;
 
 
         string jsonData = JsonConvert.SerializeObject(userChatMessage);
@@ -177,6 +240,8 @@ public class csNetworkManager : MonoBehaviour
         string method = "arboretum/identify-plant";
 
         string methodUrl = url + method;
+
+        //string methodUrl = "http://192.168.0.26:8080/" + method;
 
         // Texture2D → PNG
         Texture2D readable = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);

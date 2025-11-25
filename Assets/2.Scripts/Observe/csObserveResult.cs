@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEditor.AddressableAssets.GUI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -92,7 +91,7 @@ public class csObserveResult : MonoBehaviour
 
         if (viewport == null || content == null) return;
 
-       // 이미지 리스트 삭제
+        // 이미지 리스트 삭제
         foreach (Transform child in content)
         {
             Destroy(child.gameObject);
@@ -103,37 +102,47 @@ public class csObserveResult : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
-        // 이미지 리스트를 content에 자식으로 생성
-        for (int i = 0; i < ImageList.Count; i++)
+        if (imagePrefab)
         {
-            if (imagePrefab)
+            if(ImageList!=null && ImageList.Count>0)
+            {
+                // 이미지 리스트를 content에 자식으로 생성
+                for (int i = 0; i < ImageList.Count; i++)
+                {
+
+                    {
+                        RawImage newImage = Instantiate(imagePrefab, content);
+                        imagePrefab.GetComponent<csObservePlantImagePrefab>()?.Init(
+                            currentPlantData.plantimages[i].license,
+                            currentPlantData.plantimages[i].reference
+                        );
+                        if (ImageList[i] != null)
+                        {
+                            newImage.texture = ImageList[i];
+                        }
+                        else
+                        {
+                            newImage.texture = defaultSprite.texture;
+                        }
+                    }
+                    if (showActiveImagePrefab && showActiveImageHolder)
+                    {
+                        Image showActiveImage = Instantiate(showActiveImagePrefab, showActiveImageHolder);
+                        showActiveImageIconList.Add(showActiveImage);
+                    }
+                }
+            }
+            else
             {
                 RawImage newImage = Instantiate(imagePrefab, content);
-                imagePrefab.GetComponent<csObservePlantImagePrefab>()?.Init(
-                    currentPlantData.plantimages[i].license,
-                    currentPlantData.plantimages[i].reference
-                );
-                if(ImageList[i] != null)
-                {
-                    newImage.texture = ImageList[i];
-                }
-                else
-                {
-                    newImage.texture = defaultSprite.texture;
-                }
-                
-            }
-            if (showActiveImagePrefab && showActiveImageHolder)
-            {
-                Image showActiveImage = Instantiate(showActiveImagePrefab, showActiveImageHolder);
-                showActiveImageIconList.Add(showActiveImage);
+                imagePrefab.GetComponent<csObservePlantImagePrefab>()?.Init();
+
+                newImage.texture = defaultSprite.texture;
             }
         }
+        //imageCount = ImageList.Count;
 
-        imageCount = ImageList.Count;
-
-        if (imageCount == 0) return;
+        //if (imageCount == 0) return;
 
         Vector2 viewportSize = viewport.rect.size;
 
@@ -212,9 +221,7 @@ public class csObserveResult : MonoBehaviour
 
         plantScientificName_TMP.text = currentPlantData.plantScientificName;
 
-        string descriptionText = FormatPlantDescription("느티나무 Zelkova serrata (Thunb.) Makino ● 세계 분포 : 대만, 러시아, 일본, 중국, 한국 ● 국내 분포 : 전국의 산지 ● 형태 ○ 수형 : 낙엽성 교목이며 높이 30m까지 자란다. ○ 잎 : 잎은 어긋나며 길이 3-12cm의 장타원형-타원형 또는 장타원상 난형이다. 잎끝은 길게 뾰족하고 밑부분은 쐐기형이며 가장자리에는 뾰족한 톱니가 있다. 양면(특히 맥 위)에 뻣뻣한 털이 있다. 잎자루는 길이 2-10mm이며 털이 있다. ○ 꽃 : 꽃은 4-5월에 잎과 동시에 핀다. 수꽃은 새가지의 아랫부분에 모여 달리며 지름 3mm정도이고 수술은 4-6개이다. 암꽃은 새가지의 윗부분에 모여 달리며 지름 1.5mm정도 이고 암술대는 2개로 깊게 갈라진다. ○ 열매 : 열매는 견과이고 지름 3-4mm의 일그러진 편구형이며 9-10월에 익는다. ● 참고 예로부터 느티나무를 괴목(槐木)으로 불렀으며 마을 정자목으로 가장 많이 이용한 나무이다. 국명 은 누튀나무에서 변한 것으로서, ‘누틔’는 가을철 누른색으로 단풍 드는 특성에서 유래된 것으로 추정한다."); // FormatPlantDescription(currentPlantData.description);
-
-        plantDescriptionTMP.text = descriptionText;
+        plantDescriptionTMP.text = FormatPlantDescription(currentPlantData.description);
 
         bool isMissionInProgress = csMissionManager.Instance.IsMissonOnProgress;
         // 미션중일 때 미션의 요구식물과 같은지 확인
@@ -241,19 +248,20 @@ public class csObserveResult : MonoBehaviour
             resultButton.GetComponentInChildren<TextMeshProUGUI>().text = "확인"; // 추후 로컬라제이션
         }
 
-
-
-        for (int i = 0; i < currentPlantData.plantimages.Count;++i)
+        if(currentPlantData.plantimages!=null && currentPlantData.plantimages.Count>0)
         {
-            string url = currentPlantData.plantimages[i].url;
-
-            Texture2D plantTexture = await csNetworkManager.Instance.DownloadImage(url);
-            if (plantTexture != null)
+            for (int i = 0; i < currentPlantData.plantimages.Count; ++i)
             {
-                ImageList.Add(plantTexture);
-            }
+                string url = currentPlantData.plantimages[i].url;
 
+                Texture2D plantTexture = await csNetworkManager.Instance.DownloadImage(url);
+                if (plantTexture != null)
+                {
+                    ImageList.Add(plantTexture);
+                }
+            }
         }
+        
     }
      
     private void SaveCurrentPlantName()

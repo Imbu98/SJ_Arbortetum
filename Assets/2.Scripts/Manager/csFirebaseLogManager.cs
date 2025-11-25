@@ -151,7 +151,7 @@ public class csFirebaseLogManager : MonoBehaviour
             new Parameter("ChatWithAI", "aiChat")
         );
 
-        Debug.Log($"GA Log Sent:MissionStepClear)");
+        Debug.Log($"GA Log Sent:ChatWithAI)");
     }
 
     // 0: 시도, 1:성공
