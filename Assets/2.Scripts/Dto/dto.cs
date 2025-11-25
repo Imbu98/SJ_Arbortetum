@@ -116,6 +116,12 @@ namespace Data
         public string gbif;
     }
 
+    [System.Serializable]
+    public class SavedPlantWrapper
+    {
+        public List<string> plantList;
+    }
+
     #endregion
 
 
@@ -149,27 +155,27 @@ namespace Data
 
     #region Quiz
 
-
-
-
     public class QuizData
     {
         public QuizType quizType; // 퀴즈 타입 
 
-        public int answer; // 퀴즈 정답
-
         public string quizDescription; // 퀴즈 설명
 
         public List<string> quizChoices; // 퀴즈 객관식 보기
+
+        public int answer; // 퀴즈 정답
+    }
+
+    public class QuizDataWrapper
+    {
+       public QuizData quizData;
+
+        public bool IsFirstCorrect; // 사용자가 처음 맞춘 문제인지에 대한 bool값
     }
 
     #endregion
 
-    [System.Serializable]
-    public class SavedPlantWrapper
-    {
-        public List<string> plantList;
-    }
+
 
     #region Enum
 

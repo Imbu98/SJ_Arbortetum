@@ -17,6 +17,8 @@ public class csObserveScreen : MonoBehaviour
             () =>
             {
                 csObserveManager.Instance.AnalyzeTexture();
+
+                csFirebaseLogManager.Instance.Log_Observe(0);
             }
             );
     }

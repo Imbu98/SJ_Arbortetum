@@ -111,7 +111,9 @@ public class csObserveManager : MonoBehaviour
 
             SetObserveScreen(observeResultObject);
             _observeResult.Init(analyzedPlantData);
-            
+
+            csFirebaseLogManager.Instance.Log_Observe(1);
+
         }
         else if(analyzedPlantData==null/* || analyzedPlantData.score<21414*/)
         {
