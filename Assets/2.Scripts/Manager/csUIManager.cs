@@ -140,10 +140,18 @@ public class csUIManager : MonoBehaviour
 
     public void PopupMission(bool show)
     {
-        if (!IsInsideArboretum())
+        if(show)
         {
-            NotInsideInArboretum();
-            return;
+            if (!IsInsideArboretum())
+            {
+                NotInsideInArboretum();
+                return;
+            }
+            if (csMissionManager.Instance.aiCreatedMissions.missions.Count == 0)
+            {
+                SetAIChatText("AI와 대화를 통해 경로를 추천받아보세요");
+                return;
+            }
         }
 
         TogglePopup(missionPopup, show);

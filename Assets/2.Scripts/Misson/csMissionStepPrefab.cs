@@ -28,8 +28,8 @@ public class csMissionStepPrefab : MonoBehaviour
         bool isCleared = missionStep.IsCleared;
         bool isCurrentStep = (missionIndex == currentStepIndex);
 
-        missionDestination_TMP.text = missionStep.destinationName;
-        infoDestination_TMP.text = missionStep.destinationName;
+        missionDestination_TMP.text = missionStep.plantName;
+        infoDestination_TMP.text = missionStep.plantName;
         infoDescription_TMP.text = missionStep.Description;
 
         double distance = csMapManager.Instance.GetDistanceMeters(missionStep.destinationCoordinate, csMapManager.Instance.GetMyGPS());
@@ -82,8 +82,8 @@ public class csMissionStepPrefab : MonoBehaviour
             // 도착지점에 미션 데이터 경도,위도를 넣어서 길찾기 시작
             csMapManager.Instance._searchManager.SetSearchUI(
      new LocationData(
-         missionStep.destinationName,
-         missionStep.destinationName,
+         missionStep.plantName,
+         missionStep.plantName,
          missionStep.destinationCoordinate.Latitude,
          missionStep.destinationCoordinate.Longitude,
          -2

@@ -34,6 +34,8 @@ public class csSingleton : MonoBehaviour
 
     [HideInInspector] public AICreatedMissions savedMissions; // 미션 저장
 
+    [HideInInspector] public QuizDataWrapperList savedQuizList; // 퀴즈 저장
+
     [HideInInspector] public int nPoint; // 미션 포인트(재화)
 
 
@@ -41,8 +43,16 @@ public class csSingleton : MonoBehaviour
     // CSV파일을 읽어 수목원 내의 장소 정보를 담고있는 리스트
     public List<LocationData> AllLocations = new List<LocationData>();
 
+    private List<string> list_Reserve = new List<string>();
+
     // 언어 코드
     public string languageCode = "ko";
+
+    private void Start()
+    {
+        //금지단어 설정
+        SetReserve("Reserve/Reserve", list_Reserve);
+    }
 
     private void Awake()
     {
@@ -165,6 +175,34 @@ public class csSingleton : MonoBehaviour
         csSaveLodeManager.Instance.SaveSet();
 
         csUIManager.Instance.mainScreen.UpdatePointUI();
+    }
+
+    void SetReserve(string path, List<string> reserveList)
+    {
+        TextAsset textAsset1 = UnityEngine.Resources.Load<TextAsset>(path);
+        string reserve1 = textAsset1.text.Replace("\r\n", "\n");
+        string[] rowData1 = reserve1.Split('\n');
+
+        Debug.Log(rowData1.Length);
+
+        for (int i = 1; i < rowData1.Length - 1; i++)
+        {
+            string[] colData = rowData1[i].Split('\t');
+            //Debug.Log(colData[1]);
+            reserveList.Add(colData[1]);
+        }
+    }
+
+    public bool CheckForbiddenNickname(string nickname)
+    {
+        for (int i = 0; i < list_Reserve.Count; i++)
+        {
+            if (nickname.Contains(list_Reserve[i]))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

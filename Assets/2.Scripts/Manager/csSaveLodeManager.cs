@@ -1,8 +1,9 @@
-﻿using Datainfo;
+﻿using Data;
+using Datainfo;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Data;
 
 public class csSaveLodeManager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class csSaveLodeManager : MonoBehaviour
     private string chatHistoryPath;
     private string savedPlantPath;
     private string missionDataPath;
+    private string quizDataPath;
 
 
     private void Awake()
@@ -40,35 +42,8 @@ public class csSaveLodeManager : MonoBehaviour
         chatHistoryPath = Path.Combine(Application.persistentDataPath, "chatHistory.json");
         savedPlantPath = Path.Combine(Application.persistentDataPath, "savedPlants.json");
         missionDataPath = Path.Combine(Application.persistentDataPath, "missionData.json");
-    }
+        quizDataPath = Path.Combine(Application.persistentDataPath, "quizData.json");
 
-    // ===========================================================
-    // GameData 저장/로드
-    // ===========================================================
-    public void SaveData()
-    {
-        GameData data = new GameData();
-        data.strPlayerNickName = csSingleton.Instance.strPlayerNickName;
-
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(dataPath, json);
-        Debug.Log("게임 데이터 저장 완료: " + dataPath);
-    }
-
-    public void Load()
-    {
-        if (File.Exists(dataPath))
-        {
-            string json = File.ReadAllText(dataPath);
-            GameData data = JsonUtility.FromJson<GameData>(json);
-
-            csSingleton.Instance.strPlayerNickName = data.strPlayerNickName;
-        }
-        else
-        {
-            Debug.Log("초기 데이터 생성");
-            SaveData();
-        }
     }
 
     // ===========================================================
@@ -78,6 +53,7 @@ public class csSaveLodeManager : MonoBehaviour
     {
         SetData data = new SetData();
 
+        data.strPlayerNickName = csSingleton.Instance.strPlayerNickName;
         data.bTermsofUse = csSingleton.Instance.bTermsofUse;
         data.fSoundEffect = csSingleton.Instance.fSoundEffect;
         data.bSoundEffectMute = csSingleton.Instance.bSoundEffectMute;
@@ -110,6 +86,7 @@ public class csSaveLodeManager : MonoBehaviour
             string json = File.ReadAllText(dataSetPath);
             SetData data = JsonUtility.FromJson<SetData>(json);
 
+            csSingleton.Instance.strPlayerNickName = data.strPlayerNickName;
             csSingleton.Instance.bTermsofUse = data.bTermsofUse;
             csSingleton.Instance.fSoundEffect = data.fSoundEffect;
             csSingleton.Instance.bSoundEffectMute = data.bSoundEffectMute;
@@ -220,6 +197,36 @@ public class csSaveLodeManager : MonoBehaviour
         {
             csSingleton.Instance.savedMissions = new AICreatedMissions();
             SaveMission();
+        }
+    }
+
+
+    public void SaveQuizData()
+    {
+        QuizDataWrapperList data = csSingleton.Instance.savedQuizList;
+
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(quizDataPath, json);
+
+        Debug.Log("퀴즈 저장 완료: " + quizDataPath);
+    }
+
+    public void LoadSavedQuiz()
+    {
+        if (File.Exists(quizDataPath))
+        {
+            string json = File.ReadAllText(quizDataPath);
+            QuizDataWrapperList data = JsonUtility.FromJson<QuizDataWrapperList>(json);
+
+            csSingleton.Instance.savedQuizList = data ?? new QuizDataWrapperList();
+
+            Debug.Log("퀴즈 데이터 로드 완료: " + quizDataPath);
+
+        }
+        else
+        {
+            csSingleton.Instance.savedQuizList = new QuizDataWrapperList();
+            SaveQuizData();
         }
     }
 }

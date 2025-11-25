@@ -4,9 +4,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Buffers.Text;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
@@ -129,7 +131,10 @@ public class csNetworkManager : MonoBehaviour
     {
         string method = "arboretum/api/chat";
 
-        string methodUrl = url + method;
+        //string methodUrl = url + method;
+
+        string methodUrl = "http://192.168.0.26:8080/" + method;
+
 
         string jsonData = JsonConvert.SerializeObject(userChatMessage);
 
@@ -153,11 +158,16 @@ public class csNetworkManager : MonoBehaviour
 
             AIChatResponse res = JsonConvert.DeserializeObject<AIChatResponse>(json);
 
+            if(res.route_finalized==true)
+            {
+                csMissionManager.Instance.CreateMisson(res);
+            }
+
             return res.response;
         }
     }
 
-    async public UniTask<PlantResponse> AsyncGetPlantImageAsync(Texture2D texture, Action<float> onProgress = null)
+    async public UniTask<GetPlantResponse> AsyncGetPlantInfoAsync(Texture2D texture, Action<float> onProgress = null)
     {
         if(texture==null)
         {
@@ -178,6 +188,7 @@ public class csNetworkManager : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddBinaryData("image", pngBytes, "plant.png", "image/png");
         form.AddField("organs", "auto");
+        //form.AddField("uid", csSingleton.Instance.UID);
 
         using (UnityWebRequest request = UnityWebRequest.Post(methodUrl, form))
         {
@@ -188,7 +199,7 @@ public class csNetworkManager : MonoBehaviour
             while (!op.isDone)
             {
                 float pct = Mathf.Max(request.uploadProgress, request.downloadProgress);
-                onProgress?.Invoke(pct);   // ✅ 진행률 텍스트로 전달
+                onProgress?.Invoke(pct);   // 진행률 텍스트로 전달
 
                 await UniTask.Yield();
             }
@@ -196,7 +207,7 @@ public class csNetworkManager : MonoBehaviour
             if (request.result != UnityWebRequest.Result.Success)
                 return null;
 
-            return JsonConvert.DeserializeObject<PlantResponse>(request.downloadHandler.text);
+            return JsonConvert.DeserializeObject<GetPlantResponse>(request.downloadHandler.text);
         }
     }
 
@@ -207,4 +218,42 @@ public class csNetworkManager : MonoBehaviour
     //    string methodUrl = /*url*/ "http://192.168.0.26:8001/" + method;
 
     //}
+
+
+    // 관찰하기 성공 시 서버에서 퀴즈 데이터를 받아 로컬에 저장
+    public void OnReceiveQuizFromServer(string jsonQuiz)
+    {
+        // 서버에서 넘어온 단일 퀴즈 데이터 역직렬화
+        QuizData newQuiz = JsonConvert.DeserializeObject<QuizData>(jsonQuiz);
+
+        // 퀴즈 추가 (IsFirstCorrect = false 기본)
+        QuizDataWrapper quizdataWraaper = new QuizDataWrapper
+        {
+            quizData = newQuiz,
+            IsSolvedQuestion = false
+        };
+
+        // 저장
+        csSingleton.Instance.savedQuizList.quizDataWrapperList.Add(quizdataWraaper);
+
+        csSaveLodeManager.Instance.SaveQuizData();
+    }
+
+    async public UniTask<Texture2D> DownloadImage(string imageUrl)
+    {
+
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl);
+
+        await request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Image Load Failed: " + request.error);
+            return null;
+        }
+
+        Texture2D texture = DownloadHandlerTexture.GetContent(request);
+
+        return texture;
+    }
 }

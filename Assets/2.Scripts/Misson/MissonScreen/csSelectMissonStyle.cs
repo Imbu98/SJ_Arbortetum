@@ -33,7 +33,7 @@ public class csSelectMissonStyle : MonoBehaviour
 
         }
 
-        missonCreateButton.onClick.AddListener(OnClickMissonCreateButton);
+        //missonCreateButton.onClick.AddListener(OnClickMissonCreateButton);
     }
 
     private void OnDisable()
@@ -83,8 +83,8 @@ public class csSelectMissonStyle : MonoBehaviour
         missonCreateButton.interactable = IsInteractable;
     }
 
-    private void OnClickMissonCreateButton()
-    {
-        csMissionManager.Instance.CreateMisson();
-    }
+    //private void OnClickMissonCreateButton()
+    //{
+    //    csMissionManager.Instance.CreateMisson();
+    //}
 }

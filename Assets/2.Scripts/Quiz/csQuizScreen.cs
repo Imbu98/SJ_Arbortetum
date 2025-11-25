@@ -1,8 +1,11 @@
 using Data;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class csQuizScreen : MonoBehaviour
@@ -21,9 +24,12 @@ public class csQuizScreen : MonoBehaviour
 
 
     // 현재 퀴즈 타입
-    [SerializeField] private QuizData quizData; // 현재 가지고있는 퀴즈데이터
+    [SerializeField] private QuizDataWrapper quizDataWrapper; // 현재 가지고있는 퀴즈데이터
+    // 퀴즈 인덱스
+    private int currentQuizIndex = -1;
+
     // 현재 선택한 정답
-    private int userSelectQuizAnswer =-1;
+    private int userSelectQuizAnswer = -1;
 
     [Header("BottomButtons")]
     [SerializeField] private GameObject onQuizObject; // 퀴즈중일 때 활성화할 오브젝트 ( 정답선택 버튼)
@@ -35,10 +41,10 @@ public class csQuizScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI quizText_TMP;
 
     [Header("MultipleChoice")]
-    [SerializeField] private List<TextMeshProUGUI>  choiceTMP; // 보기 텍스트
+    [SerializeField] private List<TextMeshProUGUI> choiceTMP; // 보기 텍스트
 
     [Header("FindRight")]
-    [SerializeField] private GameObject findrightSelectObject; 
+    [SerializeField] private GameObject findrightSelectObject;
     [SerializeField] private RectTransform resultHolder;
     [SerializeField] private GameObject correctResultPrefab;
     [SerializeField] private GameObject inCorrectResultPrefab;
@@ -53,7 +59,7 @@ public class csQuizScreen : MonoBehaviour
 
     private void OnEnable()
     {
-        for(int i = 0; i < choiceButtons.Count; i++)
+        for (int i = 0; i < choiceButtons.Count; i++)
         {
             int index = i;
             choiceButtons[i].onClick.AddListener(() => SelectChoice(index));
@@ -78,7 +84,7 @@ public class csQuizScreen : MonoBehaviour
         foreach (Button choiceButton in choiceButtons)
         {
             choiceButton.onClick.RemoveAllListeners();
-           
+
         }
         foreach (Button findRightButton in findRightButtons)
         {
@@ -94,12 +100,10 @@ public class csQuizScreen : MonoBehaviour
 
     private void SetQuiz()
     {
-
-
-        if (quizData != null)
+        if (quizDataWrapper != null)
         {
             // 퀴즈 데이터 있으면 초기화
-            quizData = new QuizData();
+            quizDataWrapper = new QuizDataWrapper();
         }
 
         answerSubmitButton.interactable = false;
@@ -107,22 +111,24 @@ public class csQuizScreen : MonoBehaviour
         userSelectQuizAnswer = -1;
 
         // 퀴즈데이터 가져오기
-        quizData = GetRandomQuiz();// 테스트 퀴즈   
+
+
+        quizDataWrapper = GetRandomQuiz();
 
         // 퀴즈 보기 text 설정
-        if (quizData.quizChoices != null)
+        if (quizDataWrapper.quizData.quizChoices != null)
         {
 
-            for (int i = 0; i < quizData.quizChoices.Count; ++i)
+            for (int i = 0; i < quizDataWrapper.quizData.quizChoices.Count; ++i)
             {
 
                 {
-                    choiceTMP[i].text = quizData.quizChoices[i];
+                    choiceTMP[i].text = quizDataWrapper.quizData.quizChoices[i];
                 }
             }
         }
 
-        quizText_TMP.text = "Q." + quizData.quizDescription;
+        quizText_TMP.text = "Q." + quizDataWrapper.quizData.quizDescription;
 
         SetBodyPart();
 
@@ -143,7 +149,7 @@ public class csQuizScreen : MonoBehaviour
     {
         if (!bOnQuiz) return;
 
-        switch (quizData.quizType)
+        switch (quizDataWrapper.quizData.quizType)
         {
             case QuizType.None:
                 {
@@ -176,14 +182,14 @@ public class csQuizScreen : MonoBehaviour
                         else
                         {
                             findRightButtons[i].GetComponent<Image>().sprite = unSelectedSprite;
-                            
+
                         }
                     }
                     break;
                 }
 
         }
-        userSelectQuizAnswer = index+1; // index는 0부터 시작이니 정답은 +1
+        userSelectQuizAnswer = index + 1; // index는 0부터 시작이니 정답은 +1
 
         answerSubmitButton.interactable = true;
 
@@ -191,7 +197,7 @@ public class csQuizScreen : MonoBehaviour
 
     private void SubmitAnswer()
     {
-        if(userSelectQuizAnswer == -1)
+        if (userSelectQuizAnswer == -1)
         {
             Debug.Log("No selectedChoice ");
             return;
@@ -199,7 +205,7 @@ public class csQuizScreen : MonoBehaviour
 
         SetOnQuizUI(false);
 
-        switch (quizData.quizType)
+        switch (quizDataWrapper.quizData.quizType)
         {
             case QuizType.None:
                 {
@@ -211,25 +217,31 @@ public class csQuizScreen : MonoBehaviour
                     for (int i = 0; i < choiceButtons.Count; ++i)
                     {
                         // 사용자가 선택한 정답과 퀴즈의 정답이 같으면 정답 스프라이트로 변경
-                        if(quizData.answer == userSelectQuizAnswer)
+                        if (quizDataWrapper.quizData.answer == userSelectQuizAnswer)
                         {
-                            choiceButtons[quizData.answer-1].GetComponent<Image>().sprite = CorrectSprite;
+                            RewardAndSaveQuizData();
+
+                            choiceButtons[quizDataWrapper.quizData.answer - 1].GetComponent<Image>().sprite = CorrectSprite;
                         }
                         // 다르면 기존 선택 스프라이트는 냅두고 퀴즈의 정답만 오답 스프라이트로변경
                         else
                         {
-                            choiceButtons[quizData.answer-1].GetComponent<Image>().sprite = InCorrectSprite;
+                            choiceButtons[quizDataWrapper.quizData.answer - 1].GetComponent<Image>().sprite = InCorrectSprite;
                         }
                     }
                     break;
                 }
             case QuizType.FindRight:
                 {
-                    if(quizData.answer == userSelectQuizAnswer)
+                    if (quizDataWrapper.quizData.answer == userSelectQuizAnswer)
                     {
+                        RewardAndSaveQuizData();
+
                         findrightSelectObject.SetActive(false);
 
-                        Instantiate(correctResultPrefab, resultHolder,false);
+                        Instantiate(correctResultPrefab, resultHolder, false);
+
+                        
                     }
                     else
                     {
@@ -242,23 +254,25 @@ public class csQuizScreen : MonoBehaviour
                 }
         }
 
+        
+
         // 퀴즈 정답에 대한 설명 텍스트 추가
         //quizText_TMP = 
     }
-    
+
     private void QuitQuiz()
     {
         csUIManager.Instance.PopupQuizScreen(false);
 
         csUIManager.Instance.ResetAIChatText();
 
-        
+
     }
 
 
     private void SetBodyPart()
     {
-        switch(quizData.quizType)
+        switch (quizDataWrapper.quizData.quizType)
         {
             case QuizType.None:
                 {
@@ -269,7 +283,7 @@ public class csQuizScreen : MonoBehaviour
                 {
                     multipleChoicePart.SetActive(true);
                     findRightPart.SetActive(false);
-                    
+
                     // 선택,정답 이미지 비활성화
                     foreach (Button choiceButton in choiceButtons)
                     {
@@ -287,7 +301,7 @@ public class csQuizScreen : MonoBehaviour
                     {
                         findRightButton.GetComponent<Image>().sprite = unSelectedSprite;
                     }
-                    foreach(Transform child  in resultHolder)
+                    foreach (Transform child in resultHolder)
                     {
                         Destroy(child.gameObject);
                     }
@@ -297,12 +311,77 @@ public class csQuizScreen : MonoBehaviour
         }
     }
 
+    // 퀴즈 데이터 저장 및 포인트 지급
+    private void RewardAndSaveQuizData()
+    {
+        if (quizDataWrapper.IsSolvedQuestion == false)
+        {
+            quizDataWrapper.IsSolvedQuestion = true; // 맞춘 문제로 설정
+
+            csSingleton.Instance.savedQuizList.quizDataWrapperList[currentQuizIndex] = quizDataWrapper; // 변경된 값 저장
+
+            csSaveLodeManager.Instance.SaveQuizData(); // 퀴즈 데이터 저장
+
+            csSingleton.Instance.RewardPoint(10); // 정답 맞추면 포인트 10점 지급
+
+        }
+    }
+
     private void PopupResetQuiz()
     {
         csPopupPanel.Instance.PopupResetQuiz(SetQuiz);
     }
 
-    public QuizData GetRandomQuiz()
+    public QuizDataWrapper GetRandomQuiz()
+    {
+        QuizDataWrapperList quizDataWrapperList = csSingleton.Instance.savedQuizList;
+
+        if (quizDataWrapperList == null || quizDataWrapperList.quizDataWrapperList.Count == 0)
+        {
+            Debug.LogWarning("퀴즈 데이터가 존재하지 않습니다!");
+
+            QuizData testQuiz1 = new QuizData
+            {
+                quizType = QuizType.MultipleChoice,
+                answer = 1,
+                quizDescription = "장미의 꽃말 중 하나는 무엇일까요?",
+                quizChoices = new List<string>
+        {
+            "질투",
+            "용기",
+            "순수",
+            "감사"
+        }
+            };
+
+            QuizDataWrapper wrapper = new QuizDataWrapper
+            {
+                quizData = testQuiz1,
+                IsSolvedQuestion = false,
+                
+            };
+
+            csSingleton.Instance.savedQuizList.quizDataWrapperList.Add(wrapper);
+            currentQuizIndex = 0;
+            csSaveLodeManager.Instance.SaveQuizData();
+            return wrapper;
+
+            // 추후 이곳에 퀴즈데이터가 없으면 퀴즈에 들어오지 못하도록 처리 필요
+        }
+
+        var unsolvedList = quizDataWrapperList.quizDataWrapperList
+               .Where(q => !q.IsSolvedQuestion)
+               .ToList();
+
+        // 타입을 List<QuizDataWrapper> 로 변경
+        List<QuizDataWrapper> targetList =
+            (unsolvedList.Count > 0) ? unsolvedList : quizDataWrapperList.quizDataWrapperList;
+
+        currentQuizIndex  = UnityEngine.Random.Range(0, targetList.Count);
+        return targetList[currentQuizIndex];
+    }
+    
+    public QuizData GetRandomQuiz2()
     {
         QuizData testQuiz1 = new QuizData
         {

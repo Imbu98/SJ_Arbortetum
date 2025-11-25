@@ -10,7 +10,7 @@ namespace Data
     [System.Serializable]
     public abstract class BaseMission
     {
-        public string Description;
+        public string Description; // 미션 설명
 
         public bool IsCleared;
     }
@@ -32,9 +32,9 @@ namespace Data
     {
         public string missionTitle;
 
-        public int missonRewardPoint; // 미션 소요시간
+        public int missonRewardPoint; // 미션 
 
-        public List<MissionStep> missionStepDetails;
+        public List<MissionStep> missionStepDetails = new List<MissionStep>();
     }
 
     // 세부 미션이 가지고 있는 정보
@@ -42,8 +42,6 @@ namespace Data
     public class MissionStep : BaseMission
     {
         public GeoCoordinate destinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
-
-        public string destinationName; // 도착지 이름
 
         public string plantName; // 관찰하기 미션용 꽃 이름
     }
@@ -100,20 +98,34 @@ namespace Data
 
     #region observePlant
 
+
+
     [System.Serializable]
-    public class PlantRequest
+    public class PostPlantRequest
     {
+        public string uid;
         public string image;   
         public string organs; 
     }
 
     [System.Serializable]
-    public class PlantResponse
+    public class GetPlantResponse
     {
         public string plantScientificName;
         public List<string> commonNames;
+        public string description;
         public float score;
         public string gbif;
+        public List<PlantImageInfo> plantimages;
+        public List<QuizData> quizData;
+    }
+
+    [System.Serializable]
+    public class PlantImageInfo
+    {
+      public string url; // image URL
+      public string reference; // image 출처
+      public string license;// image 라이센스
     }
 
     [System.Serializable]
@@ -123,8 +135,6 @@ namespace Data
     }
 
     #endregion
-
-
 
 
     #region aiChat
@@ -143,12 +153,20 @@ namespace Data
         public string message;
     }
 
+    [System.Serializable]
     public class AIChatResponse
     {
         public string response;
-        public bool route_finalized;
-        public List<object> route;
-        public Dictionary<string, object> quest;
+        public bool route_finalized = false; // 기본값 false
+        public List<SimpleRoute> route;      // null 허용
+    }
+
+    [System.Serializable]
+    public class SimpleRoute
+    {
+        public string name;
+        public double latitude;
+        public double longitude;
     }
 
     #endregion
@@ -157,7 +175,7 @@ namespace Data
 
     public class QuizData
     {
-        public QuizType quizType; // 퀴즈 타입 
+        public QuizType quizType;
 
         public string quizDescription; // 퀴즈 설명
 
@@ -168,9 +186,18 @@ namespace Data
 
     public class QuizDataWrapper
     {
+        
+
        public QuizData quizData;
 
-        public bool IsFirstCorrect; // 사용자가 처음 맞춘 문제인지에 대한 bool값
+       public bool IsSolvedQuestion; // 사용자가 처음 맞춘 문제인지에 대한 bool값
+
+       public string plantScientificName; // 퀴즈와 연관된 식물 학명
+    }
+
+    public class QuizDataWrapperList
+    {
+        public List<QuizDataWrapper> quizDataWrapperList = new List<QuizDataWrapper>();
     }
 
     #endregion

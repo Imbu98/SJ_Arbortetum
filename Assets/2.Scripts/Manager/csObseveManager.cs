@@ -91,7 +91,7 @@ public class csObserveManager : MonoBehaviour
         // 초기화
 
         
-        var analyzedPlantData = await csNetworkManager.Instance.AsyncGetPlantImageAsync(
+        var analyzedPlantData = await csNetworkManager.Instance.AsyncGetPlantInfoAsync(
             capturedTexture,
             (pct) =>
             {
@@ -108,9 +108,9 @@ public class csObserveManager : MonoBehaviour
         {
             // 정보가 있으면 해당정보로 서버에서 식물에 대한 정보 가져오기
             //await csNetworkManager.Instance.AsyncGetPlantInfo()
+            await _observeResult.Init(analyzedPlantData);
 
             SetObserveScreen(observeResultObject);
-            _observeResult.Init(analyzedPlantData);
 
             csFirebaseLogManager.Instance.Log_Observe(1);
 

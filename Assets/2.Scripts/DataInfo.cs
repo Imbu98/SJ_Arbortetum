@@ -6,17 +6,13 @@ using UnityEngine;
 namespace Datainfo
 {
 
-    //플레이어 데이터
-    [System.Serializable]
-    public class GameData
-    {
-        public string strPlayerNickName = "";
-    }
    
 
     [System.Serializable]
     public class SetData
     {
+        public string strPlayerNickName = "";
+
         public bool bTermsofUse;//이용약관 동의
         public bool bGoogleLogin;//구글 로그인인지
         public bool bGuestLogin;//커스텀 로그인인지
@@ -38,5 +34,7 @@ namespace Datainfo
         public int nPoint;
 
         public List<ChatMessage> strSavedChatHistory;
+
+        public QuizDataWrapperList savedQuizList;
     }
 }

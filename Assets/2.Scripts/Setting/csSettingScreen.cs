@@ -270,7 +270,7 @@ public class csSettingScreen : MonoBehaviour
         System.Text.RegularExpressions.Regex regex =
             new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9가-힣]{2,16}$");
 
-        IsValidNickName = regex.IsMatch(text);
+        IsValidNickName = regex.IsMatch(text)&& csSingleton.Instance.CheckForbiddenNickname(text);
 
         if (IsValidNickName)
         {
@@ -295,7 +295,7 @@ public class csSettingScreen : MonoBehaviour
 
             userNickName_TMP.text = nickNameChangeInputField.text;
 
-            csSaveLodeManager.Instance.SaveData();
+            csSaveLodeManager.Instance.SaveSet();
 
             CloseNickNameChangePopup();
         }

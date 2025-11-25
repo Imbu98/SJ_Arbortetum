@@ -110,30 +110,64 @@ public class csMissionManager : MonoBehaviour
         }
     }
 
-    // 서버로부터 미션 받아오는 함수
-    public async void CreateMisson()
+    public void CreateMisson(AIChatResponse chatResponse)
     {
-        E_missonStatus = MissionStatus.MissionCreating;
+        //E_missonStatus = MissionStatus.MissionCreating;
         // 미션 생성중 창으로 변경
-        _missonUIManager.ChangeMissonPanel(1);
+        //_missonUIManager.ChangeMissonPanel(1);
         // 네트워크에서 await로 미션 생성, 다되면 missonCreated로 변경
-        // aiCreatedMissions =  await csNetworkManager.Instance.Get~~
 
-        // 
-        aiCreatedMissions= CreateTestAIMissions();
+        if(IsMissonOnProgress)
+        {
+            csUIManager.Instance.SetAIChatText("현진행중인 미션이 있습니다. 미션을 완료하거나 포기한 후에 새로운 미션을 생성할 수 있습니다.");
+            return;
+        }
+
+        Mission aiCreatedMission = new Mission();
+
+        aiCreatedMission.missionTitle = "AI 추천 식물 관찰 코스";
+        aiCreatedMission.missonRewardPoint = 100;
+        aiCreatedMission.IsCleared = false;
+        aiCreatedMission.Description = "AI가 추천한 코스를 따라가며 식물을 관찰해보세요";
+
+        for (int i =0; i< chatResponse.route.Count;++i)
+        {
+          MissionStep aicreatedMissionStep =   ConvertRouteToMissionSteps(chatResponse.route[i]);
+          aiCreatedMission.missionStepDetails.Add(aicreatedMissionStep);
+        }
+
+        aiCreatedMissions.missions.Add(aiCreatedMission);
 
         aiCreatedMissions.missionIndex = -1;
         aiCreatedMissions.missionStepIndex = -1;
 
         E_missonStatus = MissionStatus.MissonCreated;
 
-        _missonUIManager.ChangeToMission();
+        csUIManager.Instance.PopupMission(true);
+
+        //_missonUIManager.ChangeToMission();
 
         csSingleton.Instance.savedMissions = aiCreatedMissions;
 
         csSaveLodeManager.Instance.SaveMission();
 
     }
+
+    // ai대화에서 나온 루트를 missionStep으로 변환
+    public MissionStep ConvertRouteToMissionSteps(SimpleRoute routes)
+    {
+
+            MissionStep missionStep = new MissionStep();
+
+        missionStep.plantName = routes.name;
+        missionStep.destinationCoordinate =
+                new GeoCoordinate(routes.latitude, routes.longitude);
+        missionStep.IsCleared = false;
+        missionStep.Description = "목적지 주변의 " + routes.name + "을(를) 관찰해보세요.";
+
+        return missionStep;
+    }
+
 
     // 미션 생성 취소
     public void PopupCancleCreateMisson()
@@ -283,8 +317,15 @@ public class csMissionManager : MonoBehaviour
         // 미션스텝 정리
         ResetMissionStepList();
 
-        // 미션 클리어 상태로 변경
-        aiCreatedMissions.missions[aiCreatedMissions.missionIndex].IsCleared = true;
+        // 클리어했던 미션이 아닐 때만 
+        if(aiCreatedMissions.missions[aiCreatedMissions.missionIndex].IsCleared==false)
+        {
+            // 미션 클리어 상태로 변경
+            aiCreatedMissions.missions[aiCreatedMissions.missionIndex].IsCleared = true;
+
+            // 보상 지급
+            csSingleton.Instance.RewardPoint(mission.missonRewardPoint);
+        }
 
         // 클리어 UI 활성화
         missionList[aiCreatedMissions.missionIndex].SetClearUI();
@@ -294,8 +335,6 @@ public class csMissionManager : MonoBehaviour
         aiCreatedMissions.missionIndex = -1;
 
         aiCreatedMissions.missionStepIndex = -1;
-
-        csSingleton.Instance.RewardPoint(mission.missonRewardPoint);
 
         csFirebaseLogManager.Instance.Log_Mission(1);
 
@@ -376,7 +415,9 @@ public class csMissionManager : MonoBehaviour
 
         E_missonStatus = MissionStatus.None;
 
-        _missonUIManager.ChangeMissonPanel(0);
+        csUIManager.Instance.PopupMission(false);
+
+        //_missonUIManager.ChangeMissonPanel(0);
 
         csSaveLodeManager.Instance.SaveMission();
     }
@@ -406,7 +447,6 @@ public class csMissionManager : MonoBehaviour
             new Mission
             {
                 missionTitle = "도심 관찰 미션",
-                Description = "가까운 장소를 방문해 주변을 관찰해보세요.",
                 IsCleared = false,
                 missonRewardPoint = 100,
                 missionStepDetails = new List<MissionStep>
@@ -415,7 +455,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "나무 쉼터 방문",
                         IsCleared = false,
-                        destinationName = "근처 나무 쉼터",
                         plantName = "Tree",
                         destinationCoordinate = new GeoCoordinate(
                             36.496480, 127.283750)
@@ -424,7 +463,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "벤치 휴식하기",
                         IsCleared = false,
-                        destinationName = "작은 벤치",
                         plantName = "Bench",
                         destinationCoordinate = new GeoCoordinate(
                             36.496030, 127.283210)
@@ -433,7 +471,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "작은 분수대 관찰",
                         IsCleared = false,
-                        destinationName = "작은 분수대",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.496300, 127.283400)
@@ -442,7 +479,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "그늘진 화단 살펴보기",
                         IsCleared = false,
-                        destinationName = "그늘 화단",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.496150, 127.283820)
@@ -463,7 +499,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "노란 꽃 찾기",
                         IsCleared = false,
-                        destinationName = "노란 꽃밭",
                         plantName = "YellowFlower",
                         destinationCoordinate = new GeoCoordinate(
                             36.496320, 127.283900)
@@ -472,7 +507,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "붉은 꽃 관찰",
                         IsCleared = false,
-                        destinationName = "레드 블라썸",
                         plantName = "RedFlower",
                         destinationCoordinate = new GeoCoordinate(
                             36.495900, 127.283450)
@@ -481,7 +515,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "보라색 꽃 관찰",
                         IsCleared = false,
-                        destinationName = "퍼플 가든",
                         plantName = "PurpleFlower",
                         destinationCoordinate = new GeoCoordinate(
                             36.496050, 127.283300)
@@ -490,7 +523,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "흰 꽃 구경하기",
                         IsCleared = false,
-                        destinationName = "화이트 스타 플라워",
                         plantName = "WhiteFlower",
                         destinationCoordinate = new GeoCoordinate(
                             36.496420, 127.283600)
@@ -511,7 +543,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "산책로 입구 방문",
                         IsCleared = false,
-                        destinationName = "산책로 입구",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.496600, 127.283400)
@@ -520,7 +551,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "전망 포인트 찾아가기",
                         IsCleared = false,
-                        destinationName = "전망 좋은 장소",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.495780, 127.283820)
@@ -529,7 +559,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "작은 공터에서 휴식",
                         IsCleared = false,
-                        destinationName = "작은 공터",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.496120, 127.283150)
@@ -538,7 +567,6 @@ public class csMissionManager : MonoBehaviour
                     {
                         Description = "하천 근처로 이동",
                         IsCleared = false,
-                        destinationName = "작은 하천",
                         plantName = "",
                         destinationCoordinate = new GeoCoordinate(
                             36.496050, 127.283980)

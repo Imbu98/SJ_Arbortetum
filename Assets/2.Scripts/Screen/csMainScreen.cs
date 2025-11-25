@@ -20,8 +20,12 @@ public class csMainScreen : MonoBehaviour
     [SerializeField] private GameObject settingButton;
     [SerializeField] private GameObject pointUI;
 
+    private List<string> list_Reserve = new List<string>();
 
-
+    private void Start()
+    {
+        
+    }
     private void Awake()
     {
       
@@ -61,7 +65,6 @@ public class csMainScreen : MonoBehaviour
             confirmUserNickNameButton.interactable = false;
         }));
     }
-
     private void InputUserNickName(string text)
     {
         bool IsValidNickName = false;
@@ -81,7 +84,7 @@ public class csMainScreen : MonoBehaviour
         System.Text.RegularExpressions.Regex regex =
             new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9°¡-ÆR]{2,16}$");
 
-        IsValidNickName =  regex.IsMatch(text);
+        IsValidNickName =  regex.IsMatch(text) && csSingleton.Instance.CheckForbiddenNickname(text);
 
         if(IsValidNickName)
         {
@@ -91,8 +94,9 @@ public class csMainScreen : MonoBehaviour
         {
             confirmUserNickNameButton.interactable = false;
         }
-
     }
+
+   
 
     private void SetNickName()
     {
@@ -104,11 +108,10 @@ public class csMainScreen : MonoBehaviour
         {
             csSingleton.Instance.strPlayerNickName = userNickNameInputfield.text;
 
-            csSaveLodeManager.Instance.SaveData();
+            csSaveLodeManager.Instance.SaveSet();
 
             SetMainUI();
         }
-         
     }
     private void SetMainUI()
     {

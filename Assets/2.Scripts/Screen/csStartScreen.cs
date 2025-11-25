@@ -43,9 +43,6 @@ public class csStartScreen : MonoBehaviour
 
     private void Awake()
     {
-        // 게임 데이터불러오기(닉네임 등)
-        csSaveLodeManager.Instance.Load();
-
         // 세팅 불러오기
         csSaveLodeManager.Instance.LoadSet();
 
@@ -56,6 +53,8 @@ public class csStartScreen : MonoBehaviour
         csSaveLodeManager.Instance.LoadSavedPlant();
 
         csSaveLodeManager.Instance.LoadSavedMission();
+
+        csSaveLodeManager.Instance.LoadSavedQuiz();
     }
 
     private void Start()
