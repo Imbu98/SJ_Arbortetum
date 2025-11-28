@@ -117,7 +117,7 @@ public class csObserveManager : MonoBehaviour
             csFirebaseLogManager.Instance.Log_Observe(1);
 
         }
-        else if(analyzedPlantData==null || analyzedPlantData.score<0.21f)
+        else if(analyzedPlantData==null || analyzedPlantData.score<0.05f)
         {
             csPopupPanel.Instance.PopupSetScreenToCamera(()=>SetCameraScreen());
         }

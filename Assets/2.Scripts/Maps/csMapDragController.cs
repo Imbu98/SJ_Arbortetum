@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class csMapDragController : MonoBehaviour , IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-    [SerializeField] private RawImage mapRawImage;
+    [SerializeField] private RectTransform mapParentReact;
     // 맵 이동 관련 변수 
     private RectTransform mapRect;
     
@@ -43,9 +43,9 @@ public class csMapDragController : MonoBehaviour , IDragHandler, IBeginDragHandl
         Vector2 delta = currentPos - lastDragPos;
         lastDragPos = currentPos;
 
-        mapRawImage.rectTransform.anchoredPosition += delta;
+        mapParentReact.anchoredPosition += delta;
 
-        csMapManager.Instance.ClampMapPosition();
+        csMapManager.Instance.ClampMap();
     }
 
     public void OnEndDrag(PointerEventData eventData)

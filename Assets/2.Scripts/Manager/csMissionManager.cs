@@ -110,7 +110,7 @@ public class csMissionManager : MonoBehaviour
         }
     }
 
-    public void CreateMisson(AIChatResponse chatResponse)
+    public void CreateMisson(SimpleRouteList routeList)
     {
         //E_missonStatus = MissionStatus.MissionCreating;
         // 미션 생성중 창으로 변경
@@ -130,9 +130,9 @@ public class csMissionManager : MonoBehaviour
         aiCreatedMission.IsCleared = false;
         aiCreatedMission.Description = "AI가 추천한 코스를 따라가며 식물을 관찰해보세요";
 
-        for (int i =0; i< chatResponse.route.Count;++i)
+        for (int i =0; i< routeList.simpleRoutes.Count;++i)
         {
-          MissionStep aicreatedMissionStep =   ConvertRouteToMissionSteps(chatResponse.route[i]);
+          MissionStep aicreatedMissionStep = ConvertRouteToMissionSteps(routeList.simpleRoutes[i]);
           aiCreatedMission.missionStepDetails.Add(aicreatedMissionStep);
         }
 

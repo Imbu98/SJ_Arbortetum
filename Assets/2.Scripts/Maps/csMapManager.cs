@@ -33,7 +33,7 @@ public class csMapManager : MonoBehaviour
     // 맵 이미지
     public RawImage mapRawImage;
 
-    [SerializeField] private RectTransform mapRotationRoot;
+    [SerializeField] private RectTransform mapImageParent;
 
     // 길 찾기
     [Header("PathFind")]
@@ -42,7 +42,6 @@ public class csMapManager : MonoBehaviour
     [SerializeField] private Image startMarkerPrefab; // 시작 지점 마커 프리펩
     [SerializeField] private Image endMarkerPrefab; // 도착 지점 마커 프리펩
     [SerializeField] private Image SearchLocationMarkerPrefab; //검색 결과 지점 마커 프리펩 
-    private Image startMarker; // 시작지점 마커 프리팹 저장
     private Image endMarker; // 도착지점 마커 프리팹 저장
     private Image SearchLocationMarker; // 검색 결과 지점 마커 프리팹 저장
 
@@ -76,7 +75,14 @@ public class csMapManager : MonoBehaviour
     private double longitude;
     [HideInInspector]public double save_latitude;
     [HideInInspector] public double save_longitude;
-    [SerializeField] private RectTransform markerRect; // 내 위치 마커
+    [SerializeField] public RectTransform markerRect; // 내 위치 마커
+
+    // Compass and rotation state
+    private float filteredHeading = 0f;
+    private float mapRotationVelocity = 0f;
+
+    //
+    public List<GameObject> locationObjectList;
 
     private void Awake()
     {
@@ -93,6 +99,7 @@ public class csMapManager : MonoBehaviour
 
     private void Start()
     {
+        Input.compass.enabled = true;
         StartCoroutine(WaitForGPSReady());
         
 
@@ -118,8 +125,10 @@ public class csMapManager : MonoBehaviour
 
     private void Update()
     {
+        UpdateCompassAndMapRotation();
+
         // 길찾기 중일 때
-        if(E_searchStatus == SearchStatus.SearchPath/*&&IsMapOpened*/)
+        if (E_searchStatus == SearchStatus.SearchPath/*&&IsMapOpened*/)
         {
             // LineConnenctToMarker();
             CheckOnArrive();
@@ -196,12 +205,7 @@ public class csMapManager : MonoBehaviour
         
             if (drawPathCoroutine != null)
                 StopCoroutine(drawPathCoroutine);
-            
-            if(E_searchStatus == SearchStatus.SearchPath)
-            {
-                // 내 위치를 기반으로 길찾기 상태중이면 시작마커 삭제
-                if (startMarker) Destroy(startMarker.gameObject);
-            }
+
 
         if (uiLineRenderer != null)
         {
@@ -334,101 +338,90 @@ public class csMapManager : MonoBehaviour
         Vector2 startUI = RelativeToUIPosition(p1, mapRawImage);
 
         markerRect.anchoredPosition = startUI;
-
-        UpdateArrowRotation();
-        //UpdateMapRotationByHeading();
     }
+
 
     /// <summary>
     /// 맵이 화면을 벗어나지 않도록 위치 제한
     /// </summary>
-    public void ClampMapPosition()
+    public void ClampMap()
     {
-        RectTransform mapRect = mapRawImage.rectTransform;
-        RectTransform parentRect = mapRect.parent as RectTransform;
+    float limitX = 4000f;
+    float limitY = 4000f;
 
-        Vector2 pos = mapRect.anchoredPosition;
-
-        // 실제 크기 (scale 반영)
-        float mapWidth = mapRect.rect.width * mapRect.localScale.x;
-        float mapHeight = mapRect.rect.height * mapRect.localScale.y;
-
-        float viewWidth = parentRect.rect.width;
-        float viewHeight = parentRect.rect.height;
-
-        // pivot 고려한 절반 크기
-        float halfMapWidth = mapWidth * 0.5f;
-        float halfMapHeight = mapHeight * 0.5f;
-        float halfViewWidth = viewWidth * 0.5f;
-        float halfViewHeight = viewHeight * 0.5f;
-
-        // 실제 이동 가능 최대 경계
-        float limitX = Mathf.Max(0, halfMapWidth - halfViewWidth);
-        float limitY = Mathf.Max(0, halfMapHeight - halfViewHeight);
+    Vector2 pos = mapImageParent.anchoredPosition;
 
         pos.x = Mathf.Clamp(pos.x, -limitX, limitX);
         pos.y = Mathf.Clamp(pos.y, -limitY, limitY);
 
-        mapRect.anchoredPosition = pos;
-
-        Debug.Log($"Clamping Map Position");
+        mapImageParent.anchoredPosition = pos;
     }
+
 
     public Vector2 simulateVector = Vector2.zero;
 
-    private void UpdateArrowRotation()
+    private void UpdateCompassAndMapRotation()
     {
-#if UNITY_EDITOR
-        Vector2 dir = simulateVector;
-
-        // 입력 벡터가 거의 0이면 회전시키지 않음
-        if (dir.sqrMagnitude > 0.0001f)
+#if (UNITY_ANDROID || UNITY_IOS)
+        if (!Input.compass.enabled)
         {
-            float angle = Mathf.Atan2(dir.y, -dir.x) * Mathf.Rad2Deg; // X 반전!
-            float uiAngle = -angle + 90f;
-
-            markerRect.localRotation = Quaternion.Euler(0, 0, uiAngle);
             return;
         }
-#endif
 
-        // On mobile, the arrow rotation is handled inside UpdateMapRotationByHeading
-        // to sync it with the map's rotation.
-    }
+        float rawHeading = Input.compass.trueHeading;
 
-    private float filteredHeading = 0f;
-    private float smoothVelocity = 0f;
-
-    private void UpdateMapRotationByHeading()
-    {
-//#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-        float raw = Input.compass.trueHeading;
-
-        // 1) Low Pass Filter to reduce noise
+        // Low Pass Filter to reduce noise from the compass data
         float alpha = 0.15f; 
-        filteredHeading = Mathf.LerpAngle(filteredHeading, raw, alpha);
+        filteredHeading = Mathf.LerpAngle(filteredHeading, rawHeading, alpha);
 
-        // 2) Ignore very small changes to prevent shaking
-        if (Mathf.Abs(Mathf.DeltaAngle(mapRawImage.rectTransform.localEulerAngles.z, -filteredHeading)) < 1.0f)
+        if (E_searchStatus == SearchStatus.SearchPath)
         {
-            return; 
+            // Pathfinding mode: Map rotates around the user marker to achieve "heading up".
+            
+            // 1. Calculate the rotation needed for this frame
+            float currentMapAngle = mapImageParent.localEulerAngles.z;
+            float targetMapAngle = filteredHeading; // Target is "heading up"
+            
+            // Calculate how much to rotate this frame for a smooth transition
+            float deltaAngle = Mathf.SmoothDampAngle(currentMapAngle, targetMapAngle, ref mapRotationVelocity, 0.3f) - currentMapAngle;
+
+            // 2. Rotate the map around the marker's world position
+            mapImageParent.RotateAround(markerRect.position, Vector3.forward, deltaAngle);
+            
+            // 3. Counter-rotate the marker itself to keep it pointing "up" on screen
+            markerRect.localRotation = Quaternion.Euler(0, 0, -mapImageParent.localEulerAngles.z);
+
+            // 4. Counter-rotate all other POIs
+            RotateObject(); 
         }
+        else
+        {
+            // Not pathfinding: Map rotation is controlled by the user. The marker should indicate the compass direction.
+            float currentMapAngle = mapImageParent.localEulerAngles.z;
 
-        // 3) Smoothly rotate the map
-        float smooth = Mathf.SmoothDampAngle(
-            mapRawImage.rectTransform.localEulerAngles.z,
-            filteredHeading,
-            ref smoothVelocity,
-            0.2f
-        );
+            float mapAngle = mapImageParent.localEulerAngles.z;
 
-        mapRawImage.rectTransform.localRotation = Quaternion.Euler(0, 0, smooth);
+            // heading은 Unity와 반대 방향 → 부호 반전 필요
+            float heading = -filteredHeading;
 
-        // Counter-rotate the marker so it always points "up" on the screen
-        markerRect.localRotation = Quaternion.Euler(0, 0, -smooth);
+            // 마커는 지도에 대해 상대적인 휴대폰의 방향을 나타냄
+            float finalAngle = heading + mapAngle;
 
-        ToMyLocation();
+            markerRect.localRotation = Quaternion.Euler(0, 0, finalAngle);
+
+        }
+#else
+        // Editor simulation for testing
+        Vector2 dir = simulateVector;
+        if (dir.sqrMagnitude > 0.0001f)
+        {
+            float angle = Mathf.Atan2(dir.y, -dir.x) * Mathf.Rad2Deg;
+            float uiAngle = -angle + 90f;
+            markerRect.localRotation = Quaternion.Euler(0, 0, uiAngle - mapImageParent.localEulerAngles.z);
+        }
+#endif
     }
+
 
     private void LineConnenctToMarker()
     {
@@ -536,25 +529,26 @@ public class csMapManager : MonoBehaviour
     }
     private IEnumerator SmoothMoveMapToCenter()
     {
-        
-        Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
+        Vector2 startPosition = mapImageParent.anchoredPosition;
         // mapRawImage의 pivot과 marker의 pivot이 모두 중앙일 때,
         // marker를 화면 중앙(0,0)으로 보내기 위한 map의 anchoredPosition은 -marker.anchoredPosition
-        float currentScale = mapRawImage.rectTransform.localScale.x; // x와 y 스케일이                 
+        float currentScale = mapImageParent.localScale.x; // x와 y 스케일이
+        Quaternion mapRotation = mapImageParent.localRotation;
 
-        Vector2 targetPosition = -markerRect.anchoredPosition * currentScale;
+        Vector2 moveVector = -markerRect.anchoredPosition * currentScale;
+        Vector2 targetPosition = mapRotation * moveVector;
 
         float duration = 0.5f; // 이동 시간
         float time = 0;
         while (time < duration)
         {
-            mapRawImage.rectTransform.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, time / duration);
+            mapImageParent.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, time / duration);
             time += Time.deltaTime;
-            csMapManager.Instance.ClampMapPosition();
+            ClampMap();
             yield return null;
         }
-        mapRawImage.rectTransform.anchoredPosition = targetPosition; // 정확한 최종 위치 보정
-        csMapManager.Instance.ClampMapPosition();
+        mapImageParent.anchoredPosition = targetPosition; // 정확한 최종 위치 보정
+        ClampMap();
     }
 
     // 검색한 장소로 지도 이동
@@ -570,7 +564,10 @@ public class csMapManager : MonoBehaviour
         Vector2 p1 = LatLonToRelativePosition(lat, lon, centerLat, centerLon, zoom);
         Vector2 targetPosition = RelativeToUIPosition(p1, mapRawImage);
 
-        switch(offset)
+        // 지도 전체 회전각(Euler)
+        float mapAngle = mapImageParent.eulerAngles.z;
+
+        switch (offset)
         {
             // 검색장소
             case 0:
@@ -578,21 +575,13 @@ public class csMapManager : MonoBehaviour
                     if (SearchLocationMarker!=null) Destroy(SearchLocationMarker.gameObject);
                     SearchLocationMarker = Instantiate(SearchLocationMarkerPrefab, mapRawImage.transform);
                     SearchLocationMarker.rectTransform.anchoredPosition = targetPosition;
+                    SearchLocationMarker.rectTransform.localRotation = Quaternion.Euler(0, 0, -mapAngle);
                     break;
                 }
              // 시작장소
             case 1:
                 {
 
-                    if (startMarker != null && startMarker.gameObject != null)
-                    {
-                        Destroy(startMarker.gameObject);
-                        startMarker = null;
-                    }
-
-                   
-                    startMarker = Instantiate(startMarkerPrefab, mapRawImage.transform);
-                    startMarker.rectTransform.anchoredPosition = targetPosition;
                     break;
                 }
                 // 도착장소
@@ -603,31 +592,38 @@ public class csMapManager : MonoBehaviour
                         Destroy(endMarker.gameObject);
                         endMarker = null;
                     }
+
+                  
+
                     endMarker = Instantiate(endMarkerPrefab, mapRawImage.transform);
                     endMarker.rectTransform.anchoredPosition = targetPosition;
+                    endMarker.rectTransform.localRotation = Quaternion.Euler(0, 0, -mapAngle);
                     break;
                 }
         }
         
 
         // 검색한 장소를 가운데로 맵 이동
-        Vector2 startPosition = mapRawImage.rectTransform.anchoredPosition;
+        Vector2 startPosition = mapImageParent.anchoredPosition;
 
-        float currentScale = mapRawImage.rectTransform.localScale.x;
+        float currentScale = mapImageParent.localScale.x;
 
-        Vector2 MaptargetPosition = -targetPosition * currentScale;
+        Quaternion mapRotation = mapImageParent.localRotation;
+
+        Vector2 moveVector = -targetPosition * currentScale;
+        Vector2 MaptargetPosition = mapRotation * moveVector;
 
         float duration = 0.5f; // 이동 시간
         float time = 0;
         while (time < duration)
         {
-            mapRawImage.rectTransform.anchoredPosition = Vector2.Lerp(startPosition, MaptargetPosition, time / duration);
+            mapImageParent.anchoredPosition = Vector2.Lerp(startPosition, MaptargetPosition, time / duration);
             time += Time.deltaTime;
-            ClampMapPosition();
+            ClampMap();
             yield return null;
         }
-        mapRawImage.rectTransform.anchoredPosition = MaptargetPosition; // 정확한 최종 위치 보정
-        ClampMapPosition();
+        mapImageParent.anchoredPosition = MaptargetPosition; // 정확한 최종 위치 보정
+        ClampMap();
     }
 
     // 검색장소 리셋
@@ -649,12 +645,6 @@ public class csMapManager : MonoBehaviour
     // 길찾기 표시 프리펩 삭제
     public void DestroyPathFindPrefab()
     {
-        if (startMarker != null && startMarker.gameObject != null)
-        {
-            Destroy(startMarker.gameObject);
-            startMarker = null;
-        }
-
         if (endMarker != null && endMarker.gameObject != null)
         {
             Destroy(endMarker.gameObject);
@@ -699,11 +689,47 @@ public class csMapManager : MonoBehaviour
 
         return isInside;
     }
+    
+    public void RotateObject()
+    {
+        // 지도 전체 회전각(Euler)
+        float mapAngle = mapImageParent.eulerAngles.z;
+
+        foreach (var locationObject in locationObjectList)
+        {
+            locationObject.GetComponent<RectTransform>().localRotation =
+                Quaternion.Euler(0, 0, -mapAngle);
+        }
+
+
+        if (endMarker != null)
+            endMarker.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, -mapAngle);
+
+        if (SearchLocationMarker != null)
+            SearchLocationMarker.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, -mapAngle);
+    }
+
+    // 지도 스케일 조절 시 지도 오브젝트들도 같이 조절 
+    public void SetObjectScale(float currentScale)
+    {
+        float inverseScale = 1f / currentScale;
+
+        // 지도에 있는 수목원 오브젝트
+        foreach (var locationObject in locationObjectList)
+        {
+            RectTransform locRt = locationObject.GetComponent<RectTransform>();
+
+            locRt.localScale = new Vector3(inverseScale, inverseScale, 1f);
+        }
+
+        markerRect.localScale = new Vector3(inverseScale, inverseScale, 1f);
+    }
 
 
     public GeoCoordinate GetMyGPS()
     {
         return new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude);
     }
+
 
 }

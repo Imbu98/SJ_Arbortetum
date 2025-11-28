@@ -137,7 +137,9 @@ public class csSpeechPanel : MonoBehaviour
         ChatMessage userChatMessage = new ChatMessage
         {
             user_id = csSingleton.Instance.UID,
-            message = result
+            message = result,
+            latitude = csMapManager.Instance.MyGPS.Latitude,
+            longitude = csMapManager.Instance.MyGPS.Longitude
         };
 
         //List<ChatMessage> tempChatList = new List<ChatMessage>(csSingleton.Instance.strSavedChatHistory);

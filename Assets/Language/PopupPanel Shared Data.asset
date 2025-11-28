@@ -67,6 +67,10 @@ MonoBehaviour:
     m_Key: Popup_SignOut
     m_Metadata:
       m_Items: []
+  - m_Id: 5728993931538432
+    m_Key: Popup_NotWithInMissionRange
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

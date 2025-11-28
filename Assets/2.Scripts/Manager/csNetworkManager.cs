@@ -226,10 +226,40 @@ public class csNetworkManager : MonoBehaviour
 
             AIChatResponse res = JsonConvert.DeserializeObject<AIChatResponse>(json);
 
-            if(res.route_finalized==true)
+            if (res.data != null)
             {
-                csMissionManager.Instance.CreateMisson(res);
+                string flag = res.data.flag?.ToLower();
+
+                // --- 코스 코드를 수행 ---
+                if (flag == "course")
+                {
+                    if (res.data.data == null || res.data.routeData == null)
+                    {
+                        Debug.LogError("코스 데이터 없음");
+                    }
+
+                    csMissionManager.Instance.CreateMisson(res.data.routeData);
+                    Debug.Log("코스 생성 완료");
+                }
+
+                else
+                {
+                    PlantOrPlaceData data = res.data.data;
+
+                    LocationData locationData = new LocationData
+                    {
+                        koreanName = data.name,
+                        englishName = data.name,
+                        geoCoordinate = new GeoCoordinate(data.latitude, data.longitude),
+                        locationID = 9999
+                    };
+
+                    csMapManager.Instance._searchManager.SetSearchUI(locationData, 2);
+
+                    csUIManager.Instance.PopupMap(true);
+                }
             }
+
 
             return res.response;
         }

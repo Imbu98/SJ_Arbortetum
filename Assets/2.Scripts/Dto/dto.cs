@@ -37,13 +37,15 @@ namespace Data
         public List<MissionStep> missionStepDetails = new List<MissionStep>();
     }
 
-    // 세부 미션이 가지고 있는 정보
+    // 세부 미션이 가지고 있는 정보 // 
     [System.Serializable]
     public class MissionStep : BaseMission
     {
         public GeoCoordinate destinationCoordinate; // 현재 세부 미션의 도착지 좌표 정보
 
         public string plantName; // 관찰하기 미션용 꽃 이름
+
+        // public string placeName;
     }
 
     #endregion
@@ -151,23 +153,52 @@ namespace Data
     {
         public string user_id;   // 구글 또는 애플 로그인 시 나오는 UID 사용
         public string message;
+        public double latitude;
+        public double longitude;
     }
 
     [System.Serializable]
     public class AIChatResponse
     {
         public string response;
-        public bool route_finalized = false; // 기본값 false
-        public List<SimpleRoute> route;      // null 허용
+        public AIChatData data;
+    }
+
+    [System.Serializable]
+    public class AIChatData
+    {
+        public string flag;
+
+        // 단일 장소/식물 정보
+        public PlantOrPlaceData data;
+
+        // 코스일 때만 사용
+        public SimpleRouteList routeData;
+    }
+
+    [System.Serializable]
+    public class PlantOrPlaceData
+    {
+        public string name;
+        public double latitude;
+        public double longitude;
+    }
+
+    [System.Serializable]
+    public class SimpleRouteList
+    {
+        public List<SimpleRoute> simpleRoutes;
     }
 
     [System.Serializable]
     public class SimpleRoute
     {
         public string name;
+        public string place;
         public double latitude;
         public double longitude;
     }
+
 
     #endregion
 
