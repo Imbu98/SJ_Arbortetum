@@ -27,6 +27,7 @@ public class csSaveLodeManager : MonoBehaviour
     private string savedPlantPath;
     private string missionDataPath;
     private string quizDataPath;
+    private string stampTourDataPath;
 
 
     private void Awake()
@@ -43,6 +44,7 @@ public class csSaveLodeManager : MonoBehaviour
         savedPlantPath = Path.Combine(Application.persistentDataPath, "savedPlants.json");
         missionDataPath = Path.Combine(Application.persistentDataPath, "missionData.json");
         quizDataPath = Path.Combine(Application.persistentDataPath, "quizData.json");
+        stampTourDataPath = Path.Combine(Application.persistentDataPath, "stampTourData.json");
 
     }
 
@@ -229,4 +231,40 @@ public class csSaveLodeManager : MonoBehaviour
             SaveQuizData();
         }
     }
+
+    /// <summary>
+    /// 미션 저장
+    /// </summary>
+    public void SaveStampTour()
+    {
+        StampTourProgressData data = csSingleton.Instance.stampTourProgressData;
+
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(stampTourDataPath, json);
+
+        Debug.Log("미션 데이터 저장 완료: " + stampTourDataPath);
+    }
+
+    /// <summary>
+    /// 미션 불러오기
+    /// </summary>
+    public void LoadSavedStampTour()
+    {
+        if (File.Exists(stampTourDataPath))
+        {
+            string json = File.ReadAllText(stampTourDataPath);
+            StampTourProgressData data = JsonUtility.FromJson<StampTourProgressData>(json);
+
+            csSingleton.Instance.stampTourProgressData = data ?? new StampTourProgressData();
+
+            Debug.Log("스탬프 투어데이터  로드 완료: " + stampTourDataPath);
+
+        }
+        else
+        {
+            csSingleton.Instance.stampTourProgressData = new StampTourProgressData();
+            SaveStampTour();
+        }
+    }
+
 }

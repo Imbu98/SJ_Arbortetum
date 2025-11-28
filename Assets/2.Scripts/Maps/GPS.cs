@@ -94,6 +94,7 @@ public class GPS : MonoBehaviour
 
             Latitude += joystick.InputVector.y * moveSpeed;
             Longitude += joystick.InputVector.x * moveSpeed;
+            csMapManager.Instance.simulateVector = joystick.InputVector;
         }
 
         // UI 표시

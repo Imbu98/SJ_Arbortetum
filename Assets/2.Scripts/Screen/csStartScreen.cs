@@ -55,6 +55,8 @@ public class csStartScreen : MonoBehaviour
         csSaveLodeManager.Instance.LoadSavedMission();
 
         csSaveLodeManager.Instance.LoadSavedQuiz();
+
+        csSaveLodeManager.Instance.LoadSavedStampTour();
     }
 
     private void Start()

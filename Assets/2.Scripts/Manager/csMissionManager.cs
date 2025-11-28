@@ -119,7 +119,7 @@ public class csMissionManager : MonoBehaviour
 
         if(IsMissonOnProgress)
         {
-            csUIManager.Instance.SetAIChatText("현진행중인 미션이 있습니다. 미션을 완료하거나 포기한 후에 새로운 미션을 생성할 수 있습니다.");
+            csUIManager.Instance.SetAIChatText("현제진행중인 미션이 있습니다. 미션을 완료하거나 포기한 후에 새로운 미션을 생성할 수 있습니다.");
             return;
         }
 

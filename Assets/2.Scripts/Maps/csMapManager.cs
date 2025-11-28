@@ -2,14 +2,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.InputSystem;
 using UnityEngine.Networking;
 using UnityEngine.Timeline;
-using System.Linq;
 using UnityEngine.UI;
 
 public class csMapManager : MonoBehaviour
@@ -31,6 +32,8 @@ public class csMapManager : MonoBehaviour
 
     // 맵 이미지
     public RawImage mapRawImage;
+
+    [SerializeField] private RectTransform mapRotationRoot;
 
     // 길 찾기
     [Header("PathFind")]
@@ -94,13 +97,7 @@ public class csMapManager : MonoBehaviour
         
 
     }
-    private void FixedUpdate()
-    {
-        if(IsMapOpened)
-        {
-            UpdateMarkerOnly();
-        }
-    }
+   
     private void OnEnable()
     {
        
@@ -109,6 +106,13 @@ public class csMapManager : MonoBehaviour
 
     private void OnDisable()
     {
+    }
+    private void FixedUpdate()
+    {
+        if (IsMapOpened)
+        {
+            UpdateMarkerOnly();
+        }
     }
 
 
@@ -332,6 +336,7 @@ public class csMapManager : MonoBehaviour
         markerRect.anchoredPosition = startUI;
 
         UpdateArrowRotation();
+        //UpdateMapRotationByHeading();
     }
 
     /// <summary>
@@ -365,26 +370,64 @@ public class csMapManager : MonoBehaviour
         pos.y = Mathf.Clamp(pos.y, -limitY, limitY);
 
         mapRect.anchoredPosition = pos;
+
+        Debug.Log($"Clamping Map Position");
     }
 
-    float simulatedHeading = 0f;
+    public Vector2 simulateVector = Vector2.zero;
 
     private void UpdateArrowRotation()
     {
 #if UNITY_EDITOR
-        simulatedHeading += Time.deltaTime * 30f; // 초당 30도 회전
-        if (simulatedHeading > 360) simulatedHeading -= 360;
-        markerRect.localRotation = Quaternion.Euler(0, 0, -simulatedHeading);
+        Vector2 dir = simulateVector;
+
+        // 입력 벡터가 거의 0이면 회전시키지 않음
+        if (dir.sqrMagnitude > 0.0001f)
+        {
+            float angle = Mathf.Atan2(dir.y, -dir.x) * Mathf.Rad2Deg; // X 반전!
+            float uiAngle = -angle + 90f;
+
+            markerRect.localRotation = Quaternion.Euler(0, 0, uiAngle);
+            return;
+        }
 #endif
 
+        // On mobile, the arrow rotation is handled inside UpdateMapRotationByHeading
+        // to sync it with the map's rotation.
+    }
 
-#if UNITY_ANDROID || UNITY_IOS
-        float heading = Input.compass.trueHeading;
-        // 기본: Z축 기준 회전
-        markerRect.localRotation = Quaternion.Euler(0, 0, -heading);
+    private float filteredHeading = 0f;
+    private float smoothVelocity = 0f;
 
-        Debug.Log("Heading: " + Input.compass.trueHeading);
-#endif
+    private void UpdateMapRotationByHeading()
+    {
+//#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+        float raw = Input.compass.trueHeading;
+
+        // 1) Low Pass Filter to reduce noise
+        float alpha = 0.15f; 
+        filteredHeading = Mathf.LerpAngle(filteredHeading, raw, alpha);
+
+        // 2) Ignore very small changes to prevent shaking
+        if (Mathf.Abs(Mathf.DeltaAngle(mapRawImage.rectTransform.localEulerAngles.z, -filteredHeading)) < 1.0f)
+        {
+            return; 
+        }
+
+        // 3) Smoothly rotate the map
+        float smooth = Mathf.SmoothDampAngle(
+            mapRawImage.rectTransform.localEulerAngles.z,
+            filteredHeading,
+            ref smoothVelocity,
+            0.2f
+        );
+
+        mapRawImage.rectTransform.localRotation = Quaternion.Euler(0, 0, smooth);
+
+        // Counter-rotate the marker so it always points "up" on the screen
+        markerRect.localRotation = Quaternion.Euler(0, 0, -smooth);
+
+        ToMyLocation();
     }
 
     private void LineConnenctToMarker()
@@ -580,11 +623,11 @@ public class csMapManager : MonoBehaviour
         {
             mapRawImage.rectTransform.anchoredPosition = Vector2.Lerp(startPosition, MaptargetPosition, time / duration);
             time += Time.deltaTime;
-            csMapManager.Instance.ClampMapPosition();
+            ClampMapPosition();
             yield return null;
         }
         mapRawImage.rectTransform.anchoredPosition = MaptargetPosition; // 정확한 최종 위치 보정
-        csMapManager.Instance.ClampMapPosition();
+        ClampMapPosition();
     }
 
     // 검색장소 리셋

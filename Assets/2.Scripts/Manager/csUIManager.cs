@@ -17,9 +17,13 @@ public class csUIManager : MonoBehaviour
     public GameObject mapScreen; // 지도 
     public GameObject missionPopup; // 미션창
     public GameObject speechToTextScreen; // 음성 언어 입력 화면
-    public GameObject quizScreen; // 퀴즈창
+    public csQuizScreen quizScreen; // 퀴즈창
     public GameObject settingScreen; // 설정창
-  
+    public GameObject QnA_Screen; // 수목원 QnA창
+    public GameObject stampTour_Screen; // 수목원 스탬프투어
+
+
+
 
     private GameObject currentScreen;
     private GameObject currentPanel;
@@ -157,14 +161,56 @@ public class csUIManager : MonoBehaviour
         TogglePopup(missionPopup, show);
     }
 
-    public void PopupQuizScreen(bool show)
+    public void PopupStampTour(bool show)
     {
-        if(csSingleton.Instance.savedQuizList.quizDataWrapperList.Count==0)
+        if (show)
         {
-            SetAIChatText("식물을 관찰하여 퀴즈를 생성해보세요");
-            return;
+            if (!IsInsideArboretum())
+            {
+                NotInsideInArboretum();
+                return;
+            }
         }
-        TogglePopup(quizScreen, show);
+
+        TogglePopup(stampTour_Screen, show);
+    }
+    public void PopupQnA_Screen(bool show)
+    {
+        TogglePopup(QnA_Screen, show);
+    }
+
+    public void OnClickedQuizButton(bool show)
+    {
+        PopupQuizScreen(show,QuizGenerationType.ObserveQuiz);
+    }
+
+    public void PopupQuizScreen(bool show,QuizGenerationType quizGenerationType=QuizGenerationType.None)
+    {
+        quizScreen.currentQuizGenerationType = quizGenerationType;
+
+        switch (quizGenerationType)
+        {
+            case QuizGenerationType.ObserveQuiz:
+                {
+                    if (csSingleton.Instance.savedQuizList.quizDataWrapperList.Count == 0)
+                    {
+                        SetAIChatText("식물을 관찰하여 퀴즈를 생성해보세요");
+                        return;
+                    }
+                    TogglePopup(quizScreen.gameObject, show);
+                    break;
+                }
+            case QuizGenerationType.StampTourQuiz:
+                {
+                    TogglePopup(quizScreen.gameObject, show);
+                    break;
+                }
+            default:
+                {
+                    TogglePopup(quizScreen.gameObject, show);
+                    break;
+                }
+        }
     }
 
     public void PopupSpeechToText(bool show)

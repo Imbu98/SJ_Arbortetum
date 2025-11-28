@@ -11,29 +11,35 @@ using UnityEngine.UI;
 public class csQuizScreen : MonoBehaviour
 {
     [Header("Buttons")]
-    // °´°ü½Ä º¸±â ¹öÆ°
+    // ê°ê´€ì‹ ë³´ê¸° ë²„íŠ¼
     [SerializeField] private List<Button> choiceButtons;
-    // O/X ¼±ÅÃ ¹öÆ°
+    // O/X ì„ íƒ ë²„íŠ¼
     [SerializeField] private List<Button> findRightButtons;
+
+
 
     [SerializeField] private Button answerSubmitButton;
     [SerializeField] private Button resetQuizButton;
     [SerializeField] private Button endQuizButton;
     [SerializeField] private Button closeQuizScreenButton;
     [SerializeField] private Button nextQuizButton;
+    [SerializeField] private Button stampTourClearButton;
 
 
-    // ÇöÀç ÄûÁî Å¸ÀÔ
-    [SerializeField] private QuizDataWrapper quizDataWrapper; // ÇöÀç °¡Áö°íÀÖ´Â ÄûÁîµ¥ÀÌÅÍ
-    // ÄûÁî ÀÎµ¦½º
+    // í˜„ì¬ í€´ì¦ˆ íƒ€ì…
+    [SerializeField] private QuizDataWrapper quizDataWrapper; // í˜„ì¬ ê°€ì§€ê³ ìˆëŠ” í€´ì¦ˆë°ì´í„°
+
+    // í€´ì¦ˆ ì¸ë±ìŠ¤
     private int currentQuizIndex = -1;
 
-    // ÇöÀç ¼±ÅÃÇÑ Á¤´ä
+    // í˜„ì¬ í€´ì¦ˆ ìƒì„± íƒ€ì…
+    [SerializeField] public QuizGenerationType currentQuizGenerationType;
+    // í˜„ì¬ ì„ íƒí•œ ì •ë‹µ
     private int userSelectQuizAnswer = -1;
 
     [Header("BottomButtons")]
-    [SerializeField] private GameObject onQuizObject; // ÄûÁîÁßÀÏ ¶§ È°¼ºÈ­ÇÒ ¿ÀºêÁ§Æ® ( Á¤´ä¼±ÅÃ ¹öÆ°)
-    [SerializeField] private GameObject endQuizObject; // ÄûÁî°¡ ³¡³µÀ» ¶§ È°¼ºÈ­ÇÒ ¿ÀºêÁ§Æ® ( Á¾·á, ´ÙÀ½ÄûÁî ¹öÆ°)
+    [SerializeField] private GameObject onQuizObject; // í€´ì¦ˆì¤‘ì¼ ë•Œ í™œì„±í™”í•  ì˜¤ë¸Œì íŠ¸ ( ì •ë‹µì„ íƒ ë²„íŠ¼)
+    [SerializeField] private GameObject endQuizObject; // í€´ì¦ˆê°€ ëë‚¬ì„ ë•Œ í™œì„±í™”í•  ì˜¤ë¸Œì íŠ¸ ( ì¢…ë£Œ, ë‹¤ìŒí€´ì¦ˆ ë²„íŠ¼)
 
     [Header("BodyParts")]
     [SerializeField] private GameObject multipleChoicePart;
@@ -41,7 +47,7 @@ public class csQuizScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI quizText_TMP;
 
     [Header("MultipleChoice")]
-    [SerializeField] private List<TextMeshProUGUI> choiceTMP; // º¸±â ÅØ½ºÆ®
+    [SerializeField] private List<TextMeshProUGUI> choiceTMP; // ë³´ê¸° í…ìŠ¤íŠ¸
 
     [Header("FindRight")]
     [SerializeField] private GameObject findrightSelectObject;
@@ -50,10 +56,10 @@ public class csQuizScreen : MonoBehaviour
     [SerializeField] private GameObject inCorrectResultPrefab;
 
     [Header("Answer Spirte")]
-    [SerializeField] private Sprite unSelectedSprite; //¼±ÅÃ¾ÈµÊ
-    [SerializeField] private Sprite SelectedSprite;   // ¼±ÅÃµÊ
-    [SerializeField] private Sprite CorrectSprite;    // Á¤´ä
-    [SerializeField] private Sprite InCorrectSprite;  // ¿À´ä
+    [SerializeField] private Sprite unSelectedSprite; //ì„ íƒì•ˆë¨
+    [SerializeField] private Sprite SelectedSprite;   // ì„ íƒë¨
+    [SerializeField] private Sprite CorrectSprite;    // ì •ë‹µ
+    [SerializeField] private Sprite InCorrectSprite;  // ì˜¤ë‹µ
 
     private bool bOnQuiz = true;
 
@@ -74,9 +80,11 @@ public class csQuizScreen : MonoBehaviour
         resetQuizButton.onClick.AddListener(PopupResetQuiz);
         endQuizButton.onClick.AddListener(QuitQuiz);
         closeQuizScreenButton.onClick.AddListener(QuitQuiz);
-        nextQuizButton.onClick.AddListener(SetQuiz);
+        nextQuizButton.onClick.AddListener(() => SetQuiz());
+        stampTourClearButton.onClick.AddListener(OnStampTourClear);
 
         SetQuiz();
+
     }
 
     private void OnDisable()
@@ -96,13 +104,20 @@ public class csQuizScreen : MonoBehaviour
         endQuizButton.onClick.RemoveAllListeners();
         closeQuizScreenButton.onClick.RemoveAllListeners();
         nextQuizButton.onClick.RemoveAllListeners();
+        stampTourClearButton.onClick.RemoveAllListeners();
+    }
+
+    private void OnStampTourClear()
+    {
+        csUIManager.Instance.PopupQuizScreen(false);
+        csStampTourManager.Instance.SetStampTourClearUI();
     }
 
     private void SetQuiz()
     {
         if (quizDataWrapper != null)
         {
-            // ÄûÁî µ¥ÀÌÅÍ ÀÖÀ¸¸é ÃÊ±âÈ­
+            // í€´ì¦ˆ ë°ì´í„° ìˆìœ¼ë©´ ì´ˆê¸°í™”
             quizDataWrapper = new QuizDataWrapper();
         }
 
@@ -110,12 +125,30 @@ public class csQuizScreen : MonoBehaviour
 
         userSelectQuizAnswer = -1;
 
-        // ÄûÁîµ¥ÀÌÅÍ °¡Á®¿À±â
+        // í€´ì¦ˆë°ì´í„° ê°€ì ¸ì˜¤ê¸°
+        switch (currentQuizGenerationType)
+        {
+            case QuizGenerationType.ObserveQuiz:
+                {
+                    quizDataWrapper = GetRandomObserveQuiz();
+                    break;
+                }
+            case QuizGenerationType.StampTourQuiz:
+                {
+                    QuizData stampTourQuizData = GetRandomStampTourQuiz();
+                    quizDataWrapper = new QuizDataWrapper
+                    {
+                        quizData = stampTourQuizData,
+                        IsSolvedQuestion = false,
+                        plantScientificName = ""
+                    };
+                    break;
+                }
+        }
 
 
-        quizDataWrapper = GetRandomQuiz();
 
-        // ÄûÁî º¸±â text ¼³Á¤
+        // í€´ì¦ˆ ë³´ê¸° text ì„¤ì •
         if (quizDataWrapper.quizData.quizChoices != null)
         {
 
@@ -132,17 +165,50 @@ public class csQuizScreen : MonoBehaviour
 
         SetBodyPart();
 
-        // ÄûÁî ÇÏ´Ü ¹öÆ° UIº¯°æ
+        // í€´ì¦ˆ í•˜ë‹¨ ë²„íŠ¼ UIë³€ê²½
         SetOnQuizUI(true);
     }
 
-    // ÇÏ´Ü ¹öÆ° UI Ç¥½Ã ¼³Á¤
-    private void SetOnQuizUI(bool isOnQuiz)
+    // í•˜ë‹¨ ë²„íŠ¼ UI í‘œì‹œ ì„¤ì •
+    private void SetOnQuizUI(bool isOnQuiz, bool isCorrect = false)
     {
-        onQuizObject.gameObject.SetActive(isOnQuiz); // ÄûÁî ÁßÀÏ ¶§ Á¤´ä ¼±ÅÃ¹öÆ° È°¼ºÈ­
-        endQuizObject.gameObject.SetActive(!isOnQuiz); // ÄûÁî ³¡³ª°í Á¾·á, ´ÙÀ½ÄûÁî ¹öÆ° È°¼ºÈ­
+        onQuizObject.gameObject.SetActive(isOnQuiz);
+        endQuizObject.gameObject.SetActive(!isOnQuiz);
 
         bOnQuiz = isOnQuiz;
+
+        if (!isOnQuiz)
+        {
+            endQuizButton.gameObject.SetActive(false);
+            nextQuizButton.gameObject.SetActive(false);
+            stampTourClearButton.gameObject.SetActive(false);
+
+            if (currentQuizGenerationType == QuizGenerationType.ObserveQuiz)
+            {
+                endQuizButton.gameObject.SetActive(true);
+                endQuizButton.GetComponentInChildren<TextMeshProUGUI>().text = "ì¢…ë£Œ";
+                nextQuizButton.gameObject.SetActive(true);
+                nextQuizButton.GetComponentInChildren<TextMeshProUGUI>().text = "ë‹¤ìŒí€´ì¦ˆ";
+                nextQuizButton.onClick.RemoveAllListeners();
+                nextQuizButton.onClick.AddListener(() => SetQuiz());
+            }
+            else
+            {
+                if (isCorrect)
+                {
+                    stampTourClearButton.gameObject.SetActive(true);
+                }
+                else
+                {
+                    endQuizButton.gameObject.SetActive(true);
+                    endQuizButton.GetComponentInChildren<TextMeshProUGUI>().text = "ì¢…ë£Œ";
+                    nextQuizButton.gameObject.SetActive(true);
+                    nextQuizButton.GetComponentInChildren<TextMeshProUGUI>().text = "ë‹¤ì‹œì‹œë„";
+                    nextQuizButton.onClick.RemoveAllListeners();
+                    nextQuizButton.onClick.AddListener(() => SetQuiz());
+                }
+            }
+        }
     }
 
     public void SelectChoice(int index)
@@ -189,7 +255,7 @@ public class csQuizScreen : MonoBehaviour
                 }
 
         }
-        userSelectQuizAnswer = index + 1; // index´Â 0ºÎÅÍ ½ÃÀÛÀÌ´Ï Á¤´äÀº +1
+        userSelectQuizAnswer = index + 1; // indexëŠ” 0ë¶€í„° ì‹œì‘ì´ë‹ˆ ì •ë‹µì€ +1
 
         answerSubmitButton.interactable = true;
 
@@ -203,7 +269,8 @@ public class csQuizScreen : MonoBehaviour
             return;
         }
 
-        SetOnQuizUI(false);
+        bool isCorrect = quizDataWrapper.quizData.answer == userSelectQuizAnswer;
+        SetOnQuizUI(false, isCorrect);
 
         switch (quizDataWrapper.quizData.quizType)
         {
@@ -216,14 +283,12 @@ public class csQuizScreen : MonoBehaviour
                 {
                     for (int i = 0; i < choiceButtons.Count; ++i)
                     {
-                        // »ç¿ëÀÚ°¡ ¼±ÅÃÇÑ Á¤´ä°ú ÄûÁîÀÇ Á¤´äÀÌ °°À¸¸é Á¤´ä ½ºÇÁ¶óÀÌÆ®·Î º¯°æ
-                        if (quizDataWrapper.quizData.answer == userSelectQuizAnswer)
+                        if (isCorrect)
                         {
                             RewardAndSaveQuizData();
 
                             choiceButtons[quizDataWrapper.quizData.answer - 1].GetComponent<Image>().sprite = CorrectSprite;
                         }
-                        // ´Ù¸£¸é ±âÁ¸ ¼±ÅÃ ½ºÇÁ¶óÀÌÆ®´Â ³ÀµÎ°í ÄûÁîÀÇ Á¤´ä¸¸ ¿À´ä ½ºÇÁ¶óÀÌÆ®·Îº¯°æ
                         else
                         {
                             choiceButtons[quizDataWrapper.quizData.answer - 1].GetComponent<Image>().sprite = InCorrectSprite;
@@ -233,7 +298,7 @@ public class csQuizScreen : MonoBehaviour
                 }
             case QuizType.FindRight:
                 {
-                    if (quizDataWrapper.quizData.answer == userSelectQuizAnswer)
+                    if (isCorrect)
                     {
                         RewardAndSaveQuizData();
 
@@ -241,7 +306,7 @@ public class csQuizScreen : MonoBehaviour
 
                         Instantiate(correctResultPrefab, resultHolder, false);
 
-                        
+
                     }
                     else
                     {
@@ -253,11 +318,6 @@ public class csQuizScreen : MonoBehaviour
                     break;
                 }
         }
-
-        
-
-        // ÄûÁî Á¤´ä¿¡ ´ëÇÑ ¼³¸í ÅØ½ºÆ® Ãß°¡
-        //quizText_TMP = 
     }
 
     private void QuitQuiz()
@@ -284,7 +344,7 @@ public class csQuizScreen : MonoBehaviour
                     multipleChoicePart.SetActive(true);
                     findRightPart.SetActive(false);
 
-                    // ¼±ÅÃ,Á¤´ä ÀÌ¹ÌÁö ºñÈ°¼ºÈ­
+                    // ì„ íƒ,ì •ë‹µ ì´ë¯¸ì§€ ë¹„í™œì„±í™”
                     foreach (Button choiceButton in choiceButtons)
                     {
                         choiceButton.GetComponent<Image>().sprite = unSelectedSprite;
@@ -296,7 +356,7 @@ public class csQuizScreen : MonoBehaviour
                     multipleChoicePart.SetActive(false);
                     findRightPart.SetActive(true);
                     findrightSelectObject.SetActive(true);
-                    // ¹öÆ° »ö È¸»öÀ¸·Î ÃÊ±âÈ­
+                    // ë²„íŠ¼ ìƒ‰ íšŒìƒ‰ìœ¼ë¡œ ì´ˆê¸°í™”
                     foreach (Button findRightButton in findRightButtons)
                     {
                         findRightButton.GetComponent<Image>().sprite = unSelectedSprite;
@@ -311,18 +371,18 @@ public class csQuizScreen : MonoBehaviour
         }
     }
 
-    // ÄûÁî µ¥ÀÌÅÍ ÀúÀå ¹× Æ÷ÀÎÆ® Áö±Ş
+    // í€´ì¦ˆ ë°ì´í„° ì €ì¥ ë° í¬ì¸íŠ¸ ì§€ê¸‰
     private void RewardAndSaveQuizData()
     {
-        if (quizDataWrapper.IsSolvedQuestion == false)
+        if (quizDataWrapper.IsSolvedQuestion == false && currentQuizGenerationType == QuizGenerationType.ObserveQuiz)
         {
-            quizDataWrapper.IsSolvedQuestion = true; // ¸ÂÃá ¹®Á¦·Î ¼³Á¤
+            quizDataWrapper.IsSolvedQuestion = true; // ë§ì¶˜ ë¬¸ì œë¡œ ì„¤ì •
 
-            csSingleton.Instance.savedQuizList.quizDataWrapperList[currentQuizIndex] = quizDataWrapper; // º¯°æµÈ °ª ÀúÀå
+            csSingleton.Instance.savedQuizList.quizDataWrapperList[currentQuizIndex] = quizDataWrapper; // ë³€ê²½ëœ ê°’ ì €ì¥
 
-            csSaveLodeManager.Instance.SaveQuizData(); // ÄûÁî µ¥ÀÌÅÍ ÀúÀå
+            csSaveLodeManager.Instance.SaveQuizData(); // í€´ì¦ˆ ë°ì´í„° ì €ì¥
 
-            csSingleton.Instance.RewardPoint(10); // Á¤´ä ¸ÂÃß¸é Æ÷ÀÎÆ® 10Á¡ Áö±Ş
+            csSingleton.Instance.RewardPoint(10); // ì •ë‹µ ë§ì¶”ë©´ í¬ì¸íŠ¸ 10ì  ì§€ê¸‰
 
         }
     }
@@ -332,8 +392,8 @@ public class csQuizScreen : MonoBehaviour
         csPopupPanel.Instance.PopupResetQuiz(SetQuiz);
     }
 
-    // ·£´ıÇÑ ÄûÁî¸¦ ÃßÃâ( ¾È Ç®¾ú´ø ¹®Á¦ ¸ÕÀú )
-    public QuizDataWrapper GetRandomQuiz()
+    // ëœë¤í•œ í€´ì¦ˆë¥¼ ì¶”ì¶œ( ì•ˆ í’€ì—ˆë˜ ë¬¸ì œ ë¨¼ì € )
+    public QuizDataWrapper GetRandomObserveQuiz()
     {
         QuizDataWrapperList quizDataWrapperList = csSingleton.Instance.savedQuizList;
 
@@ -341,12 +401,78 @@ public class csQuizScreen : MonoBehaviour
                .Where(q => !q.IsSolvedQuestion)
                .ToList();
 
-        // Å¸ÀÔÀ» List<QuizDataWrapper> ·Î º¯°æ
+        // íƒ€ì…ì„ List<QuizDataWrapper> ë¡œ ë³€ê²½
         List<QuizDataWrapper> targetList =
             (unsolvedList.Count > 0) ? unsolvedList : quizDataWrapperList.quizDataWrapperList;
 
-        currentQuizIndex  = UnityEngine.Random.Range(0, targetList.Count);
+        currentQuizIndex = UnityEngine.Random.Range(0, targetList.Count);
         return targetList[currentQuizIndex];
+    }
+
+    public QuizData GetRandomStampTourQuiz()
+    {
+        int id = csStampTourManager.Instance.currentTourLocationData.locationID;
+        List<QuizData> quizList = LoadStampTourQuizByLocation(id);
+
+        int randomIndex = UnityEngine.Random.Range(0, quizList.Count);
+
+        return quizList[randomIndex];
+    }
+
+    public List<QuizData> LoadStampTourQuizByLocation(int locationId)
+    {
+        // CSV ë¡œë“œ
+        TextAsset csvFile = Resources.Load<TextAsset>($"CSV/StampTourQuiz/{locationId}");
+
+        // CSV ì—†ìœ¼ë©´ ê¸°ë³¸ ë¬¸ì œ 1ê°œ ë§Œë“¤ì–´ì„œ ë°˜í™˜
+        if (csvFile == null)
+        {
+            Debug.LogWarning($"âš  StampTourQuiz íŒŒì¼ ì—†ìŒ â†’ ê¸°ë³¸ ë¬¸ì œ ìƒì„± | locationId: {locationId}");
+
+            List<QuizData> defaultQuiz = new List<QuizData>();
+
+            defaultQuiz.Add(new QuizData
+            {
+                quizType = QuizType.MultipleChoice,
+                answer = 1,
+                quizDescription = "ì¥ë¯¸ì˜ ê½ƒë§ ì¤‘ í•˜ë‚˜ëŠ” ë¬´ì—‡ì¼ê¹Œìš”?",
+                quizChoices = new List<string> { "ì§ˆíˆ¬", "ìš©ê¸°", "ìˆœìˆ˜", "ê°ì‚¬" }
+            });
+
+            return defaultQuiz;
+        }
+
+        // CSV ì¡´ì¬í•˜ë©´ ë¦¬ìŠ¤íŠ¸ë¡œ íŒŒì‹±
+        List<QuizData> quizList = new List<QuizData>();
+        string[] lines = csvFile.text.Split('\n');
+
+        // ğŸ”¥ ì²« ë²ˆì§¸ ë¼ì¸(í—¤ë”) ìŠ¤í‚µí•˜ê¸° ìœ„í•´ i = 1ë¶€í„°
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string line = lines[i];
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            string[] parts = line.Split(',');
+
+            if (parts.Length < 4)
+                continue;
+
+            QuizType quizType = (QuizType)Enum.Parse(typeof(QuizType), parts[0]);
+            int answerIndex = int.Parse(parts[1]);
+            string description = parts[2];
+            List<string> choices = parts[3].Split('|').ToList();
+
+            quizList.Add(new QuizData
+            {
+                quizType = quizType,
+                answer = answerIndex,
+                quizDescription = description,
+                quizChoices = choices
+            });
+        }
+
+        return quizList;
     }
 
 }

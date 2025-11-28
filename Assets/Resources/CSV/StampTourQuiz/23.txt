@@ -1,0 +1,3 @@
+Type,AnswerIndex,Question,Options
+MultipleChoice,1,장미의 꽃말 중 하나는 무엇일까요?,질투|용기|순수|감사
+MultipleChoice,3,이 나무의 이름은?,은행나무|단풍나무|소나무|벚나무

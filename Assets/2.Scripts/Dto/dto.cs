@@ -200,7 +200,33 @@ namespace Data
 
     #endregion
 
+    #region
 
+    [System.Serializable]
+    public class StampTourProgressData
+    {
+        public List<StampTourInfo> stampTourInfoList = new List<StampTourInfo>();
+
+        public int stampTourIndex = -1; // 스탬프투어 인덱스
+    }
+
+    [System.Serializable]
+    // 스탬프투어 코스 정보
+    public class StampTourInfo
+    {
+        public List<StampTourCourseInfo> stampTourCourseList = new List<StampTourCourseInfo>();
+
+        public bool IsCleared;
+    }
+
+    [System.Serializable]
+    // 스탬프투어 코스 내 미션 단계 정보
+    public class StampTourCourseInfo
+    {
+        public bool IsCleared;
+    }
+
+    #endregion
 
     #region Enum
 
@@ -210,6 +236,14 @@ namespace Data
         None = 0,
         MultipleChoice = 1, // 객관식
         FindRight = 2, //  O/X 퀴즈
+    }
+
+    [System.Serializable]
+    public enum QuizGenerationType
+    {
+        None = 0,
+        ObserveQuiz,
+        StampTourQuiz,
     }
 
     public enum PolicyType

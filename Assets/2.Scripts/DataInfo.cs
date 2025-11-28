@@ -36,5 +36,7 @@ namespace Datainfo
         public List<ChatMessage> strSavedChatHistory;
 
         public QuizDataWrapperList savedQuizList;
+
+        public StampTourProgressData stampTourProgressData;
     }
 }

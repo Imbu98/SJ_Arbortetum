@@ -55,6 +55,18 @@ MonoBehaviour:
     m_Key: Key_NetworkError
     m_Metadata:
       m_Items: []
+  - m_Id: 5463163293511680
+    m_Key: Popup_ResetCurrentCourse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5465627845570560
+    m_Key: Popup_ResetAllCourses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5718001084379136
+    m_Key: Popup_SignOut
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

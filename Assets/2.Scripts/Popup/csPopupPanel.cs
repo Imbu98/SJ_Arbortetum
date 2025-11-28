@@ -96,6 +96,14 @@ public class csPopupPanel : MonoBehaviour
         popupPart.InitButtonB("PopupPanel", "Popup_Reset", BindingActionAndClosePopup(unityaction));
     }
 
+    public void PopupQuitSignOut(UnityAction unityaction)
+    {
+        OpendAndBindingBackButton();
+        popupPart.InitText("PopupPanel", "Popup_SignOut");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Yes", BindingActionAndClosePopup(unityaction));
+    }
+
     public void PopupQuitApplication(UnityAction unityaction)
     {
         OpendAndBindingBackButton();
@@ -103,6 +111,60 @@ public class csPopupPanel : MonoBehaviour
         popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
         popupPart.InitButtonB("PopupPanel", "Popup_Quit", BindingActionAndClosePopup(unityaction));
     }
+
+    // 스탬프투어 미션 범위 밖 팝업
+    public void PopupNotWithInMissionRange()
+    {
+        OpendAndBindingBackButton();
+        popupPart.InitText("PopupPanel", "Popup_NotWithInMissionRange");
+        popupPart.InitButtonA("PopupPanel", "Popup_Yes", CloseAllParts);
+    }
+
+    // 스탬프투어용 퀴즈 및 길찾기 팝업
+    public void PopupStampTourElements(string key, LocationData courselocationData)
+    {
+        OpendAndBindingBackButton();
+
+        popupPart.InitText("LanguageTable", key);
+        popupPart.InitButtonA("LanguageTable", "Key_Quiz", () => {
+
+            if (csMapManager.Instance.IsWithinRange(csMapManager.Instance.GetMyGPS(), courselocationData.geoCoordinate, 15))
+            {
+                csUIManager.Instance.PopupQuizScreen(true,QuizGenerationType.StampTourQuiz);
+                CloseAllParts();
+            }
+            else
+            {
+                CloseAllParts();
+                PopupNotWithInMissionRange();
+            }
+        });
+
+        popupPart.InitButtonB("LanguageTable", "Key_PathFind", () => {
+            csMapManager.Instance._searchManager.SetSearchUI(courselocationData, 2);
+            CloseAllParts();
+        });
+        popupPart.InitCloseButton(CloseAllParts);
+
+        
+    }
+
+    public void PopupResetCurrentCourse(UnityAction unityaction)
+    {
+        OpendAndBindingBackButton();
+        popupPart.InitText("PopupPanel", "Popup_ResetCurrentCourse");
+        popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+        popupPart.InitButtonB("PopupPanel", "Popup_Reset", BindingActionAndClosePopup(unityaction));
+    }
+
+    //public void PopupResetAllCourses(UnityAction unityaction)
+    //{
+    //    OpendAndBindingBackButton();
+    //    popupPart.InitText("PopupPanel", "Popup_ResetAllCourses");
+    //    popupPart.InitButtonA("PopupPanel", "Popup_No", CloseAllParts);
+    //    popupPart.InitButtonB("PopupPanel", "Popup_Reset", BindingActionAndClosePopup(unityaction));
+    //}
+
 
     // 팝업이 호출 될 때, 팝업을 나타내고 뒤로가기에 팝업끄는 액션 바인딩
     private void OpendAndBindingBackButton()

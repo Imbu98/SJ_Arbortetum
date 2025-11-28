@@ -36,6 +36,8 @@ public class csSingleton : MonoBehaviour
 
     [HideInInspector] public QuizDataWrapperList savedQuizList; // 퀴즈 저장
 
+    [HideInInspector] public StampTourProgressData stampTourProgressData;
+
     [HideInInspector] public int nPoint; // 미션 포인트(재화)
 
 
@@ -52,6 +54,10 @@ public class csSingleton : MonoBehaviour
     {
         //금지단어 설정
         SetReserve("Reserve/Reserve", list_Reserve);
+
+#if UNITY_EDITOR
+        UID = "123123";
+#endif
     }
 
     private void Awake()

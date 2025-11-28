@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
@@ -215,9 +216,13 @@ private void Awake()
         csUIManager.Instance.ChangeScreen(csUIManager.Instance.mainScreen.gameObject);
         csPopupPanel.Instance.PopupAgreeTermsOfUse(false);
     }
+    public void OnClickedSignoutButton(UnityAction closeSettingScreen)
+    {
+        csPopupPanel.Instance.PopupQuitSignOut(SignOut+closeSettingScreen);
+    }
 
     // 로그아웃 시 어플에 로컬 정보들만 지우기
-    public void SignOut()
+    private void SignOut()
     {
         csSingleton.Instance.UID = "";
         csSingleton.Instance.bAutoLogin = false;

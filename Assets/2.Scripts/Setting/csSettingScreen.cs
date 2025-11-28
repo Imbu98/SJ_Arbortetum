@@ -230,9 +230,9 @@ public class csSettingScreen : MonoBehaviour
 
     private void OnClickSignOutButton()
     {
-        this.gameObject.SetActive(false);
+       
 
-        csLoginManager.Instance.SignOut();
+        csLoginManager.Instance.OnClickedSignoutButton(() => this.gameObject.SetActive(false));
     }
 
     private void OnClickQuitApplicationButton()
