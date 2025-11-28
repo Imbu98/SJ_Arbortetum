@@ -141,6 +141,7 @@ public class csPopupPanel : MonoBehaviour
         });
 
         popupPart.InitButtonB("LanguageTable", "Key_PathFind", () => {
+            csUIManager.Instance.PopupMap(true);
             csMapManager.Instance._searchManager.SetSearchUI(courselocationData, 2);
             CloseAllParts();
         });
