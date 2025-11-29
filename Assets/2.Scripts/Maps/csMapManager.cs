@@ -80,6 +80,7 @@ public class csMapManager : MonoBehaviour
     // Compass and rotation state
     private float filteredHeading = 0f;
     private float mapRotationVelocity = 0f;
+    public float manualMapRotation = 0f;
 
     //
     public List<GameObject> locationObjectList;
@@ -346,8 +347,8 @@ public class csMapManager : MonoBehaviour
     /// </summary>
     public void ClampMap()
     {
-    float limitX = 4000f;
-    float limitY = 4000f;
+    float limitX = 2000;
+    float limitY = 2000;
 
     Vector2 pos = mapImageParent.anchoredPosition;
 
@@ -387,7 +388,12 @@ public class csMapManager : MonoBehaviour
 
             // 2. Rotate the map around the marker's world position
             mapImageParent.RotateAround(markerRect.position, Vector3.forward, deltaAngle);
-            
+
+            // 2) ★ 맵 회전값 정규화 (0~360 유지)
+            float normalizedZ = Normalize(mapImageParent.eulerAngles.z);
+
+            mapImageParent.rotation = Quaternion.Euler(0, 0, normalizedZ);
+
             // 3. Counter-rotate the marker itself to keep it pointing "up" on screen
             markerRect.localRotation = Quaternion.Euler(0, 0, -mapImageParent.localEulerAngles.z);
 
@@ -396,16 +402,11 @@ public class csMapManager : MonoBehaviour
         }
         else
         {
-            // Not pathfinding: Map rotation is controlled by the user. The marker should indicate the compass direction.
-            float currentMapAngle = mapImageParent.localEulerAngles.z;
-
-            float mapAngle = mapImageParent.localEulerAngles.z;
-
-            // heading은 Unity와 반대 방향 → 부호 반전 필요
             float heading = -filteredHeading;
 
-            // 마커는 지도에 대해 상대적인 휴대폰의 방향을 나타냄
-            float finalAngle = heading + mapAngle;
+            float mapAngle = Normalize(mapImageParent.eulerAngles.z);
+
+            float finalAngle = Normalize(heading + mapAngle);
 
             markerRect.localRotation = Quaternion.Euler(0, 0, finalAngle);
 
@@ -476,7 +477,10 @@ public class csMapManager : MonoBehaviour
         if (IsWithinRange(myGeoCoord, targetGeoCoord, 15.0))
         {
             // 목적지 도착시 검색화면 UI로 초기화
-            _searchManager.SetPathFindUI(false); 
+            _searchManager.SetPathFindUI(false);
+
+            manualMapRotation = Normalize(mapImageParent.rotation.eulerAngles.z); // 길찾기에서 일반모드로 전환 시 누적된 값 전달 
+
         }
     }
 
@@ -731,5 +735,11 @@ public class csMapManager : MonoBehaviour
         return new GeoCoordinate(MyGPS.Latitude, MyGPS.Longitude);
     }
 
+    public float Normalize(float angle)
+    {
+        angle %= 360f;
+        if (angle < 0) angle += 360f;
+        return angle;
+    }
 
 }

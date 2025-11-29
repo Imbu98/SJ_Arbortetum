@@ -230,36 +230,38 @@ public class csNetworkManager : MonoBehaviour
             {
                 string flag = res.data.flag?.ToLower();
 
-                // --- 코스 코드를 수행 ---
-                if (flag == "course")
+                if(!String.IsNullOrEmpty(flag))
                 {
-                    if (res.data.data == null || res.data.routeData == null)
+                    // --- 코스 코드를 수행 ---
+                    if (flag == "course")
                     {
-                        Debug.LogError("코스 데이터 없음");
+                        if (res.data.data == null || res.data.routeData == null)
+                        {
+                            Debug.LogError("코스 데이터 없음");
+                        }
+
+                        csMissionManager.Instance.CreateMisson(res.data.routeData);
+                        Debug.Log("코스 생성 완료");
                     }
 
-                    csMissionManager.Instance.CreateMisson(res.data.routeData);
-                    Debug.Log("코스 생성 완료");
-                }
-
-                else
-                {
-                    PlantOrPlaceData data = res.data.data;
-
-                    LocationData locationData = new LocationData
+                    else
                     {
-                        koreanName = data.name,
-                        englishName = data.name,
-                        geoCoordinate = new GeoCoordinate(data.latitude, data.longitude),
-                        locationID = 9999
-                    };
+                        PlantOrPlaceData data = res.data.data;
 
-                    csMapManager.Instance._searchManager.SetSearchUI(locationData, 2);
+                        LocationData locationData = new LocationData
+                        {
+                            koreanName = data.name,
+                            englishName = data.name,
+                            geoCoordinate = new GeoCoordinate(data.latitude, data.longitude),
+                            locationID = 9999
+                        };
 
-                    csUIManager.Instance.PopupMap(true);
+                        csMapManager.Instance._searchManager.SetSearchUI(locationData, 2);
+
+                        csUIManager.Instance.PopupMap(true);
+                    }
                 }
             }
-
 
             return res.response;
         }

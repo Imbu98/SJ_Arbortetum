@@ -73,6 +73,7 @@ public class csZoomSliderController : MonoBehaviour
             Mathf.Atan2((t1.position - t1.deltaPosition).y - (t0.position - t0.deltaPosition).y,
                         (t1.position - t1.deltaPosition).x - (t0.position - t0.deltaPosition).x) * Mathf.Rad2Deg
         );
+        angleDelta = -angleDelta;
 
         // --------------------------------------------------
         // 제스처 판단 (핵심)
@@ -183,49 +184,39 @@ public class csZoomSliderController : MonoBehaviour
 
     private void RotateAroundPinchCenter(float deltaAngle)
     {
-        // 길찾기 중이면 회전 불가
         if (csMapManager.Instance.E_searchStatus == Data.SearchStatus.SearchPath)
-        {
             return;
-        }
 
         RectTransform rt = mapParentReact;
         RectTransform parentRt = rt.parent as RectTransform;
 
-        // ---- 1) 두 손가락 가운데(Screen Center) 얻기 ----
         Touch t0 = Input.GetTouch(0);
         Touch t1 = Input.GetTouch(1);
         Vector2 pinchCenter = (t0.position + t1.position) * 0.5f;
 
-        // ---- 2) pinchCenter를 Parent 기준 Local 좌표로 변환 ----
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            parentRt,
-            pinchCenter,
-            null,
-            out localPoint
-        );
-        // ---- 3) Local → World 변환 ----
+            parentRt, pinchCenter, null, out localPoint);
+
         Vector3 pivotWorld = parentRt.TransformPoint(localPoint);
 
-        // ---- 4) 회전 전 벡터 ----
-        Vector3 beforeVec = rt.position - pivotWorld;
+        Vector3 before = (rt.position - pivotWorld).normalized;
 
-        // ---- 5) 회전 적용 ----
-        rt.Rotate(0, 0, deltaAngle);
+        rt.RotateAround(pivotWorld, Vector3.forward, deltaAngle);
 
-        // ---- 6) 회전 후 벡터 ----
-        Vector3 afterVec = Quaternion.Euler(0, 0, deltaAngle) * beforeVec;
+        Vector3 after = (rt.position - pivotWorld).normalized;
 
-        // ---- 7) 위치 보정 (Pivot 고정) ----
-        rt.position = pivotWorld + afterVec;
+        // 실제 회전량 = before → after
+        float realDelta = Vector2.SignedAngle(
+            new Vector2(before.x, before.y),
+            new Vector2(after.x, after.y)
+        );
+        csMapManager mapManager = csMapManager.Instance;
 
-        // ---- 8) ★ 회전값 정규화 (0~360 유지) ----
-        float z = rt.eulerAngles.z % 360f;
-        if (z < 0) z += 360f;
-        rt.rotation = Quaternion.Euler(0, 0, z);
+        //mapManager.manualMapRotation += realDelta;
+        mapManager.manualMapRotation = mapManager.Normalize(mapManager.manualMapRotation);
 
-        // ---- 9) 마커 역회전 적용 ----
         csMapManager.Instance.RotateObject();
     }
+
 }
